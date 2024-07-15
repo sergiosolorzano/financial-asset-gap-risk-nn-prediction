@@ -1,9 +1,11 @@
 ## Analysis of Gap Risk Using Neural Networks and Machine Learning Techniques
 
 ## Description
-The inspiration from this project stems from a [6-month Professional Certification at Imperial Business School on Machine Learning and Artificial Intelligence](https://execed-online.imperial.ac.uk/professional-certificate-ml-ai) that I completed in June 2024. I continue to develop this further and is work in progress.
+The inspiration from this project stems from a [6-month Professional Certification at Imperial Business School on Machine Learning and Artificial Intelligence](https://execed-online.imperial.ac.uk/professional-certificate-ml-ai) that I completed in June 2024. 
 
 The project uses different techniques to estimate gap risk on financial assets, and each is held in a subdirectory in this repo. The projects in this repo may slightly deviate from this objective as I explore related predictions that help me build towards the end goal.
+
+I am continuously developing this, and it remains a work in progress.
 
 ## Project Directory Structure:
 ### CNN-bayesian-share-price-prediction: Convolutional Neural Network to predict next day share price from a stock price time series, with Bayesian hyperparameter optimization
