@@ -1,4 +1,4 @@
-## Analysis of Gap Risk Using Neural Networks and Machine Learning Techniques
+## Analysis of Financial Asset Gap Risk Using Neural Networks and Machine Learning Techniques
 
 ## Description
 The inspiration from this project stems from a [6-month Professional Certification at Imperial Business School on Machine Learning and Artificial Intelligence](https://execed-online.imperial.ac.uk/professional-certificate-ml-ai) that I completed in June 2024. 
