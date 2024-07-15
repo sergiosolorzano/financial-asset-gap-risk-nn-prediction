@@ -3,7 +3,7 @@
 ## Description
 The inspiration from this project stems from a [6-month Professional Certification at Imperial Business School on Machine Learning and Artificial Intelligence](https://execed-online.imperial.ac.uk/professional-certificate-ml-ai) that I completed in June 2024.
 
-The project looks at utilizing different techniques to estimate gap risk on financial assets, and each is held in a subdirectory in this repo. The projects in this repo may deviate from this objective as I explore similar objectives that help me build towards an end thesis.
+The project uses different techniques to estimate gap risk on financial assets, and each is held in a subdirectory in this repo. The projects in this repo may deviate from this objective as I explore similar objectives that help me build towards an end thesis.
 
 The project includes a Convolutional Neural Network to predict next day share price from a stock price time series, and benefits from Bayesian hyperparameter optimization to zoom into the parameters that can help to manually optimize for higher accuracy. GADF-encoded images used as inputs for this approach has resulted in low prediction accuracy. These results suggest the temporal correlation between each pair of prices in the series in the form of GADF-encoded inputs is not sufficiently robust to capture the temporal structure of prices.
 
