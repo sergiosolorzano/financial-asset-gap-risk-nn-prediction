@@ -3,9 +3,7 @@
 ## Preface
 This is my end project for a [6-month Professional Certification at Imperial Business School on Machine Learning and Artificial Intelligence](https://execed-online.imperial.ac.uk/professional-certificate-ml-ai) that I completed in June 2024.
 
-I initially intended to focus on CNNs to predict the next-day share price of financial assets. Unfortunately, GADF-encoded images as inputs has resulted in low prediction accuracy. These results suggest the temporal correlation between each pair of prices in the series in the form of GADF-encoded inputs is not sufficiently robust to capture the temporal structure of prices. This has led me to enhance this analysis in this repo which I will do in named git-branches.
-
-I have started by preparing a vanilla Recurrent Neural Network's (RNN), which I expect to be more powerful than fixed networks where the entire state of the network is lost after each data point is processed, something detrimental to the prediction power of the model where data points are related in time. By contrast, RNNs sequencing processing method and its design to influence outputs by the inputs fed in, in my case sequenced GADF-encoded images, and the history of inputs fed in the past which provides the ability to selectively embed information across sequence steps similar to an autoregressive approach, may capture these temporal relationships. This may lead me to test Long-Short-Term-Memory RNNs to help overcome vanishing gradients and capture long and short term memory that provides temporal memory for the time series. I may then add transformers to the design based on recent successes. Stay tunned !
+I initially intended to focus on CNNs to predict the next-day share price of financial assets. Unfortunately, GADF-encoded images as inputs has resulted in low prediction accuracy. These results suggest the temporal correlation between each pair of prices in the series in the form of GADF-encoded inputs is not sufficiently robust to capture the temporal structure of prices. 
 
 ## Description
 I train and optimize the hyperparameters for a LeNet5-design based Convolutional Neural Network to predict the next-day share price.
