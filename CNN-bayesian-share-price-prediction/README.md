@@ -5,6 +5,12 @@ This is my end project for a [6-month Professional Certification at Imperial Bus
 
 The project focuses on using CNNs to predict the next-day share price of financial assets. Bayesian optimization helps narrowing the search space to evaluate hyperparameters. Unfortunately, GADF-encoded images as inputs has resulted in low prediction accuracy. These results suggest the temporal correlation between each pair of prices in the series in the form of GADF-encoded inputs is not sufficiently robust to capture the temporal structure of prices. 
 
+<p align="center">
+<img width="150" alt="star" src="https://github.com/sergiosolorzano/ai_gallery/assets/24430655/3c0b02ea-9b11-401a-b6f5-c61b69ad651b">
+</p>
+
+---------------------------------------------
+
 ## Description
 I train and optimize the hyperparameters for a LeNet5-design based Convolutional Neural Network to predict the next-day share price.
 I test the model with the share price time series of the Sylicon Valley Bank for the period before and after bankruptcy.
