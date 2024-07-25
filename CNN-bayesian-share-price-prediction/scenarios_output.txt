@@ -1,1 +1,3 @@
 Accuracy: 19.375 Average Percentage Difference: 44.351% for timeseries of 480 datapoints across 5 features: ['Open', 'High', 'Low', 'Close', 'Adj Close'].
+
+Accuracy: 21.042 Average Percentage Difference: 68.326% for timeseries of 480 datapoints across 5 features: ['Open', 'High', 'Low', 'Close', 'Adj Close'].
