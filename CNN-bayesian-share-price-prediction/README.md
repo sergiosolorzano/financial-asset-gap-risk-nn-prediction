@@ -71,7 +71,7 @@ Best Bayesian optimization test dataset highest accuracy performance achieves a 
 
     'params': {'dropout_probab': 0.49443054445324736, 'learning_rate': 7.733490889418554e-05, 'momentum': 0.8560887984128811, 'output_conv_1': 71.57117313805955, 'output_conv_2': 8.825808052621136}
 
-Bayesian optimization results helps us to manually explore hyper-parameters and model parameter optimal results, achieving 19.37% accuracy as shown below. Bayesian simulations were run on an Azure Virtual Machine NC4as T4 v3 instance over four days:
+Bayesian optimization results helps us to manually explore hyper-parameters and model parameter optimal results, achieving 21.04% accuracy as shown below. Bayesian simulations were run on an Azure Virtual Machine NC4as T4 v3 instance over four days:
 
     accuracy = (correct price compared at 2 d.p / total) * 100
 
