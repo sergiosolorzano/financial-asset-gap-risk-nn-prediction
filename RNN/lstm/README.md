@@ -1,1 +1,1 @@
-I am re-adapting this [repo](https://github.com/nicodjimenez/lstm) to understand the basic design.
+I am re-adapting this [repo](https://github.com/nicodjimenez/lstm) for 5 dim GADF images and understand the basic design.
