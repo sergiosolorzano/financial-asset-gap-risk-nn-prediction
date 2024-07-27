@@ -38,19 +38,19 @@ I use [Yahoo Finance](https://pypi.org/project/yfinance/) python package and his
 For each of the 5 features (Close, High, etc), I generate sliding windows of prices for 491 days.
 Original Time Series for Each Feature
 -------------------------------------
-![alt text](images/features_total.png)
+![alt text](readme_images/features_total.png)
 
 I slide each window by 1 day from Ti to T(i+32) hence obtaining 491 time series windows or GAF images for each feature.
 
 Sliding Window Process For Each Feature
 ---------------------------------------
-![alt text](images/features_windows_sliding.png)
+![alt text](readme_images/features_windows_sliding.png)
 
 The actual price for each window is the price of the relevant feature at time end_of_window_day+1.
 
 Generated Windows for Each Feature
 ----------------------------------
-![alt text](images/features_windows.png)
+![alt text](readme_images/features_windows.png)
 
 Effectively, I generate a stack of 32x32 images with shape (5, 491, 32, 32) which represents each of the 5 share price features' time series. Each image represents a time series window of 32 days. 32 because GAF obtain a temporal correlation between each pair of prices in the series, like a grid of each day price.
 
@@ -58,7 +58,7 @@ Tensors of torch.Size([5, 1, 32, 32]) up to 491 are used to train the model.
 
 Stack of Images (Shape: 5, 491, 32, 32)
 ---------------------------------------
-![alt text](images/features_stacked.png)
+![alt text](readme_images/features_stacked.png)
 
 The actual share price for each window is its next day share price.
 
