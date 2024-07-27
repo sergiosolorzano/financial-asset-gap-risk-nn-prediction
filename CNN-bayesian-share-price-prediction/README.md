@@ -38,45 +38,19 @@ I use [Yahoo Finance](https://pypi.org/project/yfinance/) python package and his
 For each of the 5 features (Close, High, etc), I generate sliding windows of prices for 491 days.
 Original Time Series for Each Feature
 -------------------------------------
-Feature 1: ────────────────────────────────────────────────────
-Feature 2: ────────────────────────────────────────────────────
-Feature 3: ────────────────────────────────────────────────────
-Feature 4: ────────────────────────────────────────────────────
-Feature 5: ────────────────────────────────────────────────────
+![alt text](images/features_total.png)
 
 I slide each window by 1 day from Ti to T(i+32) hence obtaining 491 time series windows or GAF images for each feature.
 
 Sliding Window Process For Each Feature
 ---------------------------------------
-Window 1:   ──────────────
-Window 2:      ──────────────
-Window 3:         ──────────────
-...
-Window 491:                        ──────────────
+![alt text](images/features_windows_sliding.png)
 
 The actual price for each window is the price of the relevant feature at time end_of_window_day+1.
 
 Generated Windows for Each Feature
 ----------------------------------
-Feature 1: ┌─────────────┬─────────────┬─────────────┬ ... ┬─────────────┐
-           │  Window 1   │  Window 2   │  Window 3   │     │  Window 491 │
-           └─────────────┴─────────────┴─────────────┴-----┴─────────────┘
-
-Feature 2: ┌─────────────┬─────────────┬─────────────┬ ... ┬─────────────┐
-           │  Window 1   │  Window 2   │  Window 3   │     │  Window 491 │
-           └─────────────┴─────────────┴─────────────┴-----┴─────────────┘
-
-Feature 3: ┌─────────────┬─────────────┬─────────────┬ ... ┬─────────────┐
-           │  Window 1   │  Window 2   │  Window 3   │     │  Window 491 │
-           └─────────────┴─────────────┴─────────────┴-----┴─────────────┘
-
-Feature 4: ┌─────────────┬─────────────┬─────────────┬ ... ┬─────────────┐
-           │  Window 1   │  Window 2   │  Window 3   │     │  Window 491 │
-           └─────────────┴─────────────┴─────────────┴-----┴─────────────┘
-
-Feature 5: ┌─────────────┬─────────────┬─────────────┬ ... ┬─────────────┐
-           │  Window 1   │  Window 2   │  Window 3   │     │  Window 491 │
-           └─────────────┴─────────────┴─────────────┴-----┴─────────────┘
+![alt text](images/features_windows.png)
 
 Effectively, I generate a stack of 32x32 images with shape (5, 491, 32, 32) which represents each of the 5 share price features' time series. Each image represents a time series window of 32 days. 32 because GAF obtain a temporal correlation between each pair of prices in the series, like a grid of each day price.
 
@@ -84,39 +58,7 @@ Tensors of torch.Size([5, 1, 32, 32]) up to 491 are used to train the model.
 
 Stack of Images (Shape: 5, 491, 32, 32)
 ---------------------------------------
-┌─────────────────────────────────────────────────────────────┐
-│Feature 1:                                                    │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │    32x32 Image for Window 1                             │ │
-│ └─────────────────────────────────────────────────────────┘ │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │    32x32 Image for Window 2                             │ │
-│ └─────────────────────────────────────────────────────────┘ │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │    32x32 Image for Window 3                             │ │
-│ └─────────────────────────────────────────────────────────┘ │
-│ ...                                                         │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │    32x32 Image for Window 491                           │ │
-│ └─────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
-...
-┌─────────────────────────────────────────────────────────────┐
-│Feature 5:                                                   │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │    32x32 Image for Window 1                             │ │
-│ └─────────────────────────────────────────────────────────┘ │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │    32x32 Image for Window 2                             │ │
-│ └─────────────────────────────────────────────────────────┘ │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │    32x32 Image for Window 3                             │ │
-│ └─────────────────────────────────────────────────────────┘ │
-│ ...                                                         │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │    32x32 Image for Window 491                           │ │
-│ └─────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
+![alt text](images/features_stacked.png)
 
 The actual share price for each window is its next day share price.
 
@@ -146,23 +88,23 @@ I run up to 10,000 epochs and optimize the number of outputs for the Convolution
 This is only an initial choice in the search space.
 
 ## RESULTS
-The model predicts at low accuracy and fails to converge to near zero loss when backpropagating. Literature indicates a LetNet design is not optimal to fit the time series data as the model fails to capture temporal dependencies in time series data. Provided this results and the cost to run bayesian optimization it is not worth running further scenarios but explore alternatives.
+The model predicts at low accuracy and mostly fails to converge to near zero loss when backpropagating, though the notebook's hyperparameters lead to convergence. Literature indicates a LetNet design is not optimal to fit the time series data as the model fails to capture temporal dependencies in time series data. Provided this results and the cost to run bayesian optimization it is not worth running further scenarios but explore alternatives.
 
 Bayesian optimization results helped to manually explore higher accuracy hyper-parameter and model parameters.
 
 Different model designs, in particular a Long short-term memory model (LTSM) may be more suited for this prediction task.
 
-Best Bayesian optimization test dataset highest accuracy performance achieves a score of 3.125% for:
+Best Bayesian optimization test dataset highest accuracy performance achieves a score of 3.125% for the output shown below. Bayesian simulations were run on an Azure Virtual Machine NC4as T4 v3 instance over four days.
 
     'params': {'dropout_probab': 0.49443054445324736, 'learning_rate': 7.733490889418554e-05, 'momentum': 0.8560887984128811, 'output_conv_1': 71.57117313805955, 'output_conv_2': 8.825808052621136}
 
-Bayesian optimization results helps us to manually explore hyper-parameters and model parameter optimal results, achieving 21.04% accuracy as shown below. Bayesian simulations were run on an Azure Virtual Machine NC4as T4 v3 instance over four days:
+Bayesian optimization results helps us to manually explore hyper-parameters and model parameter optimal results: The model achieves percentage of predictions within 2 decimal places: 16.46%, 1 decimal places: 39.79%, 0 decimal places: 68.75%, and mean % Diff:111.76%
 
-    accuracy = (correct price compared at 2 d.p / total) * 100
+    accuracy = (correct price compared at [x] decimal places / total) * 100
 
     'params': {'dropout_probab': 0, 'learning_rate': 0.0001, 'momentum': 0.9, 'output_conv_1': 40, 'output_conv_2': 12}
 
-The mean sum of predicted-to-actual predict price difference to 2.dp as a percentage of the actual price is 95%. This gives us a relative mesaure of the mean percentage difference. This metric provides lower explainability than the accuracy metric mentioned above. In particular there are significant outliers that bias the result and the analysis would benefit from removing these which I have not done. I also acknowledge 2 d.p. may be an unnecessarily too high a threhold to determine this difference:
+The mean sum of predicted-to-actual predict price difference to 2.dp as a percentage of the actual price is 112%. This gives us a relative mesaure of the mean percentage difference. This metric provides lower explainability than the accuracy metric mentioned above. In particular there are significant outliers that bias this mean sum result and the analysis would benefit from removing outliers which I have not done.
 
     batch_absolute_diff = torch.abs(predicted_rounded - actual_rounded)
     batch_percentage_diff = (batch_absolute_diff / actual_rounded) * 100
