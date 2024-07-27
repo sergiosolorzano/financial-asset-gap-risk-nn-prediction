@@ -1,9 +1,9 @@
 ## Convolutional Neural Network with Bayesian hyperparameter optimization to predict next day share price from a stock price time series
 
 ## Preface
-This is my end project for a [6-month Professional Certification at Imperial Business School on Machine Learning and Artificial Intelligence](https://execed-online.imperial.ac.uk/professional-certificate-ml-ai) that I completed in June 2024.
+This is my enhanced end project for a [6-month Professional Certification at Imperial Business School on Machine Learning and Artificial Intelligence](https://execed-online.imperial.ac.uk/professional-certificate-ml-ai) that I completed in June 2024.
 
-The project focuses on using CNNs to predict the next-day share price of financial assets. Bayesian optimization helps narrowing the search space to evaluate hyperparameters. Unfortunately, GADF-encoded images as inputs has resulted in low prediction accuracy. These results suggest the temporal correlation between each pair of prices in the series in the form of GADF-encoded inputs is not sufficiently robust to capture the temporal structure of prices. 
+The project is work in progress. It focuses on using CNNs to predict the next-day share price of financial assets. Bayesian optimization helps narrowing the search space to evaluate hyperparameters. Unfortunately, GADF-encoded images as inputs has resulted in low prediction accuracy. These results suggest the temporal correlation between each pair of prices in the series in the form of GADF-encoded inputs is not sufficiently robust to capture the temporal structure of prices. 
 
 <p align="center">
 <img width="150" alt="star" src="https://github.com/sergiosolorzano/ai_gallery/assets/24430655/3c0b02ea-9b11-401a-b6f5-c61b69ad651b">
