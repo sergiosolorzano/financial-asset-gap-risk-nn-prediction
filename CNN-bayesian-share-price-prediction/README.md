@@ -24,16 +24,101 @@ Render average of the above GAF images:
 
 <img width="225" alt="image" src="https://github.com/sergiosolorzano/CNN-bayesian-share-price-prediction/assets/24430655/27cb4600-58c8-42ca-8968-d0a1b6d99586">
 
-I generate a stack of 32x32 images with shape (5, 491, 32, 32) which represents each of the 5 share price features' time series.
-Each image represents a time series window of 32 days. I slide each window by 1 day from Ti to T(i+32) hence obtaining 491 time series windows or GAF images for each feature.
+I generate a stack of 32x32 images with shape (5, 491, 32, 32) which represents each of the 5 share price features' time series. Each image represents a time series window of 32 days. I slide each window by 1 day from Ti to T(i+32) hence obtaining 491 time series windows or GAF images for each feature.
 
-The image dataset is split 80/20 into training/testing datasets. The actual share price for each window is its the next day share price.
+The actual share price for each window is its the next day share price. 
+
+The image dataset is split 80/20 into training/testing datasets.
 The CNN is trained in mini-batches of 10 windows for each of the 5 features.
-
-This repo is my choice for the end of course project at [Professional Certificate in Machine Learning and Artificial Intelligence](https://execed-online.imperial.ac.uk/professional-certificate-ml-ai)
 
 ## DATA
 I use [Yahoo Finance](https://pypi.org/project/yfinance/) python package and historical daily share price database for the period 2021-10-01 to 2023-12-01.
+
+### Data stack to train the model:
+For each of the 5 features (Close, High, etc), I generate sliding windows of prices for 491 days.
+Original Time Series for Each Feature
+-------------------------------------
+Feature 1: ────────────────────────────────────────────────────
+Feature 2: ────────────────────────────────────────────────────
+Feature 3: ────────────────────────────────────────────────────
+Feature 4: ────────────────────────────────────────────────────
+Feature 5: ────────────────────────────────────────────────────
+
+I slide each window by 1 day from Ti to T(i+32) hence obtaining 491 time series windows or GAF images for each feature.
+
+Sliding Window Process For Each Feature
+---------------------------------------
+Window 1:   ──────────────
+Window 2:      ──────────────
+Window 3:         ──────────────
+...
+Window 491:                        ──────────────
+
+The actual price for each window is the price of the relevant feature at time end_of_window_day+1.
+
+Generated Windows for Each Feature
+----------------------------------
+Feature 1: ┌─────────────┬─────────────┬─────────────┬ ... ┬─────────────┐
+           │  Window 1   │  Window 2   │  Window 3   │     │  Window 491 │
+           └─────────────┴─────────────┴─────────────┴-----┴─────────────┘
+
+Feature 2: ┌─────────────┬─────────────┬─────────────┬ ... ┬─────────────┐
+           │  Window 1   │  Window 2   │  Window 3   │     │  Window 491 │
+           └─────────────┴─────────────┴─────────────┴-----┴─────────────┘
+
+Feature 3: ┌─────────────┬─────────────┬─────────────┬ ... ┬─────────────┐
+           │  Window 1   │  Window 2   │  Window 3   │     │  Window 491 │
+           └─────────────┴─────────────┴─────────────┴-----┴─────────────┘
+
+Feature 4: ┌─────────────┬─────────────┬─────────────┬ ... ┬─────────────┐
+           │  Window 1   │  Window 2   │  Window 3   │     │  Window 491 │
+           └─────────────┴─────────────┴─────────────┴-----┴─────────────┘
+
+Feature 5: ┌─────────────┬─────────────┬─────────────┬ ... ┬─────────────┐
+           │  Window 1   │  Window 2   │  Window 3   │     │  Window 491 │
+           └─────────────┴─────────────┴─────────────┴-----┴─────────────┘
+
+Effectively, I generate a stack of 32x32 images with shape (5, 491, 32, 32) which represents each of the 5 share price features' time series. Each image represents a time series window of 32 days. 32 because GAF obtain a temporal correlation between each pair of prices in the series, like a grid of each day price.
+
+Tensors of torch.Size([5, 1, 32, 32]) up to 491 are used to train the model.
+
+Stack of Images (Shape: 5, 491, 32, 32)
+---------------------------------------
+┌─────────────────────────────────────────────────────────────┐
+│Feature 1:                                                    │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │    32x32 Image for Window 1                             │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │    32x32 Image for Window 2                             │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │    32x32 Image for Window 3                             │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│ ...                                                         │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │    32x32 Image for Window 491                           │ │
+│ └─────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+...
+┌─────────────────────────────────────────────────────────────┐
+│Feature 5:                                                   │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │    32x32 Image for Window 1                             │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │    32x32 Image for Window 2                             │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │    32x32 Image for Window 3                             │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│ ...                                                         │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │    32x32 Image for Window 491                           │ │
+│ └─────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+
+The actual share price for each window is its next day share price.
 
 ## MODEL 
 A LeNet5-design based Convolutional Neural Network which includes:
@@ -84,6 +169,10 @@ The mean sum of predicted-to-actual predict price difference to 2.dp as a percen
     #accumulate sum of diffs
     sum_diff += torch.sum(batch_percentage_diff).item()
     mean_percentage_diff = (abs(sum_diff) / total)
+
+Another source for improvement may derive from running the network with log return inputs instead of outright prices.
+
+Finally, since training is carried out 5 different price features, I may be adding unnecessary noise on the testing phase as the market may re-adjust post closing for an over-reaction and would be reflected on the Open the next day. These metrics between features has not been checked.
 
 ## ACKNOWLEDGEMENTS
 I thank [Yahoo Finance](https://pypi.org/project/yfinance/) for the time series data provided. I also thank for the inspiration [repo](https://github.com/ShubhamG2311/Financial-Time-Series-Forecasting), the [BayesianOptimization library s_opt module](https://github.com/bayesian-optimization/BayesianOptimization), and the clarity on RNNs advantages found [in this research paper](https://arxiv.org/pdf/1506.00019).
