@@ -41,13 +41,13 @@ For each of the 5 features (Close, High, etc), I generate sliding windows of pri
 
 I slide each window by 1 day from Ti to T(i+32) hence obtaining 491 time series windows or GAF images for each feature.
 
-Sliding Window Process For Each Feature
+<b>Sliding Window Process For Each Feature</b>
 
 ![alt text](readme_images/features_windows_sliding.png)
 
 The actual price for each window is the price of the relevant feature at time end_of_window_day+1.
 
-Generated Windows for Each Feature
+<b>Generated Windows for Each Feature</b>
 
 ![alt text](readme_images/features_windows.png)
 
