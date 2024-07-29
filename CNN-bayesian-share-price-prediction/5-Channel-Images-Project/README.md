@@ -1,6 +1,6 @@
 ## Convolutional Neural Network with Bayesian hyperparameter optimization to predict next day share price from a stock price time series
 
-$${\color{red}<p align="center">Work In Progress</p>}$$
+<p align="center">${\textsf{\color{red}Work In Progress}}$</p>
 
 ## Preface
 This is the enhanced end project for a [6-month Professional Certification at Imperial Business School on Machine Learning and Artificial Intelligence](https://execed-online.imperial.ac.uk/professional-certificate-ml-ai) that I completed in June 2024.
