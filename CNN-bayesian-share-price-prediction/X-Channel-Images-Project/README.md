@@ -57,14 +57,6 @@ Effectively, this process generates a stack of 32x32 images for each feature, wh
 
 Each image represents a time series window of 32 days but has 32x32=1024 data points (pixels) because GAF obtain a temporal correlation between each pair of prices in the series - a grid of prices.
 
-To train the model I use the stack of images for Open and CloseTensors of torch.Size([5, 1, 32, 32]) up to 491 are used to train the model. I dequeue (FIFO) the five dimensions' first window from the tensor first and feed it as input to train the model, the second window next and so on. In practical terms I batch these though.
-
-Stack of Images (Shape: 5, 491, 32, 32)
-
-![alt text](readme_images/features_stacked.png)
-
-The actual share price for each window is its next day share price.
-
 ### Data stack to train/test the model
 
 We train the model with two inputs with the hope we can increase the learning of the model. Therefore, the model also expects two inputs to test it.
