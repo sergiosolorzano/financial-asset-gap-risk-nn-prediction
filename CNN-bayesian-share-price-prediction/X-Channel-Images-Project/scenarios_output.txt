@@ -180,3 +180,265 @@ Accuracy 1dp: tensor([[67.1875]])%
 
 Accuracy 2dp: tensor([[3.1250]])%
 Accuracy 1dp: tensor([[32.8125]])%
+
+
+Accuracy 2dp: tensor([[3.1250]])%
+Accuracy 1dp: tensor([[39.0625]])%
+
+
+Accuracy 2dp: tensor([[6.2500]])%
+Accuracy 1dp: tensor([[37.5000]])%
+
+
+Accuracy 2dp: tensor([[3.1250]])%
+Accuracy 1dp: tensor([[25.]])%
+
+
+Accuracy 2dp: tensor([[9.3750]])%
+Accuracy 1dp: tensor([[46.8750]])%
+
+
+Accuracy 2dp: tensor([[14.0625]])%
+Accuracy 1dp: tensor([[71.8750]])%
+
+
+Accuracy 2dp: tensor([[15.6250]])%
+Accuracy 1dp: tensor([[75.]])%
+
+
+Accuracy 2dp: tensor([[10.9375]])%
+Accuracy 1dp: tensor([[73.4375]])%
+
+
+Accuracy 2dp: tensor([[3.1250]])%
+Accuracy 1dp: tensor([[17.1875]])%
+
+
+Accuracy 2dp: tensor([[23.4375]])%
+Accuracy 1dp: tensor([[81.2500]])%
+
+
+Accuracy 2dp: tensor([[0.]])%
+Accuracy 1dp: tensor([[1.5625]])%
+
+
+Accuracy 2dp: tensor([[0.]])%
+Accuracy 1dp: tensor([[1.5625]])%
+
+
+Accuracy 2dp: tensor([[10.9375]])%
+Accuracy 1dp: tensor([[57.8125]])%
+
+
+Accuracy 2dp: tensor([[23.4375]])%
+Accuracy 1dp: tensor([[87.5000]])%
+
+
+Accuracy 2dp: tensor([[1.5625]])%
+Accuracy 1dp: tensor([[10.9375]])%
+
+
+Accuracy 2dp: tensor([[0.]])%
+Accuracy 1dp: tensor([[7.8125]])%
+
+
+Accuracy 2dp: tensor([[0.]])%
+Accuracy 1dp: tensor([[1.5625]])%
+
+
+Accuracy 2dp: tensor([[0.]])%
+Accuracy 1dp: tensor([[1.5625]])%
+
+
+Accuracy 2dp: tensor([[3.1250]])%
+Accuracy 1dp: tensor([[7.8125]])%
+
+
+Accuracy 2dp: tensor([[23.4375]])%
+Accuracy 1dp: tensor([[87.5000]])%
+
+
+Accuracy 2dp: tensor([[23.4375]])%
+Accuracy 1dp: tensor([[87.5000]])%
+
+
+Accuracy 2dp: tensor([[0.]])%
+Accuracy 1dp: tensor([[3.1250]])%
+
+
+Accuracy 2dp: tensor([[0.]])%
+Accuracy 1dp: tensor([[7.8125]])%
+
+
+Accuracy 2dp: tensor([[6.2500]])%
+Accuracy 1dp: tensor([[40.6250]])%
+
+
+Accuracy 2dp: tensor([[6.2500]])%
+Accuracy 1dp: tensor([[40.6250]])%
+
+
+Accuracy 2dp: tensor([[6.2500]])%
+Accuracy 1dp: tensor([[40.6250]])%
+
+
+Accuracy 2dp: tensor([[6.2500]])%
+Accuracy 1dp: tensor([[40.6250]])%
+
+
+Accuracy 2dp: tensor([[6.2500]])%
+Accuracy 1dp: tensor([[40.6250]])%
+
+
+Accuracy 2dp: tensor([[6.2500]])%
+Accuracy 1dp: tensor([[40.6250]])%
+
+
+Accuracy 2dp: tensor([[14.0625]])%
+Accuracy 1dp: tensor([[76.5625]])%
+
+
+Accuracy 2dp: tensor([[100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.]])%
+Accuracy 1dp: tensor([[100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.]])%
+
+
+Accuracy 2dp: tensor([[100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.]])%
+Accuracy 1dp: tensor([[100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.]])%
+
+
+Accuracy 2dp: tensor([[100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.]])%
+Accuracy 1dp: tensor([[100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.],
+        [100.]])%
+
+
+Accuracy 2dp: tensor([[29.6875]])%
+Accuracy 1dp: tensor([[87.5000]])%
+
+
+Accuracy 2dp: tensor([[23.4375]])%
+Accuracy 1dp: tensor([[93.7500]])%
+
+
+Accuracy 2dp: tensor([[3.1250]])%
+Accuracy 1dp: tensor([[29.6875]])%
