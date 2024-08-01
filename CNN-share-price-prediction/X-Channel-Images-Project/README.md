@@ -1,5 +1,6 @@
 ## Convolutional Neural Network with Bayesian hyperparameter optimization to predict next day share price from a stock price time series
 
+
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Work%20In%20Progress-red" alt="Work In Progress">
 </p>
