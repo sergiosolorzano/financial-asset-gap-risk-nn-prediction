@@ -1,0 +1,63 @@
+
+
+Iteration 0: 
+	{'target': 1.4583333333333333, 'params': {'dropout_probab': 0.208511002351287, 'learning_rate': 7.482920440979424e-05, 'momentum': 0.800022874963469, 'output_conv_1': 52.09330290527359, 'output_conv_2': 9.174047126536905}}
+
+Iteration 1: 
+	{'target': 0.0, 'params': {'dropout_probab': 0.0461692973843989, 'learning_rate': 2.6763419023990386e-05, 'momentum': 0.8691121454086096, 'output_conv_1': 55.870698969226794, 'output_conv_2': 12.310533872026856}}
+
+Iteration 2: 
+	{'target': 0.0, 'params': {'dropout_probab': 0.2095972572016474, 'learning_rate': 7.166975503570836e-05, 'momentum': 0.8408904499463035, 'output_conv_1': 75.12469745563781, 'output_conv_2': 8.21910074558341}}
+
+Iteration 3: 
+	{'target': 1.0416666666666665, 'params': {'dropout_probab': 0.3352337550892011, 'learning_rate': 4.755743221304143e-05, 'momentum': 0.9117379656891503, 'output_conv_1': 45.61547754380935, 'output_conv_2': 9.58481191267903}}
+
+Iteration 4: 
+	{'target': 0.0, 'params': {'dropout_probab': 0.40037228433776834, 'learning_rate': 9.714354181474578e-05, 'momentum': 0.8626848356318486, 'output_conv_1': 67.69290462677256, 'output_conv_2': 15.011113218368306}}
+
+Iteration 5: 
+	{'target': 0.0, 'params': {'dropout_probab': 0.44730333175192366, 'learning_rate': 1.7653979023280013e-05, 'momentum': 0.8078109566465765, 'output_conv_1': 46.79321678258275, 'output_conv_2': 15.025140027435306}}
+
+Iteration 6: 
+	{'target': 0.0, 'params': {'dropout_probab': 0.04917341691652505, 'learning_rate': 4.78996862504547e-05, 'momentum': 0.9915779060301004, 'output_conv_1': 61.32661139892068, 'output_conv_2': 13.535016911603787}}
+
+Iteration 7: 
+	{'target': 0.0, 'params': {'dropout_probab': 0.15775781550303147, 'learning_rate': 7.178508349134253e-05, 'momentum': 0.9669251343794746, 'output_conv_1': 40.73153109376767, 'output_conv_2': 14.00115451955974}}
+
+Iteration 8: 
+	{'target': 3.125, 'params': {'dropout_probab': 0.49443054445324736, 'learning_rate': 7.733490889418554e-05, 'momentum': 0.8560887984128811, 'output_conv_1': 71.57117313805955, 'output_conv_2': 8.825808052621136}}
+
+Iteration 9: 
+	{'target': 1.25, 'params': {'dropout_probab': 0.22394676308795258, 'learning_rate': 9.177359527837861e-05, 'momentum': 0.8587228296747359, 'output_conv_1': 51.51101354345395, 'output_conv_2': 9.040228576946221}}
+
+Iteration 10: 
+	{'target': 0.0, 'params': {'dropout_probab': 0.5, 'learning_rate': 8.080639379373254e-05, 'momentum': 0.8609734477332622, 'output_conv_1': 70.47618075844402, 'output_conv_2': 8.896198820058018}}
+
+Iteration 11: 
+	{'target': 0.0, 'params': {'dropout_probab': 0.20689890044970272, 'learning_rate': 2.510025950345114e-05, 'momentum': 0.8690985369161778, 'output_conv_1': 51.47641331187295, 'output_conv_2': 8.917494909128427}}
+
+Iteration 12: 
+	{'target': 0.0, 'params': {'dropout_probab': 0.36808940163868537, 'learning_rate': 7.214143028477617e-05, 'momentum': 0.8191728901971116, 'output_conv_1': 66.98498761154208, 'output_conv_2': 13.215012523791646}}
+
+Iteration 13: 
+	{'target': 0.0, 'params': {'dropout_probab': 0.19423877012136664, 'learning_rate': 9.331769853789115e-05, 'momentum': 0.9697534360412688, 'output_conv_1': 63.461357934476986, 'output_conv_2': 9.755092105620498}}
+
+Iteration 14: 
+	{'target': 2.5, 'params': {'dropout_probab': 0.040449758764555144, 'learning_rate': 8.649709869061985e-05, 'momentum': 0.960256264949539, 'output_conv_1': 67.51614953781157, 'output_conv_2': 14.048112970962258}}
+
+Iteration 15: 
+	{'target': 1.4583333333333333, 'params': {'dropout_probab': 0.1169225964220823, 'learning_rate': 2.2364105269607787e-05, 'momentum': 0.9767923025524481, 'output_conv_1': 40.235355468933875, 'output_conv_2': 13.991255548659147}}
+
+Iteration 16: 
+	{'target': 0.0, 'params': {'dropout_probab': 0.2752219788415957, 'learning_rate': 2.9264632669304203e-05, 'momentum': 0.9965333552839502, 'output_conv_1': 57.054204392363985, 'output_conv_2': 14.600391316701376}}
+
+Iteration 17: 
+	{'target': 0.0, 'params': {'dropout_probab': 0.3306702062409928, 'learning_rate': 5.5382264596829764e-05, 'momentum': 0.8522144954928796, 'output_conv_1': 64.89208845127334, 'output_conv_2': 11.254480563940291}}
+
+Iteration 18: 
+	{'target': 2.2916666666666665, 'params': {'dropout_probab': 0.07042136304550967, 'learning_rate': 3.401550785015331e-05, 'momentum': 0.9701302220301555, 'output_conv_1': 57.95992790828801, 'output_conv_2': 13.683947835000332}}
+
+Iteration 19: 
+	{'target': 1.4583333333333333, 'params': {'dropout_probab': 0.23445775580716738, 'learning_rate': 1.3388828331190453e-05, 'momentum': 0.8260448463973725, 'output_conv_1': 68.22745228326212, 'output_conv_2': 11.747886684898482}}
+optimizer results:
+{'target': 3.125, 'params': {'dropout_probab': 0.49443054445324736, 'learning_rate': 7.733490889418554e-05, 'momentum': 0.8560887984128811, 'output_conv_1': 71.57117313805955, 'output_conv_2': 8.825808052621136}}
