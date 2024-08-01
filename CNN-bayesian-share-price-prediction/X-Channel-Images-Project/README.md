@@ -47,13 +47,13 @@ I slide each window by 1 day starting at Ti to T(i+32) hence obtaining 32 window
 
 ![alt text](readme_images/features_window_boxes_sliding.png)
 
-The time series within each window of each feature is the chunked in 32 data points, where each chunk is subsequent to the prior (i.e. there is no rolling window here). Therefore, each window has 15 chunks (491/32=15). This produces 480 chunks per feature (32 windows * 15 chunks).
+The time series within each window of each feature is the chunked in 32 data points, where each chunk is subsequent to the prior (i.e. there is no rolling window here). For example, for a time series of 524 data points, each window has 15 chunks (491/32=15) where 491=524-32-1 (the 1 is the last label). This produces 480 chunks per feature (32 windows * 15 chunks).
 
 ![alt text](readme_images/window_chunks.png)
 
 The chunks are encoded into GAF images which are the inputs to the network. The actual price (target) for each chunk is the price of the next day for that chunk.
 
-Effectively, this process generates a stack of 32x32 images for each feature, which for four features we obtain the network input shape (4, 480, 32, 32). 
+Effectively, this process generates a stack of 32x32 images for each feature, which for four features we obtain the network input shape [(4, 480, 32, 32)]. 
 
 Each image represents a time series window of 32 days but has 32x32=1024 data points (pixels) because GAF obtain a temporal correlation between each pair of prices in the series - a grid of prices.
 
@@ -110,13 +110,13 @@ Bayesian optimization results helped me to manually explore hyper-parameters and
 2 decimal places: []%
 1 decimal places: []%
 
-    accuracy = (SUM(ABS(predicted_tensor - actual_tensor) <= dp_target) / time series length)*100
+    accuracy = (SUM(ABS(predicted_tensor - actual_tensor) <= decimal_place_target) / time series length)*100
     
-    where dp_target = decimal places targeted for accuracy
+    where decimal_place_target = decimal places targeted for accuracy, .e. 0.01
 
     'params': {'dropout_probab': 0, 'learning_rate': 0.0001, 'momentum': 0.9, 'output_conv_1': 40, 'output_conv_2': 12}
 
-Average Price Differences:
+Actual vs Predicted:
 
 GRAPH
 
