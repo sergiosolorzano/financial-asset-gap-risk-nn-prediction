@@ -1,5 +1,9 @@
 ## Analysis of Financial Asset Gap Risk Using Neural Networks and Machine Learning Techniques
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-Work%20In%20Progress-red" alt="Work In Progress">
+</p>
+
 ## Description
 The inspiration from this project stems from a [6-month Professional Certification at Imperial Business School on Machine Learning and Artificial Intelligence](https://execed-online.imperial.ac.uk/professional-certificate-ml-ai) that I completed in June 2024. 
 
