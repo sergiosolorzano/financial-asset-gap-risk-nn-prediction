@@ -61,14 +61,6 @@ def cross_stock_image_array_correlation(var1, var2):
     correlation_matrix = torch.corrcoef(means)
 
     correlation_matrix_np = correlation_matrix.numpy()
-    
-    # # Create a heatmap using seaborn
-    # plt.figure(figsize=(8, 6))
-    # sns.heatmap(correlation_matrix_np, annot=True, cmap='coolwarm', vmin=-1, vmax=1, 
-    #             xticklabels=['Mean1', 'Mean2'], yticklabels=['Mean1', 'Mean2'])
-    
-    # plt.title('Correlation Matrix Heatmap')
-    # plt.show()
 
     return correlation_matrix
 

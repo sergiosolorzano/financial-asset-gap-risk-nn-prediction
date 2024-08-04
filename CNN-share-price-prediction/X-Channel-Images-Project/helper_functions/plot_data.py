@@ -39,11 +39,8 @@ def plot_weights_gradients(weights_dict, gradients_dict, epoch):
         plt.legend(loc="upper right")
         plt.show()
 
-def scatter_diagram_onevar(stack_input):
+def scatter_diagram_onevar_plot_mean(stack_input, stock_ticker):
     torch.set_printoptions(threshold=torch.inf)
-    # output_string = f"stack_input {stack_input}"
-    # with open(f'stack_input.txt', 'w') as file:
-    #     file.write('\n\n' + output_string)
     reshaped_stack_input = stack_input.view(stack_input.size(0), stack_input.size(1), -1)
     
     means =[]
@@ -57,18 +54,18 @@ def scatter_diagram_onevar(stack_input):
 
     plt.figure(figsize=(10, 6))
     df = pd.DataFrame({
-        'input_mean': means
+        f'input_mean {stock_ticker}': means
     })
     #print("input mean",df)
-    plt.scatter(df.index, df['input_mean'], c='red', marker='x', label='Input Mean Values')
-    plt.xlabel('Input Mean Values')
+    plt.scatter(df.index, df[f'input_mean {stock_ticker}'], c='red', marker='x', label=f'{stock_ticker} Image Input Mean Values')
+    plt.xlabel(f'{stock_ticker} Image Input Mean Values')
     plt.ylabel('Values')
-    plt.title('Scatter Diagram of Input Mean Values')
+    plt.title(f'Scatter Diagram of {stock_ticker} Image Input Mean Values')
     plt.legend()
     plt.grid(True)
     plt.show()
 
-def scatter_diagram_twovar(test_stock_ticker,train_stock_ticker,var1, var2):
+def scatter_diagram_twovar_plot_mean(test_stock_ticker,train_stock_ticker,var1, var2):
     #torch.set_printoptions(threshold=torch.inf)
     torch.set_printoptions(threshold=torch.inf)
     reshaped_test_stack_input = var1.view(var1.size(0), var1.size(1), -1)
@@ -88,44 +85,19 @@ def scatter_diagram_twovar(test_stock_ticker,train_stock_ticker,var1, var2):
 
     plt.figure(figsize=(10, 6))
     df = pd.DataFrame({
-        'test_mean': test_means,
-        'train_mean': train_means
+        f'{test_stock_ticker} test_mean': test_means,
+        f'{train_stock_ticker} train_mean': train_means
     })
     #print("input mean",df)
-    plt.scatter(df.index, df['test_mean'], c='red', marker='x', label=f'{test_stock_ticker} Mean Values')
-    plt.scatter(df.index, df['train_mean'], c='blue', marker='x', label=f'{train_stock_ticker} Mean Values')
-    plt.xlabel('Input Mean Values')
+    plt.scatter(df.index, df[f'{test_stock_ticker} test_mean'], c='red', marker='x', label=f'{test_stock_ticker} Mean Values')
+    plt.scatter(df.index, df[f'{train_stock_ticker} train_mean'], c='blue', marker='x', label=f'{train_stock_ticker} Mean Values')
+    plt.xlabel(f'{train_stock_ticker} and {test_stock_ticker} Input Mean Values')
     plt.ylabel('Values')
-    plt.title('Scatter Diagram of Test and Train Stocks Input Mean Values')
+    plt.title(f'Scatter Diagram of {test_stock_ticker} and {train_stock_ticker} Image Input Mean Values')
     plt.legend()
     plt.grid(True)
     plt.show()
     
-    
-    
-    # var1_mean = var1.view(64, -1).mean(1, keepdim=True)
-    # var2_mean = var2.view(64, -1).mean(1, keepdim=True)
-
-    # df = pd.DataFrame({
-    #     'var1_mean': var1_mean.cpu().numpy().flatten(),
-    #     'var2_mean': var2_mean.cpu().numpy().flatten()
-    # })
-
-    # plt.figure(figsize=(10, 6))
-    # plt.scatter(df.index, df['var1_mean'], c='red', marker='x', label=f'{test_stock_ticker} Mean Values')
-    # plt.scatter(df.index, df['var2_mean'], c='blue', marker='x', label=f'{train_stock_ticker} Mean Values')
-
-
-    # # Labeling the plot
-    # plt.xlabel(f'{test_stock_ticker} and {train_stock_ticker} Mean Values')
-    # plt.ylabel('Values')
-    # plt.title(f'Scatter Diagram of {test_stock_ticker} and {train_stock_ticker} Mean Values')
-    # plt.legend()
-    # plt.grid(True)
-
-    # # Show the plot
-    # plt.show()
-
 def compare_stocks(index_ticker, stock_ticker, stock_dataset, start_date, end_date):
     index_data = yf.download(index_ticker, start=start_date, end=end_date, interval='1d')
 
@@ -177,7 +149,7 @@ def plot_image_correlations(series_correlations, mean_correlation):
     plt.figure(figsize=(12, 8))
     sns.histplot(series_correlations, kde=True, bins=30)
     plt.axvline(mean_correlation, color='red', linestyle='--', linewidth=2, label=f'Mean: {mean_correlation:.2f}')
-    plt.title('Distribution of Image Series Correlations')
+    plt.title('Distribution of Trained vs Test Stocks Input Image Series Correlations')
     plt.xlabel('Image Correlation Coefficient')
     plt.ylabel('Frequency')
     plt.show()

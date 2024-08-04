@@ -1,9 +1,5 @@
 from __future__ import print_function
 
-import os
-import sys
-import glob
-import time
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -16,7 +12,7 @@ def import_dataset(ticker, start_date, end_date):
 
     dataset = yf.download(ticker, start=start_date, end=end_date, interval='1d')
 
-    print("num rows",dataset.shape[0])
+    #print("num rows",dataset.shape[0])
     # pd.set_option('display.max_rows', None)
     # pd.set_option('display.max_columns', None)
     # pd.set_option('display.width', None)
@@ -33,14 +29,8 @@ def import_dataset(ticker, start_date, end_date):
     else:
         print("Column 'Date' is missing.")
     dataset = dataset.set_index('Date')
-    print(dataset.head())
+    #print(dataset.head())
     print("day count",dataset.index.max()-dataset.index.min())
-
-    #print(dataset.iloc[521],dataset.iloc[522],dataset.iloc[523])
-    # pd.reset_option('display.max_rows')
-    # pd.reset_option('display.max_columns')
-    # pd.reset_option('display.width')
-    # pd.reset_option('display.max_colwidth')
 
     return dataset
 

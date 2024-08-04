@@ -5,13 +5,13 @@ from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler, Sequentia
 
 import numpy as np
 
-import helper_functions.generate_gaf as generate_gaf
+import helper_functions.generate_images as generate_images
 
 class DataPrep(Dataset):
     def __init__(self, inputs, labels):
         self.inputs = inputs #all features in one large array
         self.labels = labels
-        self.transform = generate_gaf.SetTransform()
+        self.transform = generate_images.SetTransform()
 
     def __len__(self):
       return len(self.inputs)
