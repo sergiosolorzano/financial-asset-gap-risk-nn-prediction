@@ -1,4 +1,5 @@
 from math import floor
+from enum import Enum
 
 import numpy as np
 
@@ -6,9 +7,27 @@ from sklearn.preprocessing import StandardScaler,MinMaxScaler
 
 from pyts.image import GramianAngularField
 
+from pyts.image import MarkovTransitionField
+
+import importlib as importlib
+
 import torchvision.transforms as transforms
 
-def generate_gaf_images(dataset, gaf_img_sz=32, method="summation", sample_range=(0,1)):
+class TransformAlgo(Enum):
+    GRAMIAN = 1
+    MARKOV = 2
+
+    def __init__(self, value):
+        self._value_ = value
+
+    @classmethod
+    def from_value(cls, value):
+        for member in cls:
+            if member.value == value:
+                return member
+        raise ValueError(f"Unsupported value: {value}")
+
+def generate_transformed_images(dataset, transform_algo, gaf_img_sz=32, method="summation", sample_range=(0,1)):
     #print("len data series received:",len(dataset),"size",dataset.size)
 
     #determine num of gaf_img_szX images with gaf_img_sz datapoints
@@ -19,17 +38,23 @@ def generate_gaf_images(dataset, gaf_img_sz=32, method="summation", sample_range
     dataset = dataset[:num_images_to_generate*gaf_img_sz].reshape(num_images_to_generate, gaf_img_sz)
     #print("data in GAF",dataset)
     
-    gaf = GramianAngularField(image_size=gaf_img_sz, method=method, sample_range=sample_range)
-    gaf_images= gaf.fit_transform(dataset)
-    #print("size",gaf_img_sz,"method",method,"sample",sample_range)
-    #print("gaf_image",gaf_images.shape)
-    #print("returning price list",mean_price_list)
+    transformed_images = None
+    transformation_functions = {
+        TransformAlgo.GRAMIAN: lambda dataset: GramianAngularField(image_size=gaf_img_sz, method=method, sample_range=sample_range).fit_transform(dataset),
+        TransformAlgo.MARKOV: lambda dataset: MarkovTransitionField(image_size=gaf_img_sz).fit_transform(dataset)
+    }
+    try:
+        transformation_func = transformation_functions[transform_algo]
+    except KeyError:
+        raise ValueError(f"Unsupported transformation algorithm: {transform_algo}")
+
+    transformed_images = transformation_func(dataset)
     
-    return gaf_images
+    return transformed_images
 
 np.set_printoptions(threshold=np.inf)
 
-def generate_multiple_feature_images(dataset, cols_used, image_size=32, method="summation", sample_range = (0, 1)):
+def generate_multiple_feature_images(dataset, cols_used, transformed_algo, image_size=32, method="summation", sample_range = (0, 1)):
     
     feature_image_dataset_list=[[] for _ in range(len(cols_used))]
     feature_price_dataset_list=[[] for _ in range(len(cols_used))] #="Open", "High", "Low", "Close" , "Adj Close"
@@ -81,9 +106,9 @@ def generate_multiple_feature_images(dataset, cols_used, image_size=32, method="
             # if (cur_chunk < 5 and curr_window_index==0):
             #   print("cur_chunk",cur_chunk,"input chunk",data_chunk)
             #append gaf image to image list. store price feature values in price list
-            gaf_images = generate_gaf_images(data_chunk, gaf_img_sz=image_size, method=method, sample_range=sample_range)
+            transformed_images = generate_transformed_images(data_chunk, transformed_algo, gaf_img_sz=image_size, method=method, sample_range=sample_range)
             #print("gaf recevived",gaf_images)
-            temp_image_list.append(gaf_images)
+            temp_image_list.append(transformed_images)
             #print("At chunk",cur_chunk,"input chunk size",len(data_chunk),"shape gaf images",gaf_images.shape, "len temp image list",len(temp_image_list))
             
             temp_price_list.append(curr_sliding_window_data[(cur_chunk*image_size)+image_size])
@@ -131,13 +156,14 @@ def generate_multiple_feature_images(dataset, cols_used, image_size=32, method="
 
     return feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list
 
-def Generate_feature_image_dataset_list_f32(labels_array, images_array, image_size):
+def Generate_feature_image_dataset_list_f32(labels_array, images_array, image_size, scaler):
+    print("Scaler received",scaler)
     feature_image_dataset_list_f32 = np.array(images_array).astype(np.float32)
     feature_image_dataset_list_f32 = feature_image_dataset_list_f32.reshape(-1, image_size, image_size)
     #images_array = np.transpose(feature_image_dataset_list, (1, 0, 2, 3))
 
     #scaler = MinMaxScaler(feature_range=(0, 1))
-    scaler = StandardScaler()
+    #scaler = StandardScaler()
     labels_array = np.array(labels_array)
     #print("labels array",labels_array)
     reshaped_labels_array = labels_array.reshape(-1, 1)

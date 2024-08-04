@@ -4,6 +4,8 @@ import os
 import glob
 import numpy as np
 
+from enum import Enum
+
 import torch
 print(torch.__version__)
 
