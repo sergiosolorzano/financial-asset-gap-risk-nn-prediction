@@ -71,3 +71,15 @@ def data_to_array(input_list):
     output_array = np.array(input_list)
 
     return output_array
+
+def write_scenario_to_log_file(accuracy):
+    #write to file
+    output_string = (f"Accuracy 2dp: {accuracy[0]}%\n"
+                    f"Accuracy 1dp: {accuracy[1]}%\n")
+
+    Scenario_Log(output_string)
+
+def Save_Model(scenario, net):
+    Save_Scenario_State_Model(scenario,net)
+    Save_Scenario_Full_Model(scenario,net)
+

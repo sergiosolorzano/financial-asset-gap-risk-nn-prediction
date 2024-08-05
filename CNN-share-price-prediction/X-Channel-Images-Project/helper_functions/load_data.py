@@ -4,6 +4,10 @@ print(torch.__version__)
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler, SequentialSampler, Subset
 
 import numpy as np
+import yfinance as yf
+
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 import helper_functions.generate_images as generate_images
 
@@ -132,3 +136,40 @@ def Generate_Train_And_Test_Loaders(feature_image_dataset_list_f32,labels_scaled
     #=191*10=1910 i.e. 80% of 2400 total
     return train_loader, test_loader
 
+def Generate_Loaders(feature_image_dataset_list_f32,labels_scaled_list_f32, test_size, batch_size, train_shuffle=False):
+    train_loader,test_loader = Generate_Train_And_Test_Loaders(feature_image_dataset_list_f32,labels_scaled_list_f32, test_size, batch_size=batch_size, train_shuffle=False)
+
+    return train_loader,test_loader
+
+def import_dataset(ticker, start_date, end_date):
+
+    dataset = yf.download(ticker, start=start_date, end=end_date, interval='1d')
+
+    #print("num rows",dataset.shape[0])
+    # pd.set_option('display.max_rows', None)
+    # pd.set_option('display.max_columns', None)
+    # pd.set_option('display.width', None)
+    # pd.set_option('display.max_colwidth', None)
+    dataset = dataset.dropna().dropna()
+    dataset.dropna(how='any', inplace=True)
+    print("Num rows for df Close col",len(dataset['Close']))
+    print(dataset.columns)
+    dataset = dataset.reset_index()
+    #reorder to split the data to train and test
+    desired_order = ['Date','Open', 'Close', 'High', 'Low']
+    if 'Date' in dataset.columns:
+        dataset = dataset[desired_order]
+    else:
+        print("Column 'Date' is missing.")
+    dataset = dataset.set_index('Date')
+    #print(dataset.head())
+    print("day count",dataset.index.max()-dataset.index.min())
+
+    return dataset
+
+def import_stock_data(stock_ticker, start_date, end_date):
+    #import stock dataset
+    stock_dataset_df = import_dataset(stock_ticker, start_date, end_date)
+    stock_dataset_df.head()
+
+    return stock_dataset_df
