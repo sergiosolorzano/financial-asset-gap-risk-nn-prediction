@@ -1,7 +1,12 @@
 import torch
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+
+def compute_and_report_error_stats(stack_actual, stack_predicted, stock_ticker):
+    #compute stats
+    error_stats = compute_error_stats(stack_actual, stack_predicted)
+    print(f"Error Stats for {stock_ticker}")
+    for key, value in error_stats.items():
+        print(f'{key}: {value}\n')
 
 def compute_error_stats(var1, var2):
     mae = torch.mean(torch.abs(var1 - var2))
@@ -87,3 +92,22 @@ def cross_stock_image_array_correlation2(var1, var2):
     mean_correlation = correlations.mean()
     
     return correlations, mean_correlation
+
+def calculate_iqr(tensor_list):
+    stack = torch.stack(tensor_list, dim=1)
+    for stack_tensor in stack:
+        #print("stack_tensor shape",stack_tensor.shape)
+        Q1 = np.percentile(stack_tensor, 25)
+        Q3 = np.percentile(stack_tensor, 75)
+        IQR = Q3 - Q1
+    
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+        
+        data_iqr = [x for x in stack_tensor if lower_bound <= x <= upper_bound]
+        #print("dataiqr",data_iqr)
+        error_pct_outside_iqr = ((len(stack_tensor) - len(data_iqr)) / len(stack_tensor)) * 100
+        #print("len dataiqr",len(data_iqr))
+        #print("dropped",percentage_dropped)
+
+    return data_iqr, error_pct_outside_iqr

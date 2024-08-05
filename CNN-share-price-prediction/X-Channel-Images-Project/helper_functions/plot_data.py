@@ -39,6 +39,9 @@ def plot_weights_gradients(weights_dict, gradients_dict, epoch):
         plt.legend(loc="upper right")
         plt.show()
 
+def plot_scatter_diagram_onevar_plot_mean(stack_input, train_stock_ticker):
+    scatter_diagram_onevar_plot_mean(stack_input, train_stock_ticker)
+
 def scatter_diagram_onevar_plot_mean(stack_input, stock_ticker):
     torch.set_printoptions(threshold=torch.inf)
     reshaped_stack_input = stack_input.view(stack_input.size(0), stack_input.size(1), -1)
@@ -98,6 +101,9 @@ def scatter_diagram_twovar_plot_mean(test_stock_ticker,train_stock_ticker,var1, 
     plt.grid(True)
     plt.show()
     
+def plot_price_comparison_stocks(index_ticker,train_stock_ticker,stock_dataset_df, start_date, end_date):
+    compare_stocks(index_ticker,train_stock_ticker,stock_dataset_df, start_date, end_date)
+
 def compare_stocks(index_ticker, stock_ticker, stock_dataset, start_date, end_date):
     index_data = yf.download(index_ticker, start=start_date, end=end_date, interval='1d')
 
@@ -154,3 +160,47 @@ def plot_image_correlations(series_correlations, mean_correlation):
     plt.ylabel('Frequency')
     plt.show()
     
+def quick_view_images(images_array, cols_used_count, cols_used):
+    
+    # Plot the first image of each column
+    fig, axes = plt.subplots(nrows=1, ncols=cols_used_count, figsize=(20, 6))
+    for ax in axes:
+        ax.set_aspect('equal')
+
+    #EXPLANATION SHAPE
+    #shape images array (1, 1, 4, 480(=15 chunks * 32 windows), 32, 32)
+    #I get 15 images (32x32) for 491 data points (491 = 524 - 33 data points for sliding windows, i.e. 32+1 for label)
+    #I create 32*15=480 32x32images
+    #print("image",images_array[0])
+    print("shape images array",images_array.shape,"shape image",images_array[0][0][0][0].shape)
+    for i in range(cols_used_count):
+        axes[i].imshow(images_array[0][0][i][0], cmap='hot')
+        axes[i].set_title(f"Column {cols_used[i]} ")
+
+    #average first image of all features
+    average_images = []
+    for i in range(cols_used_count):
+        average_images.append(images_array[0][0][i][0])
+
+    average_image = np.mean(average_images, axis=0)
+
+    # Hide axes
+    for ax in axes:
+        ax.axis('off')
+
+    # Plot the average image separately
+    plt.figure()  # Create a new figure for the average image
+    plt.imshow(average_image, cmap='hot')
+    plt.title("Average Image")
+    plt.axis('off')  # Hide axes
+    plt.show()
+
+def plot_external_test_graphs(params, test_stack_input, train_stack_input,
+                              image_series_correlations, image_series_mean_correlation):
+
+    #scatter actual vs predicted
+    scatter_diagram_twovar_plot_mean(params.external_test_stock_ticker,params.train_stock_ticker,test_stack_input, train_stack_input)
+
+    #plot trained versus test stocks image series mean correlations
+    plot_image_correlations(image_series_correlations, image_series_mean_correlation)
+    print("trained versus test stocks image series mean correlation",image_series_mean_correlation)
