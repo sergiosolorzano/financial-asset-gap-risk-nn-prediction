@@ -1,10 +1,19 @@
 from __future__ import print_function
 
 import os
+import sys
 import glob
 import numpy as np
 
-from enum import Enum
+import random as rand
+import matplotlib.pyplot as plt
+
+#import scripts
+import importlib as importlib
+sys.path.append(os.path.abspath('./helper_functions'))
+import helper_functions.plot_data as plot_data
+#import parameters as params
+from parameters import Parameters
 
 import torch
 print(torch.__version__)
@@ -82,4 +91,14 @@ def write_scenario_to_log_file(accuracy):
 def Save_Model(scenario, net):
     Save_Scenario_State_Model(scenario,net)
     Save_Scenario_Full_Model(scenario,net)
+
+def write_to_md(text, image_path):
+    if text.strip():
+        with open(Parameters.brute_force_filename, 'a') as f:
+            f.write(text)
+    if image_path != None:
+        image_write = f"\n![Example Plot]({image_path})"
+        with open(Parameters.brute_force_filename, 'a') as f:
+            f.write(image_write)
+
 

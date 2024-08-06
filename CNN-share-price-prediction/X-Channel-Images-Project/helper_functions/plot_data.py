@@ -8,8 +8,14 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+import random as rand
 
 import yfinance as yf
+
+#import scripts
+import importlib as importlib
+sys.path.append(os.path.abspath('./helper_functions'))
+import helper_functions.helper_functions as helper_functions
 
 import torch
 print(torch.__version__)
@@ -25,7 +31,16 @@ def plot_weights_gradients(weights_dict, gradients_dict, epoch):
         plt.xlabel('Weight Index')
         plt.ylabel('Weight Value')
         plt.legend(loc="upper right")
-        plt.show()
+
+        #write image to md
+        name, ext = os.path.splitext("brute_force_images/image.png")
+        r = rand.randint(100000, 999999)
+        image_path = f'{name}_{r}{ext}'
+        plt.savefig(image_path, dpi=300)
+        plt.close()
+        helper_functions.write_to_md("plot_weights_gradients<p>",image_path)
+
+        #plt.show()
 
     for name, gradient_list in gradients_dict.items():
         plt.figure(figsize=(10, 6))
@@ -37,7 +52,16 @@ def plot_weights_gradients(weights_dict, gradients_dict, epoch):
         plt.xlabel('Gradient Index')
         plt.ylabel('Gradient Value')
         plt.legend(loc="upper right")
-        plt.show()
+
+        #write image to md
+        name, ext = os.path.splitext("brute_force_images/image.png")
+        r = rand.randint(100000, 999999)
+        image_path = f'{name}_{r}{ext}'
+        plt.savefig(image_path, dpi=300)
+        plt.close()
+        helper_functions.write_to_md("plot_weights_gradients<p>",image_path)
+
+        #plt.show()
 
 def plot_scatter_diagram_onevar_plot_mean(stack_input, train_stock_ticker):
     scatter_diagram_onevar_plot_mean(stack_input, train_stock_ticker)
@@ -66,7 +90,16 @@ def scatter_diagram_onevar_plot_mean(stack_input, stock_ticker):
     plt.title(f'Scatter Diagram of {stock_ticker} Image Input Mean Values')
     plt.legend()
     plt.grid(True)
-    plt.show()
+
+    #write image to md
+    name, ext = os.path.splitext("brute_force_images/image.png")
+    r = rand.randint(100000, 999999)
+    image_path = f'{name}_{r}{ext}'
+    plt.savefig(image_path, dpi=300)
+    plt.close()
+    helper_functions.write_to_md("scatter_diagram_onevar_plot_mean<p>",image_path)
+
+    #plt.show()
 
 def scatter_diagram_twovar_plot_mean(test_stock_ticker,train_stock_ticker,var1, var2):
     #torch.set_printoptions(threshold=torch.inf)
@@ -99,11 +132,20 @@ def scatter_diagram_twovar_plot_mean(test_stock_ticker,train_stock_ticker,var1, 
     plt.title(f'Scatter Diagram of {test_stock_ticker} and {train_stock_ticker} Image Input Mean Values')
     plt.legend()
     plt.grid(True)
-    plt.show()
+
+    #write image to md
+    name, ext = os.path.splitext("brute_force_images/image.png")
+    r = rand.randint(100000, 999999)
+    image_path = f'{name}_{r}{ext}'
+    plt.savefig(image_path, dpi=300)
+    plt.close()
+    helper_functions.write_to_md("scatter_diagram_twovar_plot_mean<p>",image_path)
+
+    #plt.show()
     
 def plot_price_comparison_stocks(index_ticker,train_stock_ticker,stock_dataset_df, start_date, end_date):
     compare_stocks(index_ticker,train_stock_ticker,stock_dataset_df, start_date, end_date)
-
+    
 def compare_stocks(index_ticker, stock_ticker, stock_dataset, start_date, end_date):
     index_data = yf.download(index_ticker, start=start_date, end=end_date, interval='1d')
 
@@ -148,7 +190,16 @@ def compare_stocks(index_ticker, stock_ticker, stock_dataset, start_date, end_da
     axs[1, 1].grid(True)
 
     plt.tight_layout()
-    plt.show()
+
+    #write image to md
+    name, ext = os.path.splitext("brute_force_images/image.png")
+    r = rand.randint(100000, 999999)
+    image_path = f'{name}_{r}{ext}'
+    plt.savefig(image_path, dpi=300)
+    plt.close()
+    helper_functions.write_to_md("plot_price_comparison_stocks<p>",image_path)
+
+    #plt.show()
 
 def plot_image_correlations(series_correlations, mean_correlation):
     # Plot the correlations
@@ -158,7 +209,16 @@ def plot_image_correlations(series_correlations, mean_correlation):
     plt.title('Distribution of Trained vs Test Stocks Input Image Series Correlations')
     plt.xlabel('Image Correlation Coefficient')
     plt.ylabel('Frequency')
-    plt.show()
+
+    #write image to md
+    name, ext = os.path.splitext("brute_force_images/image.png")
+    r = rand.randint(100000, 999999)
+    image_path = f'{name}_{r}{ext}'
+    plt.savefig(image_path, dpi=300)
+    plt.close()
+    helper_functions.write_to_md("plot_image_correlations<p>",image_path)
+
+    #plt.show()
     
 def quick_view_images(images_array, cols_used_count, cols_used):
     
@@ -193,7 +253,16 @@ def quick_view_images(images_array, cols_used_count, cols_used):
     plt.imshow(average_image, cmap='hot')
     plt.title("Average Image")
     plt.axis('off')  # Hide axes
-    plt.show()
+
+    #write image to md
+    name, ext = os.path.splitext("brute_force_images/image.png")
+    r = rand.randint(100000, 999999)
+    image_path = f'{name}_{r}{ext}'
+    plt.savefig(image_path, dpi=300)
+    plt.close()
+    helper_functions.write_to_md("quick_view_images<p>",image_path)
+
+    #plt.show()
 
 def plot_external_test_graphs(params, test_stack_input, train_stack_input,
                               image_series_correlations, image_series_mean_correlation):

@@ -1,11 +1,22 @@
+import os
+import sys
 import torch
 import numpy as np
+
+#import scripts
+import importlib as importlib
+sys.path.append(os.path.abspath('./helper_functions'))
+import helper_functions.helper_functions as helper_functions
 
 def compute_and_report_error_stats(stack_actual, stack_predicted, stock_ticker):
     #compute stats
     error_stats = compute_error_stats(stack_actual, stack_predicted)
+    text_mssg=f"Error Stats for {stock_ticker}<p>"
+    helper_functions.write_to_md(text_mssg,None)
     print(f"Error Stats for {stock_ticker}")
     for key, value in error_stats.items():
+        text_mssg=f'{key}: {value}\n'
+        helper_functions.write_to_md(text_mssg,None)
         print(f'{key}: {value}\n')
 
 def compute_error_stats(var1, var2):

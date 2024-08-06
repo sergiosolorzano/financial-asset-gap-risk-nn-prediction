@@ -145,11 +145,6 @@ def import_dataset(ticker, start_date, end_date):
 
     dataset = yf.download(ticker, start=start_date, end=end_date, interval='1d')
 
-    #print("num rows",dataset.shape[0])
-    # pd.set_option('display.max_rows', None)
-    # pd.set_option('display.max_columns', None)
-    # pd.set_option('display.width', None)
-    # pd.set_option('display.max_colwidth', None)
     dataset = dataset.dropna().dropna()
     dataset.dropna(how='any', inplace=True)
     print("Num rows for df Close col",len(dataset['Close']))
