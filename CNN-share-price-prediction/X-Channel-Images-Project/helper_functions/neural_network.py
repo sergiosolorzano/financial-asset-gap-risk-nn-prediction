@@ -124,7 +124,9 @@ def Train(params, train_loader, net):
 
     start_time = time.time()
 
-    print(f"Train params: learning_rate: {params.learning_rate}, momentum:{params.momentum}")
+    print_mssg=f"Train params: learning_rate: {params.learning_rate}, momentum:{params.momentum} loss_threshold {params.loss_threshold}<p>"
+    print(print_mssg)
+    helper_functions.write_to_md(print_mssg,None)
 
     net.apply(weights_init_he)
 
@@ -145,15 +147,7 @@ def Train(params, train_loader, net):
         
         for i, data in enumerate(train_loader, 0):
             #print(f"Batch {i + 1}")
-            #get the inputs; data is a list of [inputs, labels]
-            #print("image type",type(data[0]), "shape", data[0].shape)
-            # print("image size",data[0].numel())
-            # print("label type",type(data[1]), "shape", data[1].shape)
-            # print("label size",data[1].numel())
-            #print("**zero:",data[0])
-            #print("type",type(data[1]),"**one:", data[1])
-            #print("label pre",data[1])
-            #data[1]=data[1].type(torch.LongTensor)
+            
             inputs, labels = data[0].to(device), data[1].to(device)
             if i==0 and epoch==0:
                 print("epoch",epoch,"data i",i,"len image",len(inputs), "shape",inputs.shape)
@@ -187,13 +181,16 @@ def Train(params, train_loader, net):
                 #if i % mini_batch_running_loss_check == (mini_batch_running_loss_check-1):    # print every x mini-batches
                 #changed to show less results because with 10k epochs it cloggs github repo
                 #if (epoch+ 1) % epoch_running_loss_check == 0 and  i % mini_batch_running_loss_check == (mini_batch_running_loss_check-1):
+                
                 if first_batch and ((epoch + 1) % params.epoch_running_loss_check == 0):
-                    print('[%d, %5d] Cum loss: %.9f' %
-                        (epoch + 1, i + 1, running_loss / params.epoch_running_loss_check)) 
+                    print_mssg = f"[{(epoch + 1):d}, {(i + 1):5d}] Cum loss: {(running_loss / params.epoch_running_loss_check):.9f}<p>)"
+                    print(print_mssg) 
+                    helper_functions.write_to_md(print_mssg,None)
                     running_loss = 0.0
 
                 if loss.item() < params.loss_threshold:
                     print(f"Loss is less than {params.loss_threshold}:{loss.item()} at {epoch}. Stopping training.")
+                    helper_functions.write_to_md(f"Loss is less than {params.loss_threshold}:{loss.item()} at {epoch}. Stopping training.<p>",None)
                     return net
                 
                 if first_batch and ((epoch + 1) % params.epoch_running_gradients_check == 0):
@@ -278,7 +275,8 @@ def Test(test_loader, net):
     
     error_list_iqr, error_pct_outside_iqr = compute_stats.calculate_iqr(error_list)
 
-    print("error_pct_outside_iqr",error_pct_outside_iqr)
+    text_mssg=f"error_pct_outside_iqr {error_pct_outside_iqr}<p>"
+    helper_functions.write_to_md(text_mssg,None)
 
     stack_input = torch.stack(inputs_list, dim=0)
     
@@ -289,8 +287,8 @@ def Test(test_loader, net):
     #print("stack actual shape",stack_actual.shape,"stack actual",stack_actual)
 
     stack_predicted = torch.stack(predicted_list, dim=0)
-    print("stack predicted shape",stack_predicted.shape)#,"stack_predicted",stack_predicted)
-    print("stack input shape",stack_input.shape)#,"stack_input",stack_input)
+    #print("stack predicted shape",stack_predicted.shape)#,"stack_predicted",stack_predicted)
+    #print("stack input shape",stack_input.shape)#,"stack_input",stack_input)
         
     accuracy = [correct_2dp_score, correct_1dp_score]
     print(); print(f"Mean accuracy 2 decimal places: {mean_of_mean_correct_2dp_score}%, "
@@ -298,8 +296,12 @@ def Test(test_loader, net):
             f"Percentage of predictions within ",
             f"2 decimal places: {correct_2dp_score}%, "
             f"1 decimal places: {correct_1dp_score}%,\n")
-            # f"average actual shape: {stack_actual.shape} values: {(torch.mean(stack_actual, dim=1))}, "
-            # f"average predicted shape: {stack_predicted.shape} values: {(torch.mean(stack_predicted, dim=1))}")
+
+    text_mssg=(f"Mean accuracy 2 decimal places: {mean_of_mean_correct_2dp_score}% <p> \
+               Mean accuracy 1 decimal places: {mean_of_mean_correct_1dp_score}% <p> \
+                Percentage of predictions within 2 decimal places: {correct_2dp_score}% <p> \
+                    1 decimal places: {correct_1dp_score}%<p>")
+    helper_functions.write_to_md(text_mssg,None)
 
     #print("abs_percentage_diffs",abs_percentage_diffs_np)
     return stack_input, predicted_list, actual_list, accuracy, stack_actual, stack_predicted
