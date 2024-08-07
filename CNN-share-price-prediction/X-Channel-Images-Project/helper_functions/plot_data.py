@@ -227,11 +227,6 @@ def quick_view_images(images_array, cols_used_count, cols_used):
     for ax in axes:
         ax.set_aspect('equal')
 
-    #EXPLANATION SHAPE
-    #shape images array (1, 1, 4, 480(=15 chunks * 32 windows), 32, 32)
-    #I get 15 images (32x32) for 491 data points (491 = 524 - 33 data points for sliding windows, i.e. 32+1 for label)
-    #I create 32*15=480 32x32images
-    #print("image",images_array[0])
     print("shape images array",images_array.shape,"shape image",images_array[0][0][0][0].shape)
     for i in range(cols_used_count):
         axes[i].imshow(images_array[0][0][i][0], cmap='hot')

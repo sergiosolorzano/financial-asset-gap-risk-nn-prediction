@@ -27,14 +27,13 @@ def report_external_test_stats(params, stock_dataset_df,
     benchmark_stock_df = load_data.import_dataset(params.train_stock_ticker, params.start_date, params.end_date)
     compute_stats.cross_stock_df_correlation(params.external_test_stock_ticker, params.train_stock_ticker,stock_dataset_df, benchmark_stock_df)
 
-    #compute stats
-    error_stats = compute_stats.compute_error_stats(test_stack_actual, test_stack_predicted)
-    text_mssg=(f"Inference Model Stats for {params.external_test_stock_ticker}")
-    print(text_mssg)
-    helper_functions.write_to_md("==========<p>Optimization Iteration\==========",None)
-    for key, value in error_stats.items():
-        text_mssg=(f'{key}: {value}')
-        print(text_mssg)
-        helper_functions.write_to_md(text_mssg,None)
+    # #compute stats
+    # error_stats = compute_stats.compute_error_stats(test_stack_actual, test_stack_predicted)
+    # text_mssg=(f"Inference Model Stats for {params.external_test_stock_ticker}<p>")
+    # print(text_mssg)
+    # for key, value in error_stats.items():
+    #     text_mssg=(f'{key}: {value}<p>')
+    #     print(text_mssg)
+    #     helper_functions.write_to_md(text_mssg,None)
         
     return image_series_correlations, image_series_mean_correlation

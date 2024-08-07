@@ -124,9 +124,9 @@ def Train(params, train_loader, net):
 
     start_time = time.time()
 
-    print_mssg=f"Train params: learning_rate: {params.learning_rate}, momentum:{params.momentum} loss_threshold {params.loss_threshold}<p>"
-    print(print_mssg)
-    helper_functions.write_to_md(print_mssg,None)
+    #print_mssg=f"Train params: learning_rate: {params.learning_rate}, momentum:{params.momentum} loss_threshold {params.loss_threshold}<p>"
+    #print(print_mssg)
+    #helper_functions.write_to_md(print_mssg,None)
 
     net.apply(weights_init_he)
 
@@ -183,7 +183,7 @@ def Train(params, train_loader, net):
                 #if (epoch+ 1) % epoch_running_loss_check == 0 and  i % mini_batch_running_loss_check == (mini_batch_running_loss_check-1):
                 
                 if first_batch and ((epoch + 1) % params.epoch_running_loss_check == 0):
-                    print_mssg = f"[{(epoch + 1):d}, {(i + 1):5d}] Cum loss: {(running_loss / params.epoch_running_loss_check):.9f}<p>)"
+                    print_mssg = f"[{(epoch + 1):d}, {(i + 1):5d}] Cum loss: {(running_loss / params.epoch_running_loss_check):.9f}<p>"
                     print(print_mssg) 
                     helper_functions.write_to_md(print_mssg,None)
                     running_loss = 0.0

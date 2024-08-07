@@ -68,10 +68,10 @@ class Parameters:
 
     batch_size = 16
 
-    num_epochs_input = 10000
+    num_epochs_input = 15000
 
     loss_threshold = 0.0001
 
-    epoch_running_loss_check = 500
+    epoch_running_loss_check = 2500
     
     epoch_running_gradients_check = 4000

@@ -23,15 +23,17 @@ def brute_force_function():
     
     transform_algo_types = [1,2]
     gaf_methods = ["summation","difference"]
-    sample_ranges = [(-1, 0), (0, 0.5), (0.5, 1), (1, 1)]
     scalers = [StandardScaler(), MinMaxScaler()]
+    sample_ranges = [(-1, 0), (-1, 0.5), (-1, 1), (-0.5, 0), (-0.5, 0.5), (-0.5, 1), (0, 0.5), (0, 1)]
     dropout_probabs = [0, 0.5, 0.8]
 
     for t in transform_algo_types:
         for m in gaf_methods:
-            for s in sample_ranges:
+            for d in dropout_probabs:
                 for sc in scalers:
-                    for d in dropout_probabs:
+                    for s in sample_ranges:
+
+                        print("sample range",s)
 
                         Parameters.transform_algo_type = t
                         Parameters.gaf_method = m
@@ -39,8 +41,8 @@ def brute_force_function():
                         Parameters.scaler = sc
                         Parameters.dropout_probab = d
 
-                        helper_functions.write_to_md("==========<p>Optimization Iteration\==========<p>",None)
-                        helper_functions.write_to_md(f"<p>transform_algo_type: {t} gaf_method: {m} sample_range: {s} scaler: {sc} dropout_probab: {d}<p>", None)
+                        helper_functions.write_to_md("<b><center>==========Optimization Iteration==========</center></b><p><p>",None)
+                        helper_functions.write_to_md(f"<p><b>transform_algo_type: {t} gaf_method: {m} sample_range: {s} scaler: {sc} dropout_probab: {d}</b><p>", None)
                         
                         #################################
                         #       Train and Test          #
@@ -65,7 +67,7 @@ def brute_force_function():
                         #################################
                         #       External Test           #
                         #################################
-                        text_mssg= "Run External Stock Tests:<p>"
+                        text_mssg= "<u><center>==========Run External Stock Tests:==========</center></u><p>"
                         print("\n\n",text_mssg)
                         helper_functions.write_to_md(text_mssg,None)
                         #load model
