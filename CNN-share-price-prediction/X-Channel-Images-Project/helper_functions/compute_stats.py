@@ -15,7 +15,7 @@ def compute_and_report_error_stats(stack_actual, stack_predicted, stock_ticker):
     helper_functions.write_to_md(text_mssg,None)
     print(f"Error Stats for {stock_ticker}")
     for key, value in error_stats.items():
-        text_mssg=f'{key}: {value}\n'
+        text_mssg=f'{key}: {value}<p>'
         helper_functions.write_to_md(text_mssg,None)
         print(f'{key}: {value}\n')
 
