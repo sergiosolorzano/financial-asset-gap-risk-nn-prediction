@@ -3,15 +3,16 @@ import sys
 
 #import scripts
 import importlib as importlib
-sys.path.append(os.path.abspath('./helper_functions'))
-import helper_functions.load_data as load_data
-import helper_functions.compute_stats as compute_stats
-import helper_functions.helper_functions as helper_functions
+sys.path.append(os.path.abspath('./helper_functions_dir'))
+import helper_functions_dir.load_data as load_data
+import helper_functions_dir.compute_stats as compute_stats
+import helper_functions_dir.helper_functions as helper_functions
 
 # report stats results
 def report_external_test_stats(params, stock_dataset_df, 
                                test_stack_input, train_stack_input,
-                               test_stack_actual, test_stack_predicted):
+                               test_stack_actual, test_stack_predicted,
+                               run):
     
     #test_stack_actual is the actual observation
     #test_stack_predicted is the predicted observation
@@ -24,7 +25,7 @@ def report_external_test_stats(params, stock_dataset_df,
     image_series_correlations, image_series_mean_correlation = compute_stats.cross_stock_image_array_correlation2(test_stack_input,train_stack_input)
 
     #compute cross correl
-    benchmark_stock_df = load_data.import_dataset(params.train_stock_ticker, params.start_date, params.end_date)
+    benchmark_stock_df = load_data.import_dataset(params.train_stock_ticker, params.start_date, params.end_date, run)
     compute_stats.cross_stock_df_correlation(params.external_test_stock_ticker, params.train_stock_ticker,stock_dataset_df, benchmark_stock_df)
 
     # #compute stats

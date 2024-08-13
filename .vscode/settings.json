@@ -1,2 +1,12 @@
 {
+    "terminal.integrated.env.windows": {
+        "PYSPARK_PYTHON": "C:\\ProgramData\\miniconda3\\python.exe",
+        "python.pythonPath": "C:\\ProgramData\\miniconda3\\envs\\mlflow-spark\\python.exe",
+        "python.conda": "C:\\ProgramData\\miniconda3\\Scripts\\conda.exe",
+        "python.condaPath": "C:\\ProgramData\\miniconda3\\Scripts\\conda.exe",
+        "python": "C:\\ProgramData\\miniconda3\\envs\\mlflow-spark\\python.exe",
+        "conda": "C:\\ProgramData\\miniconda3\\Scripts\\conda.exe",
+        "PATH":""
+    },
+    "terminal.integrated.scrollback": 10000
 }

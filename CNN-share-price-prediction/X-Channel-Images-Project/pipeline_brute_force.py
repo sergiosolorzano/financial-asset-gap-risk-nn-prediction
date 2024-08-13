@@ -6,11 +6,11 @@ from sklearn.preprocessing import StandardScaler,MinMaxScaler
 
 #import scripts
 import importlib as importlib
-sys.path.append(os.path.abspath('./helper_functions'))
-import helper_functions.neural_network as neural_network
-import helper_functions.plot_data as plot_data
-import helper_functions.helper_functions as helper_functions
-import helper_functions.compute_stats as compute_stats 
+sys.path.append(os.path.abspath('./helper_functions_dir'))
+import helper_functions_dir.neural_network as neural_network
+import helper_functions_dir.plot_data as plot_data
+import helper_functions_dir.helper_functions as helper_functions
+import helper_functions_dir.compute_stats as compute_stats 
 
 from parameters import Parameters
 import pipeline_data as pipeline_data
@@ -25,7 +25,7 @@ def brute_force_function():
     gaf_methods = ["summation","difference"]
     scalers = [StandardScaler(), MinMaxScaler()]
     sample_ranges = [(-1, 0), (-1, 0.5), (-1, 1), (-0.5, 0), (-0.5, 0.5), (-0.5, 1), (0, 0.5), (0, 1)]
-    dropout_probabs = [0, 0.5, 0.8]
+    dropout_probabs = [0.8]#0, 0.5, 
 
     for t in transform_algo_types:
         for m in gaf_methods:

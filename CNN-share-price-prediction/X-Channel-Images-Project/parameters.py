@@ -1,17 +1,28 @@
 from sklearn.preprocessing import StandardScaler,MinMaxScaler
 import sys
 import os
+import pandas as pd
+from datetime import datetime
 
 #import scripts
 import importlib as importlib
-sys.path.append(os.path.abspath('./helper_functions'))
-import helper_functions.generate_images as generate_images
+sys.path.append(os.path.abspath('./helper_functions_dir'))
+from helper_functions_dir import generate_images
 
 #init parameters
 class Parameters:
     scenario = 0
 
+    mlflow_credentials_fname = 'mlflow-creds.json'
+    mlflow_experiment_name = 'gaprisk-experiment-009'
+    input_price_data_blob_fname = 'input_price_data_run_id'
+    input_image_data_blob_fname = 'input_image_data_run_id'
+    predicted_image_data_blob_fname = 'predicted_image_data_run_id'
+
+    plt_image_size = (12,5)
+
     brute_force_filename = 'brute_force_results.md'
+    brute_force_image_mlflow_dir = 'brute_force_images_mlflow'
 
     # Stock tickers
     train_stock_ticker = 'SIVBQ'
@@ -68,10 +79,16 @@ class Parameters:
 
     batch_size = 16
 
-    num_epochs_input = 15000
+    num_epochs_input = 2#15000
 
     loss_threshold = 0.0001
 
     epoch_running_loss_check = 2500
     
-    epoch_running_gradients_check = 4000
+    epoch_running_gradients_check = 1
+
+    checkpoint_dict = {'run_id': None,
+                       'epoch': None,
+                       'model_state_dict': None,
+                       'optimizer_state_dict': None,
+                       'loss': None}
