@@ -41,8 +41,9 @@ def brute_force_function():
                         Parameters.scaler = sc
                         Parameters.dropout_probab = d
 
-                        helper_functions.write_to_md("<b><center>==========Optimization Iteration==========</center></b><p><p>",None)
-                        helper_functions.write_to_md(f"<p><b>transform_algo_type: {t} gaf_method: {m} sample_range: {s} scaler: {sc} dropout_probab: {d}</b><p>", None)
+                        if Parameters.save_runs_to_md:
+                            helper_functions.write_to_md("<b><center>==========Optimization Iteration==========</center></b><p><p>",None)
+                            helper_functions.write_to_md(f"<p><b>transform_algo_type: {t} gaf_method: {m} sample_range: {s} scaler: {sc} dropout_probab: {d}</b><p>", None)
                         
                         #################################
                         #       Train and Test          #
@@ -69,10 +70,11 @@ def brute_force_function():
                         #################################
                         text_mssg= "<u><center>==========Run External Stock Tests:==========</center></u><p>"
                         print("\n\n",text_mssg)
-                        helper_functions.write_to_md(text_mssg,None)
+                        if Parameters.save_runs_to_md:
+                            helper_functions.write_to_md(text_mssg,None)
                         #load model
-                        PATH = f'./model_scen_{0}_full.pth'
-                        net = helper_functions.Load_Full_Model(PATH)
+                        # PATH = f'./model_scen_{0}_full.pth'
+                        # net = helper_functions.Load_Full_Model(PATH)
 
                         #external test image generation
                         train_loader, test_loader, stock_dataset_df = pipeline_data.generate_dataset_to_images_process(Parameters.external_test_stock_ticker, 

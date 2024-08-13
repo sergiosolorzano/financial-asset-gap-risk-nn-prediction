@@ -21266,4 +21266,1416 @@
 ![Example Plot](brute_force_images/image_193216.png)plot_weights_gradients<p>
 ![Example Plot](brute_force_images/image_212702.png)plot_weights_gradients<p>
 ![Example Plot](brute_force_images/image_626207.png)plot_weights_gradients<p>
-![Example Plot](brute_force_images/image_219855.png)
+![Example Plot](brute_force_images/image_219855.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_373456.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_745422.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745423.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745424.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745425.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745426.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745427.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745428.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745429.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745430.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745431.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_933577.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_669650.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_661780.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_814739.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_261476.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_633269.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_507041.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_986720.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_503346.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745432.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745433.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745434.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745435.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745436.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745437.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745438.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745439.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745440.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_105467.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_255462.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_531350.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_343690.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_178745.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_130085.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_257418.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_497664.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_892505.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_404344.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_106743.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745441.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745442.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745443.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745444.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745445.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745446.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745447.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745448.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745449.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_762329.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_507857.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_235432.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_790623.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_688182.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_811321.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_317847.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_933061.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_946275.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745450.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745451.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745452.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745453.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745454.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745455.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745456.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745457.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_745458.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_521997.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_607898.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_624490.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_411762.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_465477.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_533502.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_445072.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_577894.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_357422.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_160059.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_462776.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462777.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462778.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462779.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462780.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462781.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462782.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462783.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462784.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462785.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_560793.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_716179.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_914679.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_993092.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_622342.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_492473.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_568757.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_464390.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_694648.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462786.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462787.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462788.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462789.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462790.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462791.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462792.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462793.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_462794.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_477547.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_613312.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_291032.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_937333.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_629695.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_184625.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_463968.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_871504.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_260207.png)End of Training: Cum Loss: 37.18003724728312 at 1.<p><b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_767652.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_546103.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767653.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767654.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767655.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767656.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767657.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767658.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767659.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767660.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767661.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_840145.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_669002.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_367013.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_174926.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_812837.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_704778.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_447040.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_183479.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_883636.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767662.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767663.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767664.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767665.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767666.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767667.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767668.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767669.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_767670.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_519716.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_707258.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_320524.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_229303.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_810278.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_870556.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_784400.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_455786.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_863796.png)End of Training: Cum Loss: 37.54584442291941 at 1.<p>error_pct_outside_iqr 0.0<p>Mean accuracy 2 decimal places: tensor([1.1161])% <p>                Mean accuracy 1 decimal places: tensor([6.0268])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.0000],
+        [3.5714],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [3.5714]])% <p>                     1 decimal places: tensor([[ 7.1429],
+        [ 7.1429],
+        [ 0.0000],
+        [ 3.5714],
+        [ 7.1429],
+        [ 3.5714],
+        [ 3.5714],
+        [ 0.0000],
+        [10.7143],
+        [ 7.1429],
+        [ 3.5714],
+        [10.7143],
+        [10.7143],
+        [14.2857],
+        [ 3.5714],
+        [ 3.5714]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_184591.png)Error Stats for SIVBQ<p>MAE: 1.0963855981826782<p>MSE: 1.8457781076431274<p>RMSE: 1.3585941791534424<p>MAPE: 759.5977172851562<p>R2: -0.8493586778640747<p><u><center>==========Run External Stock Tests:==========</center></u><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_634048.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_171652.png)error_pct_outside_iqr 3.571428571428571<p>Mean accuracy 2 decimal places: tensor([0.6696])% <p>                Mean accuracy 1 decimal places: tensor([6.4732])% <p>                 Percentage of predictions within 2 decimal places: tensor([[3.5714],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000]])% <p>                     1 decimal places: tensor([[ 7.1429],
+        [ 3.5714],
+        [14.2857],
+        [10.7143],
+        [ 7.1429],
+        [ 3.5714],
+        [ 7.1429],
+        [ 0.0000],
+        [ 3.5714],
+        [ 7.1429],
+        [10.7143],
+        [ 7.1429],
+        [ 0.0000],
+        [ 3.5714],
+        [ 3.5714],
+        [14.2857]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_764216.png)Error Stats for SICP<p>MAE: 1.1246601343154907<p>MSE: 1.9612840414047241<p>RMSE: 1.4004584550857544<p>MAPE: 444.68084716796875<p>R2: -0.9612840414047241<p>scatter_diagram_twovar_plot_mean<p>
+![Example Plot](brute_force_images_mlflow/image_767671.png)plot_image_correlations<p>
+![Example Plot](brute_force_images_mlflow/image_965028.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0.5) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_831144.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_614695.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965029.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965030.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965031.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965032.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965033.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965034.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965035.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965036.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965037.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_150292.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_616170.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_669914.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_471985.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_876060.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_792083.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_461032.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_584358.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_815642.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965038.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965039.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965040.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965041.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965042.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965043.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_569588.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_512916.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965045.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965046.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965047.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965048.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965049.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965050.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965051.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965052.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965053.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_443368.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_902222.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_690436.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_961937.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_596347.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_606378.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_496791.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_499461.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_926758.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965054.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965055.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965056.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965057.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965058.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965059.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965060.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965061.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965062.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_482401.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_634182.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_704274.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_177784.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_197329.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_457406.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_460570.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_400645.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_242762.png)End of Training: Cum Loss: 37.44429155332701 at 1.<p>error_pct_outside_iqr 0.0<p>Mean accuracy 2 decimal places: tensor([0.4464])% <p>                Mean accuracy 1 decimal places: tensor([6.4732])% <p>                 Percentage of predictions within 2 decimal places: tensor([[3.5714],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000]])% <p>                     1 decimal places: tensor([[10.7143],
+        [ 7.1429],
+        [ 7.1429],
+        [ 7.1429],
+        [ 3.5714],
+        [ 3.5714],
+        [ 0.0000],
+        [ 7.1429],
+        [10.7143],
+        [ 7.1429],
+        [ 3.5714],
+        [10.7143],
+        [ 3.5714],
+        [ 3.5714],
+        [10.7143],
+        [ 7.1429]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_425676.png)Error Stats for SIVBQ<p>MAE: 1.0777150392532349<p>MSE: 1.777060866355896<p>RMSE: 1.3330644369125366<p>MAPE: 583.5403442382812<p>R2: -0.780508279800415<p><u><center>==========Run External Stock Tests:==========</center></u><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_892490.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_667097.png)error_pct_outside_iqr 3.571428571428571<p>Mean accuracy 2 decimal places: tensor([0.6696])% <p>                Mean accuracy 1 decimal places: tensor([6.2500])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [3.5714],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000]])% <p>                     1 decimal places: tensor([[ 3.5714],
+        [ 0.0000],
+        [ 7.1429],
+        [ 3.5714],
+        [ 7.1429],
+        [10.7143],
+        [17.8571],
+        [ 7.1429],
+        [ 3.5714],
+        [ 3.5714],
+        [ 3.5714],
+        [10.7143],
+        [ 7.1429],
+        [ 0.0000],
+        [ 7.1429],
+        [ 7.1429]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_557068.png)Error Stats for SICP<p>MAE: 1.2212635278701782<p>MSE: 2.270141839981079<p>RMSE: 1.5066989660263062<p>MAPE: 337.1778869628906<p>R2: -1.270141839981079<p>scatter_diagram_twovar_plot_mean<p>
+![Example Plot](brute_force_images_mlflow/image_965063.png)plot_image_correlations<p>
+![Example Plot](brute_force_images_mlflow/image_151103.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0.5) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_180972.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_571318.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965064.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965065.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965066.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965067.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965068.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965069.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965070.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965071.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965072.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_342908.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_650098.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_720227.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_101273.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_287101.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_191592.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_960819.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_987515.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_485614.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965073.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965074.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965075.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_965076.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_660956.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_802549.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_787982.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_204884.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_982329.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_575243.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_301833.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_910672.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_636303.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_871956.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_880113.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_650221.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_857205.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_909127.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_465292.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_298873.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_896225.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_938263.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_974295.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_650223.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_725601.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_448961.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982330.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982331.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982332.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982333.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982334.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982335.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982336.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982337.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982338.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_681708.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_922526.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_801509.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_979403.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_769606.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_355362.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_547878.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_307269.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_352295.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982339.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982340.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982341.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982342.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982343.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982344.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982345.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982346.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982347.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_459810.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_436063.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_630537.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_961510.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_514360.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_155506.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_622767.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_311133.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_846995.png)End of Training: Cum Loss: 37.462436735630035 at 1.<p>error_pct_outside_iqr 0.0<p>Mean accuracy 2 decimal places: tensor([0.8929])% <p>                Mean accuracy 1 decimal places: tensor([6.6964])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [3.5714],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000]])% <p>                     1 decimal places: tensor([[ 3.5714],
+        [10.7143],
+        [ 3.5714],
+        [ 3.5714],
+        [14.2857],
+        [ 3.5714],
+        [ 3.5714],
+        [ 0.0000],
+        [14.2857],
+        [10.7143],
+        [ 7.1429],
+        [10.7143],
+        [10.7143],
+        [ 3.5714],
+        [ 3.5714],
+        [ 3.5714]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_766847.png)Error Stats for SIVBQ<p>MAE: 1.023435354232788<p>MSE: 1.5888780355453491<p>RMSE: 1.2605071067810059<p>MAPE: 946.0057373046875<p>R2: -0.5919604301452637<p><u><center>==========Run External Stock Tests:==========</center></u><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_163467.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_757836.png)error_pct_outside_iqr 10.714285714285714<p>Mean accuracy 2 decimal places: tensor([0.4464])% <p>                Mean accuracy 1 decimal places: tensor([5.3571])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000]])% <p>                     1 decimal places: tensor([[ 3.5714],
+        [ 0.0000],
+        [ 7.1429],
+        [ 0.0000],
+        [ 0.0000],
+        [10.7143],
+        [ 0.0000],
+        [ 3.5714],
+        [14.2857],
+        [ 3.5714],
+        [ 3.5714],
+        [14.2857],
+        [ 7.1429],
+        [ 7.1429],
+        [ 3.5714],
+        [ 7.1429]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_911049.png)Error Stats for SICP<p>MAE: 0.9854003190994263<p>MSE: 1.5318251848220825<p>RMSE: 1.2376692295074463<p>MAPE: 301.55169677734375<p>R2: -0.5318251848220825<p>scatter_diagram_twovar_plot_mean<p>
+![Example Plot](brute_force_images_mlflow/image_982348.png)plot_image_correlations<p>
+![Example Plot](brute_force_images_mlflow/image_943750.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0.5) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_610797.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_874324.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982349.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982350.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982351.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982352.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982353.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982354.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982355.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982356.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982357.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_145567.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_943229.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_122173.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_898732.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_776114.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_197852.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_409881.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_196559.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_698671.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982358.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982359.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982360.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982361.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982362.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982363.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982364.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982365.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982366.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_994053.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_859964.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_909909.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_334298.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_359073.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_708993.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_440603.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_598702.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_952123.png)End of Training: Cum Loss: 37.404559335538316 at 1.<p>error_pct_outside_iqr 0.0<p>Mean accuracy 2 decimal places: tensor([0.])% <p>                Mean accuracy 1 decimal places: tensor([7.3661])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.]])% <p>                     1 decimal places: tensor([[ 7.1429],
+        [ 7.1429],
+        [ 3.5714],
+        [ 0.0000],
+        [14.2857],
+        [17.8571],
+        [10.7143],
+        [ 7.1429],
+        [ 0.0000],
+        [21.4286],
+        [ 3.5714],
+        [ 7.1429],
+        [ 3.5714],
+        [ 7.1429],
+        [ 3.5714],
+        [ 3.5714]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_698276.png)Error Stats for SIVBQ<p>MAE: 0.9776697754859924<p>MSE: 1.5435330867767334<p>RMSE: 1.2423900365829468<p>MAPE: 659.573486328125<p>R2: -0.5465273857116699<p><u><center>==========Run External Stock Tests:==========</center></u><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_810765.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_196789.png)error_pct_outside_iqr 0.0<p>Mean accuracy 2 decimal places: tensor([1.3393])% <p>                Mean accuracy 1 decimal places: tensor([10.4911])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.0000],
+        [0.0000],
+        [0.0000],
+        [7.1429],
+        [7.1429],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [3.5714],
+        [0.0000]])% <p>                     1 decimal places: tensor([[ 7.1429],
+        [ 7.1429],
+        [10.7143],
+        [ 7.1429],
+        [ 7.1429],
+        [10.7143],
+        [ 3.5714],
+        [ 7.1429],
+        [14.2857],
+        [17.8571],
+        [ 7.1429],
+        [25.0000],
+        [17.8571],
+        [14.2857],
+        [10.7143],
+        [ 0.0000]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_171002.png)Error Stats for SICP<p>MAE: 0.7920700311660767<p>MSE: 1.0249930620193481<p>RMSE: 1.0124194622039795<p>MAPE: 227.33172607421875<p>R2: -0.024993062019348145<p>scatter_diagram_twovar_plot_mean<p>
+![Example Plot](brute_force_images_mlflow/image_982367.png)plot_image_correlations<p>
+![Example Plot](brute_force_images_mlflow/image_343114.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 1) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_582911.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_629988.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982368.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982369.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982370.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982371.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982372.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982373.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982374.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982375.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_982376.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_993283.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_150467.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993284.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993285.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993286.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993287.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993288.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993289.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993290.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993291.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993292.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_513840.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_454919.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_767397.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_616564.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_962551.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_679135.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_600709.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_176431.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_744205.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993293.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993294.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993295.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993296.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993297.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993298.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993299.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993300.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993301.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_510267.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_914449.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_546241.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_176777.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_831747.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_635007.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_167149.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_851060.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_206784.png)End of Training: Cum Loss: 37.5847172247512 at 1.<p>error_pct_outside_iqr 0.0<p>Mean accuracy 2 decimal places: tensor([0.6696])% <p>                Mean accuracy 1 decimal places: tensor([7.8125])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000]])% <p>                     1 decimal places: tensor([[10.7143],
+        [ 3.5714],
+        [10.7143],
+        [10.7143],
+        [ 0.0000],
+        [10.7143],
+        [ 7.1429],
+        [10.7143],
+        [ 7.1429],
+        [ 7.1429],
+        [ 0.0000],
+        [ 3.5714],
+        [14.2857],
+        [ 7.1429],
+        [14.2857],
+        [ 7.1429]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_505962.png)Error Stats for SIVBQ<p>MAE: 1.0178172588348389<p>MSE: 1.7095940113067627<p>RMSE: 1.3075144290924072<p>MAPE: 531.3534545898438<p>R2: -0.712910532951355<p><u><center>==========Run External Stock Tests:==========</center></u><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_541422.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_370529.png)error_pct_outside_iqr 0.0<p>Mean accuracy 2 decimal places: tensor([0.4464])% <p>                Mean accuracy 1 decimal places: tensor([5.5804])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000]])% <p>                     1 decimal places: tensor([[ 0.0000],
+        [10.7143],
+        [ 7.1429],
+        [17.8571],
+        [ 0.0000],
+        [ 3.5714],
+        [ 7.1429],
+        [ 3.5714],
+        [ 3.5714],
+        [ 7.1429],
+        [ 0.0000],
+        [ 3.5714],
+        [17.8571],
+        [ 3.5714],
+        [ 3.5714],
+        [ 0.0000]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_924859.png)Error Stats for SICP<p>MAE: 1.1367937326431274<p>MSE: 1.964950442314148<p>RMSE: 1.4017668962478638<p>MAPE: 338.7634582519531<p>R2: -0.964950442314148<p>scatter_diagram_twovar_plot_mean<p>
+![Example Plot](brute_force_images_mlflow/image_993302.png)plot_image_correlations<p>
+![Example Plot](brute_force_images_mlflow/image_316959.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0.5) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_581227.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_463009.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993303.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993304.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993305.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993306.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993307.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993308.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993309.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993310.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993311.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_296110.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_714607.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_684895.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_381109.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_145882.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_976616.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_186753.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_980987.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_922072.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993312.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993313.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993314.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993315.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_114739.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_902240.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993316.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993317.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993318.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993319.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993320.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993321.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993322.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993323.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993324.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_864180.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_147517.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_152655.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_720171.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993325.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993326.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993327.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993328.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993329.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993330.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993331.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993332.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993333.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_212658.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_664713.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_649741.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_971863.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_167990.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_710764.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_831025.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_837266.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_531268.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993334.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993335.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993336.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993337.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993338.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993339.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993340.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993341.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993342.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_485404.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_207627.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_582555.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_688865.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_658485.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_155419.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_446434.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_975241.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_796683.png)End of Training: Cum Loss: 37.397429602486746 at 1.<p>error_pct_outside_iqr 0.0<p>Mean accuracy 2 decimal places: tensor([0.4464])% <p>                Mean accuracy 1 decimal places: tensor([4.4643])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714]])% <p>                     1 decimal places: tensor([[ 3.5714],
+        [ 0.0000],
+        [ 3.5714],
+        [ 3.5714],
+        [ 3.5714],
+        [ 3.5714],
+        [ 3.5714],
+        [ 3.5714],
+        [ 3.5714],
+        [ 3.5714],
+        [ 0.0000],
+        [10.7143],
+        [10.7143],
+        [ 7.1429],
+        [ 3.5714],
+        [ 7.1429]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_281459.png)Error Stats for SIVBQ<p>MAE: 1.000317931175232<p>MSE: 1.4627618789672852<p>RMSE: 1.209446907043457<p>MAPE: 498.16326904296875<p>R2: -0.46559953689575195<p><u><center>==========Run External Stock Tests:==========</center></u><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_229802.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_285012.png)error_pct_outside_iqr 3.571428571428571<p>Mean accuracy 2 decimal places: tensor([0.6696])% <p>                Mean accuracy 1 decimal places: tensor([5.8036])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [3.5714],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000]])% <p>                     1 decimal places: tensor([[ 3.5714],
+        [ 3.5714],
+        [ 7.1429],
+        [ 7.1429],
+        [ 3.5714],
+        [ 3.5714],
+        [10.7143],
+        [ 3.5714],
+        [ 0.0000],
+        [ 3.5714],
+        [ 0.0000],
+        [14.2857],
+        [17.8571],
+        [ 3.5714],
+        [ 7.1429],
+        [ 3.5714]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_592118.png)Error Stats for SICP<p>MAE: 1.0208755731582642<p>MSE: 1.6415401697158813<p>RMSE: 1.2812260389328003<p>MAPE: 272.9624938964844<p>R2: -0.6415401697158813<p>scatter_diagram_twovar_plot_mean<p>
+![Example Plot](brute_force_images_mlflow/image_993343.png)plot_image_correlations<p>
+![Example Plot](brute_force_images_mlflow/image_620385.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0.5) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_312427.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_687450.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993344.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993345.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993346.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993347.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993348.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993349.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993350.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993351.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993352.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_932822.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_252855.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_441484.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_496671.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_471207.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_307474.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_749818.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_412110.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_432773.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993353.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993354.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993355.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993356.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_165281.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_405886.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993357.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993358.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993359.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993360.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993361.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993362.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993363.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993364.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993365.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_366213.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_591494.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_728801.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_426573.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_214249.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_332058.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_990778.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_678621.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_606475.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993366.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993367.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993368.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993369.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993370.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993371.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993372.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993373.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993374.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_542495.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_557853.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_371366.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_169149.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_179388.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_146240.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_395072.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_445759.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_732271.png)End of Training: Cum Loss: 37.12414588034153 at 1.<p>error_pct_outside_iqr 0.0<p>Mean accuracy 2 decimal places: tensor([0.8929])% <p>                Mean accuracy 1 decimal places: tensor([6.4732])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [7.1429],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [3.5714]])% <p>                     1 decimal places: tensor([[14.2857],
+        [ 7.1429],
+        [ 7.1429],
+        [ 3.5714],
+        [ 3.5714],
+        [ 3.5714],
+        [25.0000],
+        [ 0.0000],
+        [ 0.0000],
+        [ 0.0000],
+        [ 0.0000],
+        [ 7.1429],
+        [ 0.0000],
+        [14.2857],
+        [ 7.1429],
+        [10.7143]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_141139.png)Error Stats for SIVBQ<p>MAE: 0.9375833868980408<p>MSE: 1.326196312904358<p>RMSE: 1.1516059637069702<p>MAPE: 346.4796447753906<p>R2: -0.3287689685821533<p><u><center>==========Run External Stock Tests:==========</center></u><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_523257.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_369871.png)error_pct_outside_iqr 0.0<p>Mean accuracy 2 decimal places: tensor([1.1161])% <p>                Mean accuracy 1 decimal places: tensor([6.0268])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [3.5714],
+        [7.1429]])% <p>                     1 decimal places: tensor([[10.7143],
+        [ 3.5714],
+        [10.7143],
+        [ 3.5714],
+        [ 7.1429],
+        [ 0.0000],
+        [ 3.5714],
+        [10.7143],
+        [ 0.0000],
+        [10.7143],
+        [ 3.5714],
+        [10.7143],
+        [ 3.5714],
+        [ 3.5714],
+        [ 3.5714],
+        [10.7143]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_377626.png)Error Stats for SICP<p>MAE: 1.0022944211959839<p>MSE: 1.5326783657073975<p>RMSE: 1.2380138635635376<p>MAPE: 346.2154541015625<p>R2: -0.5326783657073975<p>scatter_diagram_twovar_plot_mean<p>
+![Example Plot](brute_force_images_mlflow/image_993375.png)plot_image_correlations<p>
+![Example Plot](brute_force_images_mlflow/image_192426.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0.5) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_402669.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_633223.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993376.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993377.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993378.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993379.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993380.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993381.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993382.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993383.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993384.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_273876.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_678955.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_559295.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_452534.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_792089.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_207995.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_464709.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_916215.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_202074.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993385.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993386.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993387.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993388.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_507946.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_475774.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993389.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993390.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993391.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993392.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993393.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993394.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993395.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993396.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993397.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_120206.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_116733.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_755729.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_910692.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_819285.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_303255.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_772121.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_844902.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_909648.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993398.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993399.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993400.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993401.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993402.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993403.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993404.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993405.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993406.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_562019.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_321589.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_939783.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_134450.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_817001.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_495184.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_913255.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_938166.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_394705.png)End of Training: Cum Loss: 37.42002270477159 at 1.<p>error_pct_outside_iqr 0.0<p>Mean accuracy 2 decimal places: tensor([0.8929])% <p>                Mean accuracy 1 decimal places: tensor([6.0268])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [3.5714]])% <p>                     1 decimal places: tensor([[ 7.1429],
+        [ 7.1429],
+        [ 7.1429],
+        [ 3.5714],
+        [ 7.1429],
+        [ 7.1429],
+        [ 0.0000],
+        [10.7143],
+        [ 3.5714],
+        [ 3.5714],
+        [ 3.5714],
+        [ 3.5714],
+        [ 7.1429],
+        [ 7.1429],
+        [ 7.1429],
+        [10.7143]])%<p><b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_619528.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_927668.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993407.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993408.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993409.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993410.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993411.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993412.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993413.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993414.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993415.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_208280.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_569246.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_692565.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_647234.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_932778.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_378988.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_703712.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_793391.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_709054.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993416.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993417.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993418.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993419.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993420.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993421.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993422.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993423.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993424.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_238456.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_912519.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_688105.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_731740.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_723477.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_229587.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_295795.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_160262.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_473074.png)End of Training: Cum Loss: 37.57613435813359 at 1.<p>error_pct_outside_iqr 0.0<p>Mean accuracy 2 decimal places: tensor([0.8929])% <p>                Mean accuracy 1 decimal places: tensor([6.9196])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [3.5714]])% <p>                     1 decimal places: tensor([[ 3.5714],
+        [ 3.5714],
+        [ 7.1429],
+        [10.7143],
+        [ 7.1429],
+        [ 3.5714],
+        [ 0.0000],
+        [ 0.0000],
+        [14.2857],
+        [10.7143],
+        [14.2857],
+        [ 7.1429],
+        [ 7.1429],
+        [ 3.5714],
+        [10.7143],
+        [ 7.1429]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_897766.png)Error Stats for SIVBQ<p>MAE: 1.026584267616272<p>MSE: 1.637478232383728<p>RMSE: 1.2796398401260376<p>MAPE: 1283.9149169921875<p>R2: -0.6406548023223877<p><u><center>==========Run External Stock Tests:==========</center></u><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_117342.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_679225.png)error_pct_outside_iqr 3.571428571428571<p>Mean accuracy 2 decimal places: tensor([0.2232])% <p>                Mean accuracy 1 decimal places: tensor([7.8125])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000]])% <p>                     1 decimal places: tensor([[ 3.5714],
+        [10.7143],
+        [10.7143],
+        [ 3.5714],
+        [10.7143],
+        [ 7.1429],
+        [ 0.0000],
+        [ 7.1429],
+        [ 7.1429],
+        [ 7.1429],
+        [10.7143],
+        [ 3.5714],
+        [ 7.1429],
+        [14.2857],
+        [14.2857],
+        [ 7.1429]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_835582.png)Error Stats for SICP<p>MAE: 0.9036440253257751<p>MSE: 1.2827270030975342<p>RMSE: 1.1325753927230835<p>MAPE: 293.1351013183594<p>R2: -0.2827270030975342<p>scatter_diagram_twovar_plot_mean<p>
+![Example Plot](brute_force_images_mlflow/image_993425.png)plot_image_correlations<p>
+![Example Plot](brute_force_images_mlflow/image_103763.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 0.5) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_571514.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_172554.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993426.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993427.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993428.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993429.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993430.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993431.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993432.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993433.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993434.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_212988.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_109925.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_225942.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_417174.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_912428.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_514282.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_327727.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_195281.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_112885.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993435.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993436.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993437.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993438.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993439.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993440.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993441.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993442.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_993443.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_237993.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_292531.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_363494.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_776098.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_149163.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_853953.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_778757.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_862887.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_458930.png)End of Training: Cum Loss: 37.91483756899834 at 1.<p>error_pct_outside_iqr 0.0<p>Mean accuracy 2 decimal places: tensor([0.2232])% <p>                Mean accuracy 1 decimal places: tensor([5.8036])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000]])% <p>                     1 decimal places: tensor([[3.5714],
+        [7.1429],
+        [7.1429],
+        [7.1429],
+        [7.1429],
+        [7.1429],
+        [3.5714],
+        [3.5714],
+        [3.5714],
+        [7.1429],
+        [3.5714],
+        [7.1429],
+        [7.1429],
+        [3.5714],
+        [7.1429],
+        [7.1429]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_991785.png)Error Stats for SIVBQ<p>MAE: 1.1259806156158447<p>MSE: 1.9501286745071411<p>RMSE: 1.396470069885254<p>MAPE: 655.3548583984375<p>R2: -0.9539117813110352<p><u><center>==========Run External Stock Tests:==========</center></u><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_968245.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_174333.png)error_pct_outside_iqr 0.0<p>Mean accuracy 2 decimal places: tensor([0.2232])% <p>                Mean accuracy 1 decimal places: tensor([6.0268])% <p>                 Percentage of predictions within 2 decimal places: tensor([[3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000]])% <p>                     1 decimal places: tensor([[ 7.1429],
+        [ 3.5714],
+        [17.8571],
+        [ 3.5714],
+        [25.0000],
+        [ 0.0000],
+        [ 7.1429],
+        [ 0.0000],
+        [ 0.0000],
+        [ 7.1429],
+        [ 0.0000],
+        [ 3.5714],
+        [ 0.0000],
+        [14.2857],
+        [ 3.5714],
+        [ 3.5714]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_851792.png)Error Stats for SICP<p>MAE: 1.2920564413070679<p>MSE: 2.6948087215423584<p>RMSE: 1.641587257385254<p>MAPE: 722.7108764648438<p>R2: -1.6948087215423584<p>scatter_diagram_twovar_plot_mean<p>
+![Example Plot](brute_force_images_mlflow/image_993444.png)plot_image_correlations<p>
+![Example Plot](brute_force_images_mlflow/image_829847.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-1, 1) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_996302.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_778617.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996303.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996304.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996305.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996306.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996307.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996308.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996309.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996310.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996311.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_420868.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_491062.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_276770.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_798410.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_882365.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_690514.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_238640.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_553841.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_645432.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996312.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996313.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996314.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996315.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996316.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996317.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996318.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996319.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996320.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_450166.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_924393.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_356224.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_957646.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_317588.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_760642.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_402353.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_110052.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_756448.png)End of Training: Cum Loss: 40.351337926728384 at 1.<p>error_pct_outside_iqr 0.0<p>Mean accuracy 2 decimal places: tensor([0.6696])% <p>                Mean accuracy 1 decimal places: tensor([3.5714])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [3.5714],
+        [0.0000],
+        [0.0000],
+        [0.0000],
+        [0.0000]])% <p>                     1 decimal places: tensor([[ 7.1429],
+        [ 0.0000],
+        [ 3.5714],
+        [ 0.0000],
+        [ 3.5714],
+        [14.2857],
+        [ 0.0000],
+        [ 0.0000],
+        [ 3.5714],
+        [ 3.5714],
+        [ 0.0000],
+        [10.7143],
+        [ 3.5714],
+        [ 0.0000],
+        [ 3.5714],
+        [ 3.5714]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_993335.png)Error Stats for SIVBQ<p>MAE: 1.5542269945144653<p>MSE: 3.6899349689483643<p>RMSE: 1.9209203720092773<p>MAPE: 1120.0208740234375<p>R2: -2.6970930099487305<p><u><center>==========Run External Stock Tests:==========</center></u><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_799261.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_878916.png)error_pct_outside_iqr 0.0<p>Mean accuracy 2 decimal places: tensor([0.])% <p>                Mean accuracy 1 decimal places: tensor([4.2411])% <p>                 Percentage of predictions within 2 decimal places: tensor([[0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.]])% <p>                     1 decimal places: tensor([[ 0.0000],
+        [ 7.1429],
+        [ 0.0000],
+        [ 7.1429],
+        [ 7.1429],
+        [ 0.0000],
+        [ 0.0000],
+        [ 0.0000],
+        [ 0.0000],
+        [ 0.0000],
+        [10.7143],
+        [ 0.0000],
+        [ 3.5714],
+        [17.8571],
+        [ 7.1429],
+        [ 7.1429]])%<p>scatter_diagram_onevar_plot_mean<p>
+![Example Plot](brute_force_images/image_379697.png)Error Stats for SICP<p>MAE: 1.4875825643539429<p>MSE: 3.4868807792663574<p>RMSE: 1.867319107055664<p>MAPE: 494.3599853515625<p>R2: -2.4868807792663574<p>scatter_diagram_twovar_plot_mean<p>
+![Example Plot](brute_force_images_mlflow/image_996321.png)plot_image_correlations<p>
+![Example Plot](brute_force_images_mlflow/image_436064.png)<b><center>==========Optimization Iteration==========</center></b><p><p><p><b>sample_range: (-0.5, 0) scaler: StandardScaler()</b><p>plot_price_comparison_stocks<p>
+![Example Plot](brute_force_images_mlflow/image_326392.png)quick_view_images<p>
+![Example Plot](brute_force_images_mlflow/image_399351.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996322.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996323.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996324.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996325.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996326.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996327.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996328.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996329.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996330.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_185928.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_490785.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_352315.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_474060.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_190700.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_693593.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_615359.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_275847.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images/image_291057.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996331.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996332.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996333.png)plot_weights_gradients<p>
+![Example Plot](brute_force_images_mlflow/image_996334.png)Error Stats for SIVBQ<p>MAE: 1.0448877811431885<p>MSE: 1.5931177139282227<p>RMSE: 1.2621877193450928<p>MAPE: 895.24609375<p>R2: -0.5962082147598267<p>Error Stats for SICP<p>MAE: 0.8892237544059753<p>MSE: 1.2041690349578857<p>RMSE: 1.097346305847168<p>MAPE: 273.2239990234375<p>R2: -0.20416903495788574<p>Error Stats for SIVBQ<p>MAE: 0.9827389717102051<p>MSE: 1.4170186519622803<p>RMSE: 1.1903859376907349<p>MAPE: 641.1260375976562<p>R2: -0.41976749897003174<p>Error Stats for SICP<p>MAE: 0.9578728079795837<p>MSE: 1.4049522876739502<p>RMSE: 1.1853067874908447<p>MAPE: 465.99688720703125<p>R2: -0.4049522876739502<p>Error Stats for SIVBQ<p>MAE: 1.1595865488052368<p>MSE: 2.329089641571045<p>RMSE: 1.5261355638504028<p>MAPE: 572.6748046875<p>R2: -1.3336079120635986<p>Error Stats for SICP<p>MAE: 1.3134629726409912<p>MSE: 2.6082191467285156<p>RMSE: 1.6149982213974<p>MAPE: 441.7187194824219<p>R2: -1.6082191467285156<p>Error Stats for SIVBQ<p>MAE: 0.8806985020637512<p>MSE: 1.2515305280685425<p>RMSE: 1.1187182664871216<p>MAPE: 920.05908203125<p>R2: -0.2539583444595337<p>Error Stats for SICP<p>MAE: 0.8277514576911926<p>MSE: 1.1368540525436401<p>RMSE: 1.0662336349487305<p>MAPE: 244.8223419189453<p>R2: -0.13685405254364014<p>Error Stats for SIVBQ<p>MAE: 0.9794438481330872<p>MSE: 1.403136968612671<p>RMSE: 1.184540867805481<p>MAPE: 963.849609375<p>R2: -0.4058588743209839<p>Error Stats for SICP<p>MAE: 1.087211012840271<p>MSE: 1.8099031448364258<p>RMSE: 1.3453264236450195<p>MAPE: 340.6211242675781<p>R2: -0.8099031448364258<p>Error Stats for SIVBQ<p>MAE: 0.8705157041549683<p>MSE: 1.1720572710037231<p>RMSE: 1.0826159715652466<p>MAPE: 786.1492309570312<p>R2: -0.1743309497833252<p>Error Stats for SICP<p>MAE: 0.8681474328041077<p>MSE: 1.1392414569854736<p>RMSE: 1.067352533340454<p>MAPE: 258.2840576171875<p>R2: -0.13924145698547363<p>Error Stats for SIVBQ<p>MAE: 0.9710491299629211<p>MSE: 1.4857453107833862<p>RMSE: 1.2189115285873413<p>MAPE: 660.9158935546875<p>R2: -0.488627552986145<p>Error Stats for SICP<p>MAE: 1.0687495470046997<p>MSE: 1.8186838626861572<p>RMSE: 1.348585844039917<p>MAPE: 372.54949951171875<p>R2: -0.8186838626861572<p>Error Stats for SIVBQ<p>MAE: 0.8433550000190735<p>MSE: 1.1066418886184692<p>RMSE: 1.0519704818725586<p>MAPE: 411.2431640625<p>R2: -0.10878872871398926<p>Error Stats for SICP<p>MAE: 1.0322684049606323<p>MSE: 1.5913851261138916<p>RMSE: 1.2615011930465698<p>MAPE: 407.40032958984375<p>R2: -0.5913851261138916<p>Error Stats for SIVBQ<p>MAE: 1.0396608114242554<p>MSE: 1.694957971572876<p>RMSE: 1.3019055128097534<p>MAPE: 668.3818969726562<p>R2: -0.6982461214065552<p>Error Stats for SICP<p>MAE: 0.9155985116958618<p>MSE: 1.2913144826889038<p>RMSE: 1.1363601684570312<p>MAPE: 294.0744934082031<p>R2: -0.2913144826889038<p>Error Stats for SIVBQ<p>MAE: 0.9577993750572205<p>MSE: 1.371424913406372<p>RMSE: 1.1710785627365112<p>MAPE: 603.0926513671875<p>R2: -0.3740854263305664<p>Error Stats for SICP<p>MAE: 1.035449743270874<p>MSE: 1.7258161306381226<p>RMSE: 1.313703179359436<p>MAPE: 343.7684631347656<p>R2: -0.7258161306381226<p>Error Stats for SIVBQ<p>MAE: 1.0713521242141724<p>MSE: 1.6894701719284058<p>RMSE: 1.299796223640442<p>MAPE: 637.6260986328125<p>R2: -0.6927475929260254<p>Error Stats for SICP<p>MAE: 1.0663772821426392<p>MSE: 1.7492672204971313<p>RMSE: 1.3225986957550049<p>MAPE: 386.5576477050781<p>R2: -0.7492672204971313<p>Error Stats for SIVBQ<p>MAE: 0.9898222088813782<p>MSE: 1.4947935342788696<p>RMSE: 1.222617506980896<p>MAPE: 577.8590698242188<p>R2: -0.4976933002471924<p>Error Stats for SICP<p>MAE: 0.97635418176651<p>MSE: 1.5258530378341675<p>RMSE: 1.2352542877197266<p>MAPE: 275.2165222167969<p>R2: -0.5258530378341675<p>Error Stats for SIVBQ<p>MAE: 0.8441308736801147<p>MSE: 1.0713798999786377<p>RMSE: 1.0350748300552368<p>MAPE: 635.8983764648438<p>R2: -0.07345831394195557<p>Error Stats for SICP<p>MAE: 0.8553119897842407<p>MSE: 1.1603529453277588<p>RMSE: 1.0771968364715576<p>MAPE: 253.3069610595703<p>R2: -0.1603529453277588<p>Error Stats for SIVBQ<p>MAE: 1.1492242813110352<p>MSE: 2.057537794113159<p>RMSE: 1.4344120025634766<p>MAPE: 897.2454223632812<p>R2: -1.0615291595458984<p>Error Stats for SICP<p>MAE: 1.0941400527954102<p>MSE: 1.7487380504608154<p>RMSE: 1.3223985433578491<p>MAPE: 596.1024169921875<p>R2: -0.7487380504608154<p>Error Stats for SIVBQ<p>MAE: 0.868924081325531<p>MSE: 1.1752647161483765<p>RMSE: 1.0840963125228882<p>MAPE: 877.7335205078125<p>R2: -0.1775447130203247<p>Error Stats for SICP<p>MAE: 1.0552616119384766<p>MSE: 1.820094108581543<p>RMSE: 1.3491085767745972<p>MAPE: 384.3023681640625<p>R2: -0.820094108581543<p>Error Stats for SIVBQ<p>MAE: 0.9799728393554688<p>MSE: 1.4413326978683472<p>RMSE: 1.2005552053451538<p>MAPE: 788.9418334960938<p>R2: -0.44412875175476074<p>Error Stats for SICP<p>MAE: 0.8072415590286255<p>MSE: 1.0500470399856567<p>RMSE: 1.0247180461883545<p>MAPE: 312.4085693359375<p>R2: -0.05004703998565674<p>Error Stats for SIVBQ<p>MAE: 1.6557350158691406<p>MSE: 3.4702072143554688<p>RMSE: 1.862849235534668<p>MAPE: inf<p>R2: -50.653472900390625<p>Error Stats for SICP<p>MAE: 1.6308667659759521<p>MSE: 3.5932583808898926<p>RMSE: 1.8955892324447632<p>MAPE: inf<p>R2: -61.58597946166992<p>Error Stats for SIVBQ<p>MAE: 0.5412370562553406<p>MSE: 0.48399442434310913<p>RMSE: 0.6956970691680908<p>MAPE: inf<p>R2: -6.204178810119629<p>Error Stats for SICP<p>MAE: 0.4615146219730377<p>MSE: 0.3493995666503906<p>RMSE: 0.59110027551651<p>MAPE: inf<p>R2: -5.0857062339782715<p>Error Stats for SIVBQ<p>MAE: 0.562519371509552<p>MSE: 0.5032569766044617<p>RMSE: 0.7094060778617859<p>MAPE: inf<p>R2: -6.490898609161377<p>Error Stats for SICP<p>MAE: 0.5375223755836487<p>MSE: 0.4820104241371155<p>RMSE: 0.6942697167396545<p>MAPE: inf<p>R2: -7.39547061920166<p>Error Stats for SIVBQ<p>MAE: 0.9337804913520813<p>MSE: 1.233327865600586<p>RMSE: 1.1105529069900513<p>MAPE: inf<p>R2: -17.357885360717773<p>Error Stats for SICP<p>MAE: 0.9324900507926941<p>MSE: 1.2508563995361328<p>RMSE: 1.1184169054031372<p>MAPE: inf<p>R2: -20.78693199157715<p>Error Stats for SIVBQ<p>MAE: 0.9019536375999451<p>MSE: 1.2409850358963013<p>RMSE: 1.11399507522583<p>MAPE: inf<p>R2: -17.47186279296875<p>Error Stats for SICP<p>MAE: 0.8897103071212769<p>MSE: 1.19354248046875<p>RMSE: 1.0924936532974243<p>MAPE: inf<p>R2: -19.788660049438477<p>Error Stats for SIVBQ<p>MAE: 0.6315430402755737<p>MSE: 0.6396487951278687<p>RMSE: 0.7997804880142212<p>MAPE: inf<p>R2: -8.521068572998047<p>Error Stats for SICP<p>MAE: 0.5688101053237915<p>MSE: 0.5262714624404907<p>RMSE: 0.7254456877708435<p>MAPE: inf<p>R2: -8.16639232635498<p>Error Stats for SIVBQ<p>MAE: 0.6500608325004578<p>MSE: 0.7754250764846802<p>RMSE: 0.8805822134017944<p>MAPE: inf<p>R2: -10.54207706451416<p>Error Stats for SICP<p>MAE: 0.669474720954895<p>MSE: 0.6793443560600281<p>RMSE: 0.8242234587669373<p>MAPE: inf<p>R2: -10.83255672454834<p>Error Stats for SIVBQ<p>MAE: 0.8655027747154236<p>MSE: 1.0803813934326172<p>RMSE: 1.0394139289855957<p>MAPE: inf<p>R2: -15.081302642822266<p>Error Stats for SICP<p>MAE: 0.9106058478355408<p>MSE: 1.1146156787872314<p>RMSE: 1.0557535886764526<p>MAPE: inf<p>R2: -18.413942337036133<p>

@@ -15,6 +15,7 @@ import pandas as pd
 import io
 
 import mlflow
+from torchinfo import summary
 
 #import scripts
 import importlib as importlib
@@ -51,43 +52,49 @@ def Save_BayesOpt_Model(scenario, net):
     PATH = f'./model_bayesOpt_iteration_{scenario}.pth'
     torch.save(net.state_dict(), PATH)
 
-def Save_Checkpoint_State_Model(epoch, run, net, net_state_dict, opti_state_dict, epoch_loss):
-    PATH = f'./model_run_{run}_{epoch}_checkpoint.pth'
+def Save_Model_Arch(net, run_id, input_shape, input_type, mode):
+    summ = str(summary(net, input_size = input_shape, dtypes=input_type, mode=mode))
+    model_arch_fname = f"./{Parameters.model_arch_dir}/model_arch_runid_{run_id}.txt"
+    save_txt_to_blob(summ, os.path.basename(model_arch_fname))
+    with open(model_arch_fname, "w", encoding="utf-8") as f:
+        f.write(summ)
+    mlflow.log_artifact(model_arch_fname)
+
+def save_checkpoint_model(epoch, run_id, net, net_state_dict, opti_state_dict, epoch_loss):
+    PATH = f'./{Parameters.checkpoint_dir}/model_checkpoint_runid_{run_id}_epoch_{epoch}.pth'
     torch.save({
-            'run_id': run.info.run_id,
+            'run_id': run_id,
             'epoch': epoch,
             'model_state_dict': net_state_dict,
             'optimizer_state_dict': opti_state_dict,
             'loss': epoch_loss,
             }, PATH)
-    torch.save(net.state_dict(), PATH)
+    mlflow.log_artifact(PATH, run_id=run_id)
+    save_file_to_blob(PATH,os.path.basename(PATH))
 
-def Save_Scenario_State_Model(scenario, net):
-    PATH = f'./model_scen_{scenario}_state.pth'
-    torch.save(net.state_dict(), PATH)
-
-def Save_Scenario_Full_Model(scenario, net):
-    PATH = f'./model_scen_{scenario}_full.pth'
+def save_full_model(run_id, net):
+    PATH = f'./{Parameters.full_model_dir}/model_full_runid_{run_id}.pth'
     torch.save(net, PATH)
+    mlflow.pytorch.log_model(net, os.path.basename(PATH))
 
-def Load_State_Model(net, PATH):
-    print("Loading State Model")
-    net.load_state_dict(torch.load(PATH))
-    net.eval()
-    return net
+# def Load_State_Model(net, PATH):
+#     print("Loading State Model")
+#     net.load_state_dict(torch.load(PATH))
+#     net.eval()
+#     return net
 
-def Load_Full_Model(PATH):
-    if os.path.exists(PATH):
-        print("Loading Full Model")
-        net = torch.load(PATH)
-        net.eval()
-        return net
-    else:
-        print(f"Model {PATH} does not exist")
+# def Load_Full_Model(PATH):
+#     if os.path.exists(PATH):
+#         print("Loading Full Model")
+#         net = torch.load(PATH)
+#         net.eval()
+#         return net
+#     else:
+#         print(f"Model {PATH} does not exist")
 
-def Clear_Scenario_Log(scenario):
-    with open(f'scenario_{scenario}.txt', 'w') as file:
-        file.write('')
+# def Clear_Scenario_Log(scenario):
+#     with open(f'scenario_{scenario}.txt', 'w') as file:
+#         file.write('')
 
 def Scenario_Log(output_string):
     with open(f'scenarios_output.txt', 'a') as file:
@@ -112,10 +119,8 @@ def write_scenario_to_log_file(accuracy):
 
     Scenario_Log(output_string)
 
-def Save_Model(scenario, net, epoch, run, net_state_dict, opti_state_dict, epoch_loss):
-    Save_Scenario_State_Model(scenario,net)
-    Save_Scenario_Full_Model(scenario,net)
-    Save_Checkpoint_State_Model(epoch, run, net, net_state_dict, opti_state_dict, epoch_loss)
+def Save_Model(run_id, net):
+    save_full_model(run_id,net)
 
 def write_to_md(text, image_path):
     if text.strip():
@@ -164,6 +169,50 @@ def save_df_to_blob(raw_data, blob_name):
     print(f"File uploaded to Azure Blob Storage as {blob_name}")
     
     return blob_client.url
+
+def save_txt_to_blob(text, blob_name):
+    text_data = text.encode('utf-8')
+
+    connect_str = _credentials.AZURE_STORAGE_CONNECTION_STRING
+    container_name = _credentials.storage_container_name
+    directory = _credentials.blob_directory
+
+    blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+    container_client = blob_service_client.get_container_client(f"{container_name}/{directory}")
+    try:
+        container_client.create_container()
+    except Exception as e:
+        print(f"Container already exists.")
+
+    blob_client = container_client.get_blob_client(blob_name)
+    blob_client.upload_blob(text_data, blob_type="BlockBlob", overwrite=True)
+
+    print(f"File uploaded to Azure Blob Storage as {blob_name}")
+    
+    return blob_client.url
+
+def save_file_to_blob(file_path, blob_name):
+    with open(file_path, "rb") as file:
+        file_data = file.read()
+    
+    connect_str = _credentials.AZURE_STORAGE_CONNECTION_STRING
+    container_name = _credentials.storage_container_name
+    directory = _credentials.blob_directory
+
+    blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+    container_client = blob_service_client.get_container_client(f"{container_name}/{directory}")
+    
+    # Create the container if it does not exist
+    try:
+        container_client.create_container()
+    except Exception as e:
+        print(f"Container already exists or an error occurred: {e}")
+
+    # Upload the file content to the blob
+    blob_client = container_client.get_blob_client(blob_name)
+    blob_client.upload_blob(file_data, blob_type="BlockBlob", overwrite=True)
+
+    print(f"File uploaded to Azure Blob Storage as {blob_name}")
 
 def read_csv_from_blob(blob_name):
     connect_str = _credentials.AZURE_STORAGE_CONNECTION_STRING

@@ -16,19 +16,19 @@ from parameters import Parameters
 def test_process(net, test_loader, params, stock_ticker, run):
     
     # test
-    stack_input, predicted_list, actual_list, accuracy, stack_actual, stack_predicted  = neural_network.Test(test_loader,net)
+    stack_input, predicted_list, actual_list, accuracy, stack_actual, stack_predicted  = neural_network.Test(test_loader,net, stock_ticker)
 
     #store and to mlflow these input and predicted stacks
     reshaped_input_stack_tensor = stack_input.view(-1, stack_input.size(-1))
     input_df = pd.DataFrame(reshaped_input_stack_tensor.numpy())
-    blob_name = f"{Parameters.input_image_data_blob_fname}_{run.info.run_id}.csv"
+    blob_name = f"{run.info.run_id}/{Parameters.input_image_data_blob_fname}_{run.info.run_id}.csv"
     full_blob_uri = helper_functions.save_df_to_blob(input_df, blob_name)
     tags = {'original_shape': f'{stack_input.shape}'}
     helper_functions.mlflow_log_dataset(input_df, full_blob_uri, stock_ticker, "input_image", "train", run, tags)
     
     reshaped_predicted_stack_tensor = stack_predicted.view(-1, stack_predicted.size(-1))
     predicted_df = pd.DataFrame(reshaped_predicted_stack_tensor.numpy())
-    blob_name = f"{Parameters.predicted_image_data_blob_fname}_{run.info.run_id}.csv"
+    blob_name = f"{run.info.run_id}/{Parameters.predicted_image_data_blob_fname}_{run.info.run_id}.csv"
     full_blob_uri = helper_functions.save_df_to_blob(predicted_df, blob_name)
     tags = {'original_shape': f'{stack_predicted.shape}'}
     helper_functions.mlflow_log_dataset(predicted_df, full_blob_uri, stock_ticker, "predicted_image", "train", run, tags)

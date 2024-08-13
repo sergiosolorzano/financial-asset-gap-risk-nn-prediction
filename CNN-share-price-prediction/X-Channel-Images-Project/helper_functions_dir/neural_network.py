@@ -23,6 +23,7 @@ import plot_data as plot_data
 import image_transform as image_transform
 import helper_functions as helper_functions
 import compute_stats as compute_stats
+from parameters import Parameters
 
 #set gpu env
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
@@ -122,7 +123,7 @@ def instantiate_net(params):
 
     return net
 
-def Train(params, train_loader, net, run):
+def Train(params, train_loader, net, run_id):
 
     #torch.set_printoptions(threshold=torch.inf)
 
@@ -139,15 +140,14 @@ def Train(params, train_loader, net, run):
     #criterion = nn.CrossEntropyLoss()
     #optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=momentum)
 
-    min_epoch_cum_loss = 0
+    checkpoint_cum_loss_threshold = 1000
+    epoch_cum_loss = 0
 
     for epoch in range(params.num_epochs_input):
 
         gradients_dict = {name: [] for name, _ in net.named_parameters() if 'weight' in name}
 
         weights_dict = {name: [] for name, _ in net.named_parameters() if 'weight' in name}
-
-        epoch_cum_loss = 1000
 
         first_batch = True
         
@@ -159,7 +159,9 @@ def Train(params, train_loader, net, run):
                 print("epoch",epoch,"data i",i,"len image",len(inputs), "shape",inputs.shape)
                 print("epoch",epoch,"data i",i,"label",labels,"labels shape",labels.shape)
 
-            #if i==0 and first_batch and epoch == 0: print("image inputs", inputs)
+            if Parameters.save_arch_bool:
+                helper_functions.Save_Model_Arch(net, run_id, inputs.shape, [inputs.dtype], "train")
+                Parameters.save_arch_bool = False
             
             # for e in data[1]:
             #     print("label",e.item())
@@ -191,7 +193,8 @@ def Train(params, train_loader, net, run):
                 if first_batch and ((epoch + 1) % params.epoch_running_loss_check == 0):
                     print_mssg = f"[{(epoch + 1):d}, {(i + 1):5d}] This Epoch First Batch loss: {(loss.item()):.9f}<p>"
                     print(print_mssg) 
-                    helper_functions.write_to_md(print_mssg,None)
+                    if Parameters.save_runs_to_md:
+                        helper_functions.write_to_md(print_mssg,None)
 
                 if first_batch and ((epoch + 1) % params.epoch_running_gradients_check == 0):
                     for name, param in net.named_parameters():
@@ -207,21 +210,23 @@ def Train(params, train_loader, net, run):
         mlflow.log_metric("epoch_cum_loss",epoch_cum_loss,step=epoch)
 
         #checkpoint
-        if epoch_cum_loss < min_epoch_cum_loss:
-            min_epoch_cum_loss = epoch_cum_loss
-            helper_functions.Save_Checkpoint_State_Model(epoch, run, net, net.state_dict(), optimizer.state_dict(), epoch_cum_loss)
+        if epoch_cum_loss < checkpoint_cum_loss_threshold:
+            checkpoint_cum_loss_threshold = epoch_cum_loss
+            helper_functions.save_checkpoint_model(epoch, run_id, net, net.state_dict(), optimizer.state_dict(), epoch_cum_loss)
         
+        #exit if below loss threshold
         if (epoch_cum_loss) < params.loss_threshold:
             print(f"Epoch Cum Loss is less than {params.loss_threshold}:{epoch_cum_loss} at {epoch}. Stopping training.")
-            helper_functions.write_to_md(f"Epoch Cum Loss is less than {params.loss_threshold}:{epoch_cum_loss} at {epoch}. Stopping training.<p>",None)
+            if Parameters.save_runs_to_md:
+                helper_functions.write_to_md(f"Epoch Cum Loss is less than {params.loss_threshold}:{epoch_cum_loss} at {epoch}. Stopping training.<p>",None)
             return net
 
-    #log cum loss
+    #end of training
     mlflow.log_metric("epoch_cum_loss",epoch_cum_loss,step=epoch)
-    helper_functions.Save_Checkpoint_State_Model(epoch, run, net, net.state_dict(), optimizer.state_dict(), epoch_cum_loss)
     print_mssg = f"End of Training: Cum Loss: {(epoch_cum_loss/len(train_loader))} at {epoch}.<p>"
     print(print_mssg)
-    helper_functions.write_to_md(print_mssg,None)
+    if Parameters.save_runs_to_md:
+        helper_functions.write_to_md(print_mssg,None)
     end_time = time.time()
 
     # Calculate elapsed time
@@ -232,7 +237,7 @@ def Train(params, train_loader, net, run):
                 
     return net
 
-def Test(test_loader, net):
+def Test(test_loader, net, stock_ticker):
     inputs_list = []
     accuracy = 0
     correct_2dp_list = []
@@ -286,13 +291,14 @@ def Test(test_loader, net):
     correct_1dp_score = calculate_score(correct_1dp_list)
 
     print("shape",correct_1dp_score.shape)
-    mean_of_mean_correct_2dp_score = torch.mean(correct_2dp_score, dim=0)
-    mean_of_mean_correct_1dp_score = torch.mean(correct_1dp_score, dim=0)
+    mean_correct_2dp_score = torch.mean(correct_2dp_score, dim=0)
+    mean_correct_1dp_score = torch.mean(correct_1dp_score, dim=0)
     
     error_list_iqr, error_pct_outside_iqr = compute_stats.calculate_iqr(error_list)
 
     text_mssg=f"error_pct_outside_iqr {error_pct_outside_iqr}<p>"
-    helper_functions.write_to_md(text_mssg,None)
+    if Parameters.save_runs_to_md:
+        helper_functions.write_to_md(text_mssg,None)
 
     stack_input = torch.stack(inputs_list, dim=0)
     
@@ -307,17 +313,29 @@ def Test(test_loader, net):
     #print("stack input shape",stack_input.shape)#,"stack_input",stack_input)
         
     accuracy = [correct_2dp_score, correct_1dp_score]
-    print(); print(f"Mean accuracy 2 decimal places: {mean_of_mean_correct_2dp_score}%, "
-            f"Mean accuracy 1 decimal places: {mean_of_mean_correct_1dp_score}%,\n",
+    print(); print(f"Mean accuracy 2 decimal places: {mean_correct_2dp_score}%, "
+            f"Mean accuracy 1 decimal places: {mean_correct_1dp_score}%,\n",
             f"Percentage of predictions within ",
             f"2 decimal places: {correct_2dp_score}%, "
             f"1 decimal places: {correct_1dp_score}%,\n")
 
-    text_mssg=(f"Mean accuracy 2 decimal places: {mean_of_mean_correct_2dp_score}% <p> \
-               Mean accuracy 1 decimal places: {mean_of_mean_correct_1dp_score}% <p> \
+    text_mssg=(f"Mean accuracy 2 decimal places: {mean_correct_2dp_score}% <p> \
+               Mean accuracy 1 decimal places: {mean_correct_1dp_score}% <p> \
                 Percentage of predictions within 2 decimal places: {correct_2dp_score}% <p> \
                     1 decimal places: {correct_1dp_score}%<p>")
-    helper_functions.write_to_md(text_mssg,None)
+    if Parameters.save_runs_to_md:
+        helper_functions.write_to_md(text_mssg,None)
+
+    # log metrics
+    accuracy_metrics = {f"{stock_ticker}_accuracy_2dp_score": mean_correct_2dp_score.double().item(),
+               f"{stock_ticker}_accuracy_1dp_score": mean_correct_1dp_score.double().item(),
+               f"{stock_ticker}_error_pct_outside_iqr": error_pct_outside_iqr}
+    mlflow.log_metrics(accuracy_metrics)
+    
+    for idx, sc in enumerate(correct_2dp_score):
+        accuracyby_element_metrics = {f'{stock_ticker}_accuracy_2dp_score_ele_{idx}': correct_2dp_score[idx].double().item(),
+                                      f'{stock_ticker}_accuracy_1dp_score_ele_{idx}': correct_1dp_score[idx].double().item()}
+    mlflow.log_metrics(accuracyby_element_metrics)
 
     #print("abs_percentage_diffs",abs_percentage_diffs_np)
     return stack_input, predicted_list, actual_list, accuracy, stack_actual, stack_predicted
@@ -329,7 +347,6 @@ def calculate_score(tensor_list):
     #print("true_sum",torch.sum(stack,dim=1))
     true_sum = torch.sum(stack,dim=1)
     score = (true_sum/len(stack.data[0]))*100
-    #print("score in",score)
     return score
 
 def set_model_for_eval(net):

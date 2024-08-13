@@ -7,13 +7,13 @@ sys.path.append(os.path.abspath('./helper_functions_dir'))
 import helper_functions_dir.neural_network as neural_network
 import helper_functions_dir.helper_functions as helper_functions
 
-def train_process(train_loader, params, run):
+def train_process(train_loader, params, run_id):
     #init cnn
     net = neural_network.instantiate_net(params)
 
     # train cnn
-    net = neural_network.Train(params, train_loader, net, run)
+    net = neural_network.Train(params, train_loader, net, run_id)
 
-    helper_functions.Save_Model(params.scenario, net)
+    helper_functions.Save_Model(run_id, net)
 
     return net

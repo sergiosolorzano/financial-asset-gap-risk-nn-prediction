@@ -3,6 +3,8 @@ import sys
 import torch
 import numpy as np
 
+import mlflow
+
 #import scripts
 import importlib as importlib
 sys.path.append(os.path.abspath('./helper_functions_dir'))
@@ -10,7 +12,7 @@ import helper_functions as helper_functions
 
 def compute_and_report_error_stats(stack_actual, stack_predicted, stock_ticker):
     #compute stats
-    error_stats = compute_error_stats(stack_actual, stack_predicted)
+    error_stats = compute_error_stats(stack_actual, stack_predicted, stock_ticker)
     text_mssg=f"Error Stats for {stock_ticker}<p>"
     helper_functions.write_to_md(text_mssg,None)
     print(f"Error Stats for {stock_ticker}")
@@ -19,7 +21,7 @@ def compute_and_report_error_stats(stack_actual, stack_predicted, stock_ticker):
         helper_functions.write_to_md(text_mssg,None)
         print(f'{key}: {value}\n')
 
-def compute_error_stats(var1, var2):
+def compute_error_stats(var1, var2, stock_ticker):
     mae = torch.mean(torch.abs(var1 - var2))
 
     mse = torch.mean((var1 - var2) ** 2)
@@ -32,6 +34,13 @@ def compute_error_stats(var1, var2):
     ss_residual = torch.sum((var1 - var2) ** 2)
     r2 = 1 - (ss_residual / ss_total)
 
+    error_metrics = {f"{stock_ticker} MAE": mae.double().item(),
+               f"{stock_ticker} MSE": mse.double().item(),
+               f"{stock_ticker} RMSE": rmse.double().item(),
+               f"{stock_ticker} R2": r2.double().item()
+               }
+    mlflow.log_metrics(error_metrics)
+
     return {
         'MAE': mae.item(),
         'MSE': mse.item(),
@@ -42,6 +51,9 @@ def compute_error_stats(var1, var2):
 
 def self_correlation_feature_1_feature_2(stock_df,feature_1,feature_2):
     correlation = stock_df[feature_1].corr(stock_df[feature_2])
+
+    mlflow.log_metrics(f"correlation_{feature_1}_vs_{feature_2}", correlation)
+
     return (f'Correlation between {feature_1} and {feature_2}: {correlation:.4f}')
 
 def stock_correlation_matrix(stock_ticker,stock_df):
