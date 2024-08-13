@@ -1,2 +1,4 @@
 # Ignore specific files
 activate_correct.sh
+CNN-share-price-prediction/X-Channel-Images-Project/brute_force_images/
+CNN-share-price-prediction/X-Channel-Images-Project/brute_force_images_mlflow/
