@@ -13,16 +13,23 @@ from helper_functions_dir import generate_images
 class Parameters:
     scenario = 0
 
+    brute_force_filename = 'brute_force_results.md'
     mlflow_credentials_fname = 'mlflow-creds.json'
-    mlflow_experiment_name = 'gaprisk-experiment-009'
+    mlflow_experiment_name = 'gaprisk-experiment-001'
     input_price_data_blob_fname = 'input_price_data_run_id'
     input_image_data_blob_fname = 'input_image_data_run_id'
     predicted_image_data_blob_fname = 'predicted_image_data_run_id'
 
-    plt_image_size = (12,5)
+    save_runs_to_md = False
+    
+    save_arch_bool = True #only once
 
-    brute_force_filename = 'brute_force_results.md'
+    plt_image_size = (12,5)
+    
     brute_force_image_mlflow_dir = 'brute_force_images_mlflow'
+    checkpoint_dir = 'model_checkpoints'
+    full_model_dir = 'full_models'
+    model_arch_dir = 'architecture_models'
 
     # Stock tickers
     train_stock_ticker = 'SIVBQ'
@@ -79,13 +86,13 @@ class Parameters:
 
     batch_size = 16
 
-    num_epochs_input = 2#15000
+    num_epochs_input = 4#15000
 
     loss_threshold = 0.0001
 
     epoch_running_loss_check = 2500
     
-    epoch_running_gradients_check = 1
+    epoch_running_gradients_check = 2
 
     checkpoint_dict = {'run_id': None,
                        'epoch': None,

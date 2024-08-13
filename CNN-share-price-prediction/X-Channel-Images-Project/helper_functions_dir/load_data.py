@@ -170,7 +170,7 @@ def import_dataset(ticker, start_date, end_date, run):
     else:
         print("Column 'Date' is missing.")
     
-    blob_name = f"{Parameters.input_price_data_blob_fname}_{run.info.run_id}.csv"
+    blob_name = f"{run.info.run_id}/{Parameters.input_price_data_blob_fname}_{run.info.run_id}.csv"
     full_blob_uri = helper_functions.save_df_to_blob(dataset_df, blob_name)
     tags = {'source': 'yahoo'}
     helper_functions.mlflow_log_dataset(dataset_df, full_blob_uri, ticker, "input_price", "all", run, tags)
