@@ -5,9 +5,10 @@ import sys
 import glob
 import re
 import json
+import mlflow.data.dataset_source_registry
 import numpy as np
 
-import random as rand
+import time
 import matplotlib.pyplot as plt
 
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
@@ -15,6 +16,7 @@ import pandas as pd
 import io
 
 import mlflow
+from mlflow.data.pandas_dataset import PandasDataset
 from torchinfo import summary
 
 #import scripts
@@ -54,28 +56,37 @@ def Save_BayesOpt_Model(scenario, net):
 
 def Save_Model_Arch(net, run_id, input_shape, input_type, mode):
     summ = str(summary(net, input_size = input_shape, dtypes=input_type, mode=mode))
+
+    os.makedirs(Parameters.model_arch_dir, exist_ok=True)
     model_arch_fname = f"./{Parameters.model_arch_dir}/model_arch_runid_{run_id}.txt"
+    
     save_txt_to_blob(summ, os.path.basename(model_arch_fname))
     with open(model_arch_fname, "w", encoding="utf-8") as f:
         f.write(summ)
     mlflow.log_artifact(model_arch_fname)
 
-def save_checkpoint_model(epoch, run_id, net, net_state_dict, opti_state_dict, epoch_loss):
-    PATH = f'./{Parameters.checkpoint_dir}/model_checkpoint_runid_{run_id}_epoch_{epoch}.pth'
-    torch.save({
+def update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net_state_dict, opti_state_dict, epoch_loss):
+    print("***update_best_checkpoint_dict epoch",best_cum_loss_epoch, "epoch loss", epoch_loss)
+    Parameters.checkpt_dict = {
             'run_id': run_id,
-            'epoch': epoch,
+            'epoch': best_cum_loss_epoch,
             'model_state_dict': net_state_dict,
             'optimizer_state_dict': opti_state_dict,
             'loss': epoch_loss,
-            }, PATH)
+            }
+
+def save_checkpoint_model(best_cum_loss_epoch, run_id):
+    PATH = f'./{Parameters.checkpoint_dir}/model_best_checkpoint_runid_{run_id}.pth'
+    torch.save(Parameters.checkpt_dict, PATH)
     mlflow.log_artifact(PATH, run_id=run_id)
+    mlflow.log_param(f"best_checkpoint_epoch", best_cum_loss_epoch)
     save_file_to_blob(PATH,os.path.basename(PATH))
 
-def save_full_model(run_id, net):
+def save_full_model(run_id, net, model_signature):
     PATH = f'./{Parameters.full_model_dir}/model_full_runid_{run_id}.pth'
     torch.save(net, PATH)
-    mlflow.pytorch.log_model(net, os.path.basename(PATH))
+    pip_requirements = ['torch==2.3.0+cu121','torchvision==0.18.0+cu121']
+    mlflow.pytorch.log_model(net, os.path.basename(PATH),pip_requirements=pip_requirements, signature=model_signature)
 
 # def Load_State_Model(net, PATH):
 #     print("Loading State Model")
@@ -119,8 +130,8 @@ def write_scenario_to_log_file(accuracy):
 
     Scenario_Log(output_string)
 
-def Save_Model(run_id, net):
-    save_full_model(run_id,net)
+def Save_Model(run_id, net, model_signature):
+    save_full_model(run_id,net, model_signature)
 
 def write_to_md(text, image_path):
     if text.strip():
@@ -134,6 +145,7 @@ def write_to_md(text, image_path):
 def get_next_image_number():
     latest_number = 0
     dir = Parameters.brute_force_image_mlflow_dir
+    os.makedirs(dir, exist_ok=True)
 
     name, ext = os.path.splitext(f"{dir}/image.png")
     for filename in os.listdir(dir):
@@ -146,6 +158,21 @@ def get_next_image_number():
     image_path = f'{name}_{formatted_next_number}{ext}'
 
     return image_path
+
+def write_and_log_plt(fig, epoch, name, md_name):
+    #write image to md
+    if Parameters.save_runs_to_md:
+        image_path = get_next_image_number()
+        plt.savefig(image_path, dpi=300)
+        write_to_md(md_name,image_path)
+    
+    if epoch is None:
+        mlflow.log_figure(fig, f"{Parameters.brute_force_image_mlflow_dir}/image_{name}.png")
+    else:    
+        mlflow.log_figure(fig, f"{Parameters.brute_force_image_mlflow_dir}/image_{name}_epoch_{epoch}.png")
+    
+    #plt.show()
+    plt.close(fig)
 
 def save_df_to_blob(raw_data, blob_name):
     csv_buffer = io.StringIO()
@@ -166,7 +193,7 @@ def save_df_to_blob(raw_data, blob_name):
     blob_client = container_client.get_blob_client(blob_name)
     blob_client.upload_blob(csv_data, blob_type="BlockBlob", overwrite=True)
 
-    print(f"File uploaded to Azure Blob Storage as {blob_name}")
+    print(f"File uploaded to Blob as {blob_name}")
     
     return blob_client.url
 
@@ -206,7 +233,7 @@ def save_file_to_blob(file_path, blob_name):
     try:
         container_client.create_container()
     except Exception as e:
-        print(f"Container already exists or an error occurred: {e}")
+        print(f"Container already exists")
 
     # Upload the file content to the blob
     blob_client = container_client.get_blob_client(blob_name)
@@ -220,7 +247,6 @@ def read_csv_from_blob(blob_name):
     directory = _credentials.blob_directory
 
     blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-    #container_client = blob_service_client.get_container_client(container_name)
     
     full_blob_path = f"{directory}/{blob_name}" if directory else blob_name
 
@@ -230,19 +256,16 @@ def read_csv_from_blob(blob_name):
     csv_data = download_stream.readall().decode('utf-8')
     
     df = pd.read_csv(io.StringIO(csv_data))
-    print("*****",df)
 
     return df
 
 #inputinput_or_pred_price_or_image = input/prediction and state if price or image dataset
 def mlflow_log_dataset(data_df, source, stock_ticker, input_or_pred_price_or_image, train_or_test_or_all, run, tags):
     
-    data_df.info()
+    #data_df.info()
     dataset = mlflow.data.from_pandas(
         data_df, source=source, name=f"{stock_ticker}_{input_or_pred_price_or_image}_{train_or_test_or_all}")
-    
     mlflow.log_input(dataset, context=train_or_test_or_all)
-
     # logged_run = mlflow.get_run(run.info.run_id)
 
     # print("**",logged_run.inputs.dataset_inputs)

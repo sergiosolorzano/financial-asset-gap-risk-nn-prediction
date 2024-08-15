@@ -12,8 +12,8 @@ def train_process(train_loader, params, run_id):
     net = neural_network.instantiate_net(params)
 
     # train cnn
-    net = neural_network.Train(params, train_loader, net, run_id)
+    net, model_signature, train_stack_input = neural_network.Train(params, train_loader, net, run_id)
 
-    helper_functions.Save_Model(run_id, net)
+    helper_functions.Save_Model(run_id, net, model_signature)
 
-    return net
+    return net, train_stack_input

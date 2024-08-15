@@ -13,15 +13,16 @@ from helper_functions_dir import generate_images
 class Parameters:
     scenario = 0
 
+    mlflow_experiment_name = 'gaprisk-experiment-003'
+    
     brute_force_filename = 'brute_force_results.md'
     mlflow_credentials_fname = 'mlflow-creds.json'
-    mlflow_experiment_name = 'gaprisk-experiment-001'
     input_price_data_blob_fname = 'input_price_data_run_id'
     input_image_data_blob_fname = 'input_image_data_run_id'
     predicted_image_data_blob_fname = 'predicted_image_data_run_id'
 
     save_runs_to_md = False
-    
+
     save_arch_bool = True #only once
 
     plt_image_size = (12,5)
@@ -54,11 +55,11 @@ class Parameters:
     # GAF image inputs
     gaf_method = "summation"
     transformed_img_sz = 32
-    sample_range = (0, 1)
+    gaf_sample_range = (0, 1)
     
     # GRAMIAN/MARKOV: image transformation scale
     # scaler = MinMaxScaler(feature_range=(-1, 1))
-    scaler = StandardScaler()#[StandardScaler(), MinMaxScaler()]
+    scaler = StandardScaler()
 
     # Training's test size
     training_test_size = 0.5
@@ -86,16 +87,22 @@ class Parameters:
 
     batch_size = 16
 
-    num_epochs_input = 4#15000
+    num_epochs_input = 10000
+
+    best_checkpoint_cum_loss = 0.002
 
     loss_threshold = 0.0001
 
+    max_stale_loss_epochs = 2000
+
     epoch_running_loss_check = 2500
     
-    epoch_running_gradients_check = 2
+    epoch_running_gradients_check = 4500
 
-    checkpoint_dict = {'run_id': None,
-                       'epoch': None,
-                       'model_state_dict': None,
-                       'optimizer_state_dict': None,
-                       'loss': None}
+    checkpt_dict = {
+            'run_id': None,
+            'epoch': None,
+            'model_state_dict': None,
+            'optimizer_state_dict': None,
+            'loss': None,
+            }

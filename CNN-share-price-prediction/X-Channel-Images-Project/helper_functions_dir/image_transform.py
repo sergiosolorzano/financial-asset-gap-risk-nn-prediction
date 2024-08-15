@@ -13,10 +13,10 @@ import load_data as load_data
 import generate_images as generate_images
 import helper_functions as helper_functions
 
-def generate_features_lists(stock_dataset_df, cols_used, transform_algo, transformed_img_sz, gaf_method, sample_range):
+def generate_features_lists(stock_dataset_df, cols_used, transform_algo, transformed_img_sz, gaf_method, gaf_sample_range):
     #Generate images from dataset
     cols_used_count = sum(column_name in cols_used for column_name in stock_dataset_df.columns)
-    feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list = generate_images.generate_multiple_feature_images(stock_dataset_df, cols_used, transform_algo, image_size=transformed_img_sz, method=gaf_method, sample_range=sample_range)
+    feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list = generate_images.generate_multiple_feature_images(stock_dataset_df, cols_used, transform_algo, image_size=transformed_img_sz, method=gaf_method, gaf_sample_range=gaf_sample_range)
     #print("image data",feature_image_dataset_list,"labels",feature_label_dataset_list)
     print("shape [0] set",np.array(feature_image_dataset_list[0]).shape)
 
