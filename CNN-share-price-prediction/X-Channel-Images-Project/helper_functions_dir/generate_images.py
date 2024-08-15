@@ -25,7 +25,7 @@ class TransformAlgo(Enum):
                 return member
         raise ValueError(f"Unsupported value: {value}")
 
-def generate_transformed_images(dataset, transform_algo, gaf_img_sz=32, method="summation", sample_range=(0,1)):
+def generate_transformed_images(dataset, transform_algo, gaf_img_sz=32, method="summation", gaf_sample_range=(0,1)):
     #print("len data series received:",len(dataset),"size",dataset.size)
 
     #determine num of gaf_img_szX images with gaf_img_sz datapoints
@@ -38,7 +38,7 @@ def generate_transformed_images(dataset, transform_algo, gaf_img_sz=32, method="
     
     transformed_images = None
     transformation_functions = {
-        str(TransformAlgo.GRAMIAN): lambda dataset: GramianAngularField(image_size=gaf_img_sz, method=method, sample_range=sample_range).fit_transform(dataset),
+        str(TransformAlgo.GRAMIAN): lambda dataset: GramianAngularField(image_size=gaf_img_sz, method=method, sample_range=gaf_sample_range).fit_transform(dataset),
         str(TransformAlgo.MARKOV): lambda dataset: MarkovTransitionField(image_size=gaf_img_sz).fit_transform(dataset)
     }
     try:
@@ -53,7 +53,7 @@ def generate_transformed_images(dataset, transform_algo, gaf_img_sz=32, method="
 
 np.set_printoptions(threshold=np.inf)
 
-def generate_multiple_feature_images(dataset, cols_used, transformed_algo, image_size=32, method="summation", sample_range = (0, 1)):
+def generate_multiple_feature_images(dataset, cols_used, transformed_algo, image_size=32, method="summation", gaf_sample_range = (0, 1)):
     
     feature_image_dataset_list=[[] for _ in range(len(cols_used))]
     feature_price_dataset_list=[[] for _ in range(len(cols_used))] #="Open", "High", "Low", "Close" , "Adj Close"
@@ -105,7 +105,7 @@ def generate_multiple_feature_images(dataset, cols_used, transformed_algo, image
             # if (cur_chunk < 5 and curr_window_index==0):
             #   print("cur_chunk",cur_chunk,"input chunk",data_chunk)
             #append gaf image to image list. store price feature values in price list
-            transformed_images = generate_transformed_images(data_chunk, transformed_algo, gaf_img_sz=image_size, method=method, sample_range=sample_range)
+            transformed_images = generate_transformed_images(data_chunk, transformed_algo, gaf_img_sz=image_size, method=method, gaf_sample_range=gaf_sample_range)
             #print("gaf recevived",gaf_images)
             temp_image_list.append(transformed_images)
             #print("At chunk",cur_chunk,"input chunk size",len(data_chunk),"shape gaf images",gaf_images.shape, "len temp image list",len(temp_image_list))
@@ -156,7 +156,7 @@ def generate_multiple_feature_images(dataset, cols_used, transformed_algo, image
     return feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list
 
 def Generate_feature_image_dataset_list_f32(labels_array, images_array, image_size, scaler):
-    print("Scaler received",scaler)
+    #print("Scaler received",scaler)
     feature_image_dataset_list_f32 = np.array(images_array).astype(np.float32)
     feature_image_dataset_list_f32 = feature_image_dataset_list_f32.reshape(-1, image_size, image_size)
     #images_array = np.transpose(feature_image_dataset_list, (1, 0, 2, 3))

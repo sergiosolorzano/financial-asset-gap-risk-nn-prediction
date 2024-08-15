@@ -28,7 +28,7 @@ print(torch.__version__)
 
 def plot_weights_gradients(weights_dict, gradients_dict, epoch):
     for name, weight_list in weights_dict.items():
-        fig = plt.figure(figsize=(10, 6))
+        fig = plt.figure(figsize=(8, 4))
         plt.title(f"Epoch {epoch + 1} - Weights {name}")
         
         for i, w in enumerate(weight_list):
@@ -38,16 +38,8 @@ def plot_weights_gradients(weights_dict, gradients_dict, epoch):
         plt.ylabel('Weight Value')
         plt.legend(loc="upper right")
 
-        image_path = helper_functions.get_next_image_number()
-        #write image to md
-        if Parameters.save_runs_to_md:
-            plt.savefig(image_path, dpi=300)
-            helper_functions.write_to_md("plot_weights<p>",image_path)
-
-        mlflow.log_figure(fig, image_path)
-
-        #plt.show()
-        plt.close(fig)
+        md_name = "plot_weights<p>"
+        helper_functions.write_and_log_plt(fig, epoch+1, name, md_name)
 
     for name, gradient_list in gradients_dict.items():
         fig = plt.figure(figsize=(10, 6))
@@ -60,17 +52,17 @@ def plot_weights_gradients(weights_dict, gradients_dict, epoch):
         plt.ylabel('Gradient Value')
         plt.legend(loc="upper right")
 
-        image_path = helper_functions.get_next_image_number()
         #write image to md
-        if Parameters.save_runs_to_md:
-            plt.savefig(image_path, dpi=300)
-            helper_functions.write_to_md("plot_gradients<p>",image_path)
+        # if Parameters.save_runs_to_md:
+        #image_path = helper_functions.get_next_image_number()        
+        #     plt.savefig(image_path, dpi=300)
+        #     helper_functions.write_to_md("plot_gradients<p>",image_path)
 
-        mlflow.log_figure(fig, image_path)
+        md_name = "plot_gradients<p>"
+        helper_functions.write_and_log_plt(fig, epoch+1, name, md_name)
 
         #plt.show()
         plt.close(fig)
-
 
 def scatter_diagram_onevar_plot_mean(stack_input, stock_ticker):
     torch.set_printoptions(threshold=torch.inf)
@@ -97,29 +89,22 @@ def scatter_diagram_onevar_plot_mean(stack_input, stock_ticker):
     plt.legend(loc="upper right")
     plt.grid(True)
 
-    image_path = helper_functions.get_next_image_number()
-    #write image to md
-    if Parameters.save_runs_to_md:
-        plt.savefig(image_path, dpi=300)
-        helper_functions.write_to_md("scatter_diagram_onevar_plot_mean<p>",image_path)
-
-    mlflow.log_figure(fig, image_path)
-
+    helper_functions.write_and_log_plt(fig, None, f'{stock_ticker}_Image_Input_Mean_Values',
+                                       f'{stock_ticker}_Image_Input_Mean_Values')
     #plt.show()
     plt.close(fig)
 
-
-def scatter_diagram_twovar_plot_mean(test_stock_ticker,train_stock_ticker,var1, var2):
+def scatter_diagram_twovar_plot_mean(external_test_stock_ticker,train_stock_ticker,var1, var2):
     torch.set_printoptions(threshold=torch.inf)
-    reshaped_test_stack_input = var1.view(var1.size(0), var1.size(1), -1)
+    reshaped_external_test_stack_input = var1.view(var1.size(0), var1.size(1), -1)
     reshaped_train_stock_ticker = var2.view(var2.size(0), var2.size(1), -1)
     
     test_means =[]
     train_means =[]
-    for batch_idx in range(reshaped_test_stack_input.size(0)):
+    for batch_idx in range(reshaped_external_test_stack_input.size(0)):
     #loop through images of each channel
-        for chann in range(reshaped_test_stack_input.size(1)):
-            var1_chann_image = reshaped_test_stack_input[batch_idx, chann, :]
+        for chann in range(reshaped_external_test_stack_input.size(1)):
+            var1_chann_image = reshaped_external_test_stack_input[batch_idx, chann, :]
             var2_chann_image = reshaped_train_stock_ticker[batch_idx, chann, :]
             var1_mean_value = torch.mean(var1_chann_image).item()
             var2_mean_value = torch.mean(var2_chann_image).item()
@@ -128,34 +113,26 @@ def scatter_diagram_twovar_plot_mean(test_stock_ticker,train_stock_ticker,var1, 
 
     fig = plt.figure(figsize=(10, 6))
     df = pd.DataFrame({
-        f'{test_stock_ticker} test_mean': test_means,
+        f'{external_test_stock_ticker} test_mean': test_means,
         f'{train_stock_ticker} train_mean': train_means
     })
     #print("input mean",df)
-    plt.scatter(df.index, df[f'{test_stock_ticker} test_mean'], c='red', marker='x', label=f'{test_stock_ticker} Mean Values')
+    plt.scatter(df.index, df[f'{external_test_stock_ticker} test_mean'], c='red', marker='x', label=f'{external_test_stock_ticker} Mean Values')
     plt.scatter(df.index, df[f'{train_stock_ticker} train_mean'], c='blue', marker='x', label=f'{train_stock_ticker} Mean Values')
-    plt.xlabel(f'{train_stock_ticker} and {test_stock_ticker} Input Mean Values')
+    plt.xlabel(f'{train_stock_ticker} and {external_test_stock_ticker} Input Mean Values')
     plt.ylabel('Values')
-    plt.title(f'Scatter Diagram of {test_stock_ticker} and {train_stock_ticker} Image Input Mean Values')
+    plt.title(f'Scatter Diagram of {external_test_stock_ticker} and {train_stock_ticker} Image Input Mean Values')
     plt.legend(loc="upper right")
     plt.grid(True)
 
-    image_path = helper_functions.get_next_image_number()
-    #write image to md
-    if Parameters.save_runs_to_md:
-        plt.savefig(image_path, dpi=300)
-        helper_functions.write_to_md("scatter_diagram_twovar_plot_mean<p>",image_path)
-
-    mlflow.log_figure(fig, image_path)
-    
-    #plt.show()
-    plt.close(fig)
-
+    helper_functions.write_and_log_plt(fig, None,
+                                       f"{external_test_stock_ticker}_and_{train_stock_ticker}_Image_Input_Mean_Values",
+                                       f"{external_test_stock_ticker}_and_{train_stock_ticker}_Image_Input_Mean_Values")
     
 def plot_price_comparison_stocks(index_ticker,train_stock_ticker,stock_dataset_df, start_date, end_date):
-    fig, image_path = compare_stocks(index_ticker,train_stock_ticker,stock_dataset_df, start_date, end_date)
+    fig = compare_stocks(index_ticker,train_stock_ticker,stock_dataset_df, start_date, end_date)
     
-    return fig, image_path
+    return fig
     
 def compare_stocks(index_ticker, stock_ticker, stock_dataset, start_date, end_date):
 
@@ -203,35 +180,20 @@ def compare_stocks(index_ticker, stock_ticker, stock_dataset, start_date, end_da
 
     plt.tight_layout()
 
-    image_path = helper_functions.get_next_image_number()
-    #write image to md
-    if Parameters.save_runs_to_md:
-        plt.savefig(image_path, dpi=300)
-        plt.close(fig)
-        helper_functions.write_to_md("plot_price_comparison_stocks<p>",image_path)
-
-    mlflow.log_figure(fig, image_path)
-
-    #plt.show()
-
-    return fig, image_path
+    return fig
 
 def plot_image_correlations(series_correlations, mean_correlation):
     # Plot the correlations
-    fig = plt.figure(figsize=(12, 8))
+    fig = plt.figure(figsize=(10, 6))
     sns.histplot(series_correlations, kde=True, bins=30)
     plt.axvline(mean_correlation, color='red', linestyle='--', linewidth=2, label=f'Mean: {mean_correlation:.2f}')
     plt.title('Distribution of Trained vs Test Stocks Input Image Series Correlations')
     plt.xlabel('Image Correlation Coefficient')
     plt.ylabel('Frequency')
 
-    image_path = helper_functions.get_next_image_number()
-    #write image to md
-    if Parameters.save_runs_to_md:
-        plt.savefig(image_path, dpi=300)
-        helper_functions.write_to_md("plot_image_correlations<p>",image_path)
-
-    mlflow.log_figure(fig, image_path)
+    helper_functions.write_and_log_plt(fig, None,
+                                       f"Correlation_Trained_vs_Test_Stocks_Input_Image_Series",
+                                       f"Correlation_Trained_vs_Test_Stocks_Input_Image_Series")
 
     #plt.show()
     plt.close(fig)
@@ -244,7 +206,7 @@ def quick_view_images(images_array, cols_used_count, cols_used):
     for ax in axes:
         ax.set_aspect('equal')
 
-    print("shape images array",images_array.shape,"shape image",images_array[0][0][0][0].shape)
+    #print("shape images array",images_array.shape,"shape image",images_array[0][0][0][0].shape)
     for i in range(cols_used_count):
         axes[i].imshow(images_array[0][0][i][0], cmap='hot')
         axes[i].set_title(f"Column {cols_used[i]} ")
@@ -266,23 +228,19 @@ def quick_view_images(images_array, cols_used_count, cols_used):
     plt.title("Average Image")
     plt.axis('off')  # Hide axes
 
-    image_path = helper_functions.get_next_image_number()
-    #write image to md
-    if Parameters.save_runs_to_md:
-        plt.savefig(image_path, dpi=300)
-        helper_functions.write_to_md("quick_view_images<p>",image_path)
-
-    mlflow.log_figure(fig, image_path)
+    helper_functions.write_and_log_plt(fig, None,
+                                       f"quick_view_image",
+                                       f"quick_view_image")
 
     #plt.show()
     plt.close(fig)
 
 
-def plot_external_test_graphs(params, test_stack_input, train_stack_input,
+def plot_external_test_graphs(params, train_stack_input, external_test_stack_input,
                               image_series_correlations, image_series_mean_correlation):
 
     #scatter actual vs predicted
-    scatter_diagram_twovar_plot_mean(params.external_test_stock_ticker,params.train_stock_ticker,test_stack_input, train_stack_input)
+    scatter_diagram_twovar_plot_mean(params.external_test_stock_ticker,params.train_stock_ticker,external_test_stack_input, train_stack_input)
 
     #plot trained versus test stocks image series mean correlations
     plot_image_correlations(image_series_correlations, image_series_mean_correlation)

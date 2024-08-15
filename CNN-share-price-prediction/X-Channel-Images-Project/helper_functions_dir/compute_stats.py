@@ -4,6 +4,7 @@ import torch
 import numpy as np
 
 import mlflow
+from parameters import Parameters
 
 #import scripts
 import importlib as importlib
@@ -13,13 +14,15 @@ import helper_functions as helper_functions
 def compute_and_report_error_stats(stack_actual, stack_predicted, stock_ticker):
     #compute stats
     error_stats = compute_error_stats(stack_actual, stack_predicted, stock_ticker)
-    text_mssg=f"Error Stats for {stock_ticker}<p>"
-    helper_functions.write_to_md(text_mssg,None)
-    print(f"Error Stats for {stock_ticker}")
-    for key, value in error_stats.items():
-        text_mssg=f'{key}: {value}<p>'
+    
+    if Parameters.save_runs_to_md:
+        text_mssg=f"Error Stats for {stock_ticker}<p>"
+        print(f"Error Stats for {stock_ticker}")
         helper_functions.write_to_md(text_mssg,None)
-        print(f'{key}: {value}\n')
+        for key, value in error_stats.items():
+            text_mssg=f'{key}: {value}<p>'
+            helper_functions.write_to_md(text_mssg,None)
+            print(f'{key}: {value}\n')
 
 def compute_error_stats(var1, var2, stock_ticker):
     mae = torch.mean(torch.abs(var1 - var2))
@@ -58,20 +61,27 @@ def self_correlation_feature_1_feature_2(stock_df,feature_1,feature_2):
 
 def stock_correlation_matrix(stock_ticker,stock_df):
     correlation_matrix = stock_df.corr(method='pearson')
-    print("Stock Correlation",stock_ticker)
+    print("Stock X-Correlation",stock_ticker)
     print(correlation_matrix)
+
 
 def cross_stock_df_correlation(stock_ticker,index_ticker,stock_1_df, stock_2_df):
     #align frames
     stock_1_data, stock_2_data = stock_1_df.align(stock_2_df, join='inner')
     
     correlations = {}
+    price_correl_metrics = {}
     for column in stock_1_df.columns:
+        #print("Calc Correl column", column)
         correlation = stock_1_data[column].corr(stock_2_data[column])
         correlations[column] = correlation
 
     for feature, correlation in correlations.items():
-        print(f'Price Correlation between {feature} of {stock_ticker} and {index_ticker}: {correlation:.4f}')
+        #print(f'Price Correlation between {feature} of {stock_ticker} and {index_ticker}: {correlation:.4f}')
+        price_correl_metrics[f"Correl_Prices_feature_{feature}_stock_{stock_ticker}_vs_{index_ticker}"] = correlation
+    
+    mlflow.log_metrics(price_correl_metrics)
+    
 
 
 def cross_stock_image_array_correlation(var1, var2):
@@ -92,7 +102,7 @@ def cross_stock_image_array_correlation(var1, var2):
 
     return correlation_matrix
 
-def cross_stock_image_array_correlation2(var1, var2):
+def cross_stock_image_array_correlation2(var1, var2, test_ticker, train_ticker):
     reshaped_var1 = var1.view(var1.size(0), var1.size(1), -1)
     reshaped_var2 = var2.view(var1.size(0), var2.size(1), -1)
     

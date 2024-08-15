@@ -41,7 +41,7 @@ class Net(nn.Module):
         self.output_conv_2= params.output_conv_2
         self.conv_output_size=0
         self.dropout_probab = params.dropout_probab
-        print();print("Convos & dropoutP:", params.output_conv_1, params.output_conv_2, params.dropout_probab)
+        #print();print("Convos & dropoutP:", params.output_conv_1, params.output_conv_2, params.dropout_probab)
         
         #num channels input, num channels output, filter size
         self.conv1 = nn.Conv2d(1, params.output_conv_1, params.filter_size_1, params.stride_1)
@@ -57,12 +57,12 @@ class Net(nn.Module):
         H_out_3, W_out_3 = image_transform.conv_output_shape_dynamic((H_out_2, W_out_2), kernel_size=params.filter_size_3, stride=params.stride_1)
         H_out_4, W_out_4 = image_transform.conv_output_shape_dynamic((H_out_3, W_out_3), kernel_size=params.filter_size_2, stride = params.stride_2)
         
-        print("imgres", params.image_resolution_x, params.image_resolution_y)
-        print("H_out_1, W_out_1",H_out_1, W_out_1)
-        print("H_out_2, W_out_2",H_out_2, W_out_2)
-        print("H_out_3, W_out_4",H_out_3, W_out_3)
-        print("H_out_4, W_out_4",H_out_4, W_out_4)
-        print("outputconv2", params.output_conv_2)
+        # print("imgres", params.image_resolution_x, params.image_resolution_y)
+        # print("H_out_1, W_out_1",H_out_1, W_out_1)
+        # print("H_out_2, W_out_2",H_out_2, W_out_2)
+        # print("H_out_3, W_out_4",H_out_3, W_out_3)
+        # print("H_out_4, W_out_4",H_out_4, W_out_4)
+        # print("outputconv2", params.output_conv_2)
         self.conv_output_size = H_out_4 * W_out_4
 
         self.fc1 = nn.Linear(params.output_conv_2 * self.conv_output_size, params.output_FC_1)
@@ -76,7 +76,7 @@ class Net(nn.Module):
 
         # compute the total number of parameters
         total_params = sum(p.numel() for p in self.parameters() if p.requires_grad)
-        print(self.name + ': total params:', total_params)
+        #print(self.name + ': total params:', total_params)
         self.totalparams=total_params
 
     def forward(self, x):
@@ -119,19 +119,45 @@ def instantiate_net(params):
     
     net.to(device)
     net.parameters()
-    print_layer_weights(net)
+    #print_layer_weights(net)
 
     return net
 
+def Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id):
+    #end of training    
+    print_mssg = f"End of Training: Cum Loss: {(epoch_cum_loss/len(train_loader))} at {epoch}.<p>"
+    print(print_mssg)
+    if Parameters.save_runs_to_md:
+        helper_functions.write_to_md(print_mssg,None)
+
+    mlflow.log_metric("epoch_cum_loss",epoch_cum_loss,step=epoch)
+    mlflow.log_param(f"last_epoch", epoch)
+    mlflow.log_param(f"best_cum_loss", best_cum_loss)
+
+    helper_functions.save_checkpoint_model(best_cum_loss_epoch, run_id)
+    
+    end_time = time.time()
+    # Calculate elapsed time
+    elapsed_time = end_time - start_time
+    print(f"Elapsed time: {elapsed_time:.6f} seconds")
+
+
 def Train(params, train_loader, net, run_id):
+
+    inputs_list = []
+
+    best_cum_loss_epoch = 0
+    best_cum_loss = 1
+    best_checkpoint_cum_loss = params.best_checkpoint_cum_loss
 
     #torch.set_printoptions(threshold=torch.inf)
 
     start_time = time.time()
 
-    #print_mssg=f"Train params: learning_rate: {params.learning_rate}, momentum:{params.momentum} loss_threshold {params.loss_threshold}<p>"
+    print_mssg=f"Train params: learning_rate: {params.learning_rate}, momentum:{params.momentum} loss_threshold {params.loss_threshold}<p>"
     #print(print_mssg)
-    #helper_functions.write_to_md(print_mssg,None)
+    if params.save_runs_to_md:
+        helper_functions.write_to_md(print_mssg,None)
 
     net.apply(weights_init_he)
 
@@ -140,10 +166,9 @@ def Train(params, train_loader, net, run_id):
     #criterion = nn.CrossEntropyLoss()
     #optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=momentum)
 
-    checkpoint_cum_loss_threshold = 1000
-    epoch_cum_loss = 0
-
     for epoch in range(params.num_epochs_input):
+
+        epoch_cum_loss = 0.0
 
         gradients_dict = {name: [] for name, _ in net.named_parameters() if 'weight' in name}
 
@@ -155,9 +180,19 @@ def Train(params, train_loader, net, run_id):
             #print(f"Batch {i + 1}")
             
             inputs, labels = data[0].to(device), data[1].to(device)
+
+            if epoch == 0:
+                input_tensor = inputs.data
+                input_tensor_cpu = input_tensor.cpu().detach()
+                inputs_list.append(input_tensor_cpu)
+
+            # get signature for model
             if i==0 and epoch==0:
-                print("epoch",epoch,"data i",i,"len image",len(inputs), "shape",inputs.shape)
-                print("epoch",epoch,"data i",i,"label",labels,"labels shape",labels.shape)
+                #print("epoch",epoch,"data i",i,"len image",len(inputs), "shape",inputs.shape, inputs)
+                #print("epoch",epoch,"data i",i,"label",labels,"labels shape",labels.shape, labels)
+                input_np = inputs.cpu().numpy()
+                #pred_np = labels.cpu().numpy()
+                model_signature = mlflow.models.infer_signature(input_np,net(inputs).detach().cpu().numpy())
 
             if Parameters.save_arch_bool:
                 helper_functions.Save_Model_Arch(net, run_id, inputs.shape, [inputs.dtype], "train")
@@ -186,16 +221,7 @@ def Train(params, train_loader, net, run_id):
 
                 # print epoch/loss
                 epoch_cum_loss += loss.item()
-                #if i % mini_batch_running_loss_check == (mini_batch_running_loss_check-1):    # print every x mini-batches
-                #changed to show less results because with 10k epochs it cloggs github repo
-                #if (epoch+ 1) % epoch_running_loss_check == 0 and  i % mini_batch_running_loss_check == (mini_batch_running_loss_check-1):
                 
-                if first_batch and ((epoch + 1) % params.epoch_running_loss_check == 0):
-                    print_mssg = f"[{(epoch + 1):d}, {(i + 1):5d}] This Epoch First Batch loss: {(loss.item()):.9f}<p>"
-                    print(print_mssg) 
-                    if Parameters.save_runs_to_md:
-                        helper_functions.write_to_md(print_mssg,None)
-
                 if first_batch and ((epoch + 1) % params.epoch_running_gradients_check == 0):
                     for name, param in net.named_parameters():
                         if 'weight' in name:
@@ -207,35 +233,54 @@ def Train(params, train_loader, net, run_id):
     
                 first_batch = False
 
-        mlflow.log_metric("epoch_cum_loss",epoch_cum_loss,step=epoch)
+        # store inputs for metrics calculations e.g. correl
+        if epoch == 0:
+            stack_input = torch.stack(inputs_list, dim=0)
 
-        #checkpoint
-        if epoch_cum_loss < checkpoint_cum_loss_threshold:
-            checkpoint_cum_loss_threshold = epoch_cum_loss
-            helper_functions.save_checkpoint_model(epoch, run_id, net, net.state_dict(), optimizer.state_dict(), epoch_cum_loss)
+        # report curr cum loss
+        if ((epoch + 1) % params.epoch_running_loss_check == 0):
+                print_mssg = f"[{(epoch + 1):d}, {(i + 1):5d}] Cum loss: {(epoch_cum_loss):.9f}<p>"
+                print(print_mssg) 
+                if Parameters.save_runs_to_md:
+                    helper_functions.write_to_md(print_mssg,None)
+
+        mlflow.log_metric("epoch_cum_loss",epoch_cum_loss,step=epoch)
+        print("epoch_cum_loss",epoch_cum_loss,"epoch",epoch)
+
+        # loss<threshold: update checkpoint
+        print("Testing epoch_cum_loss",epoch_cum_loss,"vs bestcheckpointcumloss", best_checkpoint_cum_loss, "initial bestcheckpoint",params.best_checkpoint_cum_loss)
+        if epoch_cum_loss < best_checkpoint_cum_loss:
+            best_checkpoint_cum_loss = epoch_cum_loss
+            print("Reset params.best_checkpoint_cum_loss to", best_checkpoint_cum_loss, "neww best_cumloss",best_cum_loss)
+            best_cum_loss_epoch = epoch
+            best_cum_loss = epoch_cum_loss
+            helper_functions.update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net.state_dict(), optimizer.state_dict(), epoch_cum_loss)
         
         #exit if below loss threshold
         if (epoch_cum_loss) < params.loss_threshold:
-            print(f"Epoch Cum Loss is less than {params.loss_threshold}:{epoch_cum_loss} at {epoch}. Stopping training.")
+            print(f"[WARNING] Epoch Cum Loss is less than {params.loss_threshold}:{epoch_cum_loss} at {epoch}. Stopping training.")
             if Parameters.save_runs_to_md:
                 helper_functions.write_to_md(f"Epoch Cum Loss is less than {params.loss_threshold}:{epoch_cum_loss} at {epoch}. Stopping training.<p>",None)
-            return net
+            
+            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id)
 
-    #end of training
-    mlflow.log_metric("epoch_cum_loss",epoch_cum_loss,step=epoch)
-    print_mssg = f"End of Training: Cum Loss: {(epoch_cum_loss/len(train_loader))} at {epoch}.<p>"
-    print(print_mssg)
-    if Parameters.save_runs_to_md:
-        helper_functions.write_to_md(print_mssg,None)
-    end_time = time.time()
-
-    # Calculate elapsed time
-    elapsed_time = end_time - start_time
-    print(f"Elapsed time: {elapsed_time:.6f} seconds")
+            return net, model_signature, stack_input
+        
+        #exit if there's no improvement for x-epochs
+        if (best_cum_loss_epoch + params.max_stale_loss_epochs) < epoch:
+            print(f"[WARNING] Epoch Cum Loss Stale {epoch_cum_loss} at {epoch}. Abandon training.")
+            if Parameters.save_runs_to_md:
+                helper_functions.write_to_md(f"[WARNING] Epoch Cum Loss Stale {epoch_cum_loss} at {epoch}. Abandon training.",None)
+            
+            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id)
+            return net, model_signature, stack_input
+    
+    #end training without reaching loss_threshold
+    Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id)
 
     #torch.set_printoptions()
                 
-    return net
+    return net, model_signature, stack_input
 
 def Test(test_loader, net, stock_ticker):
     inputs_list = []
@@ -290,7 +335,6 @@ def Test(test_loader, net, stock_ticker):
     correct_2dp_score = calculate_score(correct_2dp_list)
     correct_1dp_score = calculate_score(correct_1dp_list)
 
-    print("shape",correct_1dp_score.shape)
     mean_correct_2dp_score = torch.mean(correct_2dp_score, dim=0)
     mean_correct_1dp_score = torch.mean(correct_1dp_score, dim=0)
     
@@ -327,14 +371,15 @@ def Test(test_loader, net, stock_ticker):
         helper_functions.write_to_md(text_mssg,None)
 
     # log metrics
-    accuracy_metrics = {f"{stock_ticker}_accuracy_2dp_score": mean_correct_2dp_score.double().item(),
-               f"{stock_ticker}_accuracy_1dp_score": mean_correct_1dp_score.double().item(),
+    accuracy_metrics = {f"{stock_ticker}_mean_accuracy_2dp_score": mean_correct_2dp_score.double().item(),
+               f"{stock_ticker}_mean_accuracy_1dp_score": mean_correct_1dp_score.double().item(),
                f"{stock_ticker}_error_pct_outside_iqr": error_pct_outside_iqr}
     mlflow.log_metrics(accuracy_metrics)
     
+    accuracyby_element_metrics = {}
     for idx, sc in enumerate(correct_2dp_score):
-        accuracyby_element_metrics = {f'{stock_ticker}_accuracy_2dp_score_ele_{idx}': correct_2dp_score[idx].double().item(),
-                                      f'{stock_ticker}_accuracy_1dp_score_ele_{idx}': correct_1dp_score[idx].double().item()}
+        accuracyby_element_metrics[f'{stock_ticker}_accuracy_2dp_score_ele_{idx}'] = correct_2dp_score[idx].double().item()
+        accuracyby_element_metrics[f'{stock_ticker}_accuracy_1dp_score_ele_{idx}'] = correct_1dp_score[idx].double().item()
     mlflow.log_metrics(accuracyby_element_metrics)
 
     #print("abs_percentage_diffs",abs_percentage_diffs_np)

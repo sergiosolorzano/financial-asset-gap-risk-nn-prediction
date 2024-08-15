@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 import yfinance as yf
+import mlflow
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -154,9 +155,9 @@ def import_dataset(ticker, start_date, end_date, run):
     dataset_df = yf.download(ticker, start=start_date, end=end_date, interval='1d')
     #dataset_df['Date'] = pd.to_datetime(dataset_df['Date'])
     dataset_df = dataset_df.dropna()
-    print("Num rows for df Close col",len(dataset_df['Close']))
-    print("columns",dataset_df.columns)
-    print("df",dataset_df)
+    #print("Num rows for df Close col",len(dataset_df['Close']))
+    #print("columns",dataset_df.columns)
+    #print("df",dataset_df)
     
     #reset column to save to csv and mlflow schema
     dataset_df = dataset_df.reset_index()
@@ -173,8 +174,7 @@ def import_dataset(ticker, start_date, end_date, run):
     blob_name = f"{run.info.run_id}/{Parameters.input_price_data_blob_fname}_{run.info.run_id}.csv"
     full_blob_uri = helper_functions.save_df_to_blob(dataset_df, blob_name)
     tags = {'source': 'yahoo'}
-    helper_functions.mlflow_log_dataset(dataset_df, full_blob_uri, ticker, "input_price", "all", run, tags)
-
+    helper_functions.mlflow_log_dataset(dataset_df, full_blob_uri, ticker, "input_price", "train_test", run, tags)
     #set index back to Date for operations
     dataset_df = dataset_df.set_index('Date')
 

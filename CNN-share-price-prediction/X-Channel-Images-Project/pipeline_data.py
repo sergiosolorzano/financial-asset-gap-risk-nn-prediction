@@ -8,6 +8,7 @@ sys.path.append(os.path.abspath('./helper_functions_dir'))
 import helper_functions_dir.load_data as load_data
 import helper_functions_dir.plot_data as plot_data
 import helper_functions_dir.image_transform as image_transform
+from helper_functions_dir import helper_functions
 
 import mlflow
 
@@ -16,18 +17,21 @@ def generate_dataset_to_images_process(stock_ticker, params, test_size, cols_use
     stock_dataset_df = load_data.import_dataset(stock_ticker, params.start_date, params.end_date, run)
 
     # plot price comparison stock vs index
-    fig, image_path = plot_data.plot_price_comparison_stocks(params.index_ticker, stock_ticker, stock_dataset_df, params.start_date, params.end_date)
-    mlflow.log_figure(fig, image_path)
+    fig = plot_data.plot_price_comparison_stocks(params.index_ticker, stock_ticker, stock_dataset_df, params.start_date, params.end_date)
+    
+    helper_functions.write_and_log_plt(fig, None,
+                                       f"price_comp_{params.index_ticker}_vs_{stock_ticker}",
+                                       f"price_comp_{params.index_ticker}_vs_{stock_ticker}")
 
     # Generate images
-    print("generate_dataset_to_images_process algo",params.transform_algo)
+    #print("generate_dataset_to_images_process algo",params.transform_algo)
     feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list, cols_used_count = image_transform.generate_features_lists(
         stock_dataset_df, 
         cols_used,
         params.transform_algo, 
         params.transformed_img_sz, 
         params.gaf_method, 
-        params.sample_range)
+        params.gaf_sample_range)
 
     images_array, labels_array = image_transform.create_images_array(feature_image_dataset_list, feature_label_dataset_list)
 

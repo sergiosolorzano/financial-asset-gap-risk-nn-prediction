@@ -23,15 +23,15 @@ def test_process(net, test_loader, params, stock_ticker, run):
     input_df = pd.DataFrame(reshaped_input_stack_tensor.numpy())
     blob_name = f"{run.info.run_id}/{Parameters.input_image_data_blob_fname}_{run.info.run_id}.csv"
     full_blob_uri = helper_functions.save_df_to_blob(input_df, blob_name)
-    tags = {'original_shape': f'{stack_input.shape}'}
-    helper_functions.mlflow_log_dataset(input_df, full_blob_uri, stock_ticker, "input_image", "train", run, tags)
+    tags = {'single_image_shape': f'{stack_input.shape}'}
+    helper_functions.mlflow_log_dataset(input_df, full_blob_uri, stock_ticker, "input_image", "train_test", run, tags)
     
     reshaped_predicted_stack_tensor = stack_predicted.view(-1, stack_predicted.size(-1))
     predicted_df = pd.DataFrame(reshaped_predicted_stack_tensor.numpy())
     blob_name = f"{run.info.run_id}/{Parameters.predicted_image_data_blob_fname}_{run.info.run_id}.csv"
     full_blob_uri = helper_functions.save_df_to_blob(predicted_df, blob_name)
-    tags = {'original_shape': f'{stack_predicted.shape}'}
-    helper_functions.mlflow_log_dataset(predicted_df, full_blob_uri, stock_ticker, "predicted_image", "train", run, tags)
+    tags = {'single_image_shape': f'{stack_predicted.shape}'}
+    helper_functions.mlflow_log_dataset(predicted_df, full_blob_uri, stock_ticker, "predicted_image", "train_test", run, tags)
 
     #TODO:reconstruct to stack
     # numpy_array = df.to_numpy()

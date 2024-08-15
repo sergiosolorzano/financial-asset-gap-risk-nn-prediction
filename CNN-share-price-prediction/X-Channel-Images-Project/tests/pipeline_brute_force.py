@@ -37,7 +37,7 @@ def brute_force_function():
 
                         Parameters.transform_algo_type = t
                         Parameters.gaf_method = m
-                        Parameters.sample_range = s
+                        Parameters.gaf_sample_range = s
                         Parameters.scaler = sc
                         Parameters.dropout_probab = d
 
