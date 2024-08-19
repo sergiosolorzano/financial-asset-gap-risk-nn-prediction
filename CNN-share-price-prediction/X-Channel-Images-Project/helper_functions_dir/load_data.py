@@ -150,7 +150,7 @@ def Generate_Loaders(feature_image_dataset_list_f32,labels_scaled_list_f32, test
 
     return train_loader,test_loader
 
-def import_dataset(ticker, start_date, end_date, run):
+def import_dataset(ticker, start_date, end_date, run, experiment_name):
 
     dataset_df = yf.download(ticker, start=start_date, end=end_date, interval='1d')
     #dataset_df['Date'] = pd.to_datetime(dataset_df['Date'])
@@ -171,18 +171,17 @@ def import_dataset(ticker, start_date, end_date, run):
     else:
         print("Column 'Date' is missing.")
     
-    blob_name = f"{run.info.run_id}/{Parameters.input_price_data_blob_fname}_{run.info.run_id}.csv"
-    full_blob_uri = helper_functions.save_df_to_blob(dataset_df, blob_name)
+    blob_name = f"{Parameters.input_price_data_blob_fname}.csv"
+    full_blob_uri = helper_functions.save_df_to_blob(dataset_df, blob_name, run.info.run_id, experiment_name)
     tags = {'source': 'yahoo'}
     helper_functions.mlflow_log_dataset(dataset_df, full_blob_uri, ticker, "input_price", "train_test", run, tags)
     #set index back to Date for operations
     dataset_df = dataset_df.set_index('Date')
-
     return dataset_df
 
-def import_stock_data(stock_ticker, start_date, end_date, run):
+def import_stock_data(stock_ticker, start_date, end_date, run, experiment_name):
     #import stock dataset
-    stock_dataset_df = import_dataset(stock_ticker, start_date, end_date, run)
+    stock_dataset_df = import_dataset(stock_ticker, start_date, end_date, run, experiment_name)
     stock_dataset_df.head()
 
     return stock_dataset_df

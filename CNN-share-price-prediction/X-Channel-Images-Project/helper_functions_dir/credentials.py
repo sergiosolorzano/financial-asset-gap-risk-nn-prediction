@@ -10,7 +10,8 @@ from parameters import Parameters
 class MLflow_Credentials():
     def __init__(self):
         self.command = None
-        self.AZURE_STORAGE_CONNECTION_STRING = None
+        #self.AZURE_STORAGE_CONNECTION_STRING = None
+        self.AZURE_STORAGE_ACCESS_KEY = None
         self.username_db = None
         self.password_db = None
         self.server_db = None
@@ -19,6 +20,7 @@ class MLflow_Credentials():
         self.port_db = None
         self.blob_directory = None
         self.storage_container_name = None
+        self.storage_account_name = None
 
     def get_credentials(self):
         current_dir = os.getcwd()
@@ -32,7 +34,8 @@ class MLflow_Credentials():
 
         self.command = data.get('command')
         #print("got command",self.command)
-        self.AZURE_STORAGE_CONNECTION_STRING = data.get('AZURE_STORAGE_CONNECTION_STRING')
+        #self.AZURE_STORAGE_CONNECTION_STRING = data.get('AZURE_STORAGE_CONNECTION_STRING')
+        self.AZURE_STORAGE_ACCESS_KEY = data.get('AZURE_STORAGE_ACCESS_KEY')
         self.username_db = data.get('username_db')
         self.password_db = data.get('password_db')
         self.server_db = data.get('server_db')
@@ -41,3 +44,4 @@ class MLflow_Credentials():
         self.port_db = data.get('port_db')
         self.blob_directory = data.get('blob_directory')
         self.storage_container_name = data.get('storage_container_name')
+        self.storage_account_name = data.get('storage_account_name')

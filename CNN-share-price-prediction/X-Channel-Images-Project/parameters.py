@@ -3,6 +3,7 @@ import sys
 import os
 import pandas as pd
 from datetime import datetime
+import torch.nn as nn
 
 #import scripts
 import importlib as importlib
@@ -13,13 +14,17 @@ from helper_functions_dir import generate_images
 class Parameters:
     scenario = 0
 
-    mlflow_experiment_name = 'gaprisk-experiment-003'
+    mlflow_experiment_name = 'gaprisk-SubXp005-2'
+    mlflow_experiment_description = 'Experiment-05-Function Loss And Optimizer Changes'
     
     brute_force_filename = 'brute_force_results.md'
     mlflow_credentials_fname = 'mlflow-creds.json'
     input_price_data_blob_fname = 'input_price_data_run_id'
     input_image_data_blob_fname = 'input_image_data_run_id'
     predicted_image_data_blob_fname = 'predicted_image_data_run_id'
+    model_arch_fname = "model_arch"
+    model_checkpoint_fname = "model_best_checkpoint"
+    model_full_fname = 'full_model'
 
     save_runs_to_md = False
 
@@ -28,19 +33,20 @@ class Parameters:
     plt_image_size = (12,5)
     
     brute_force_image_mlflow_dir = 'brute_force_images_mlflow'
-    checkpoint_dir = 'model_checkpoints'
-    full_model_dir = 'full_models'
-    model_arch_dir = 'architecture_models'
+    checkpoint_dir = 'models/model_checkpoints'
+    full_model_dir = 'models/full_models'
+    model_arch_dir = 'models/architecture_models'
 
     # Stock tickers
     train_stock_ticker = 'SIVBQ'
     external_test_stock_ticker = 'SICP'
-    #test_stock_ticker = 'MSFT'
+    #external_test_stock_ticker = 'MSFT'
     index_ticker = '^SP500-40'
     
     # Close price time period
     start_date = '2021-12-05'
-    end_date = '2023-01-25'
+    #end_date = '2023-06-25'
+    end_date = '2022-04-25'
 
     #cols used
     training_cols_used = ["Open", "High", "Low", "Close"]
@@ -57,9 +63,9 @@ class Parameters:
     transformed_img_sz = 32
     gaf_sample_range = (0, 1)
     
-    # GRAMIAN/MARKOV: image transformation scale
-    # scaler = MinMaxScaler(feature_range=(-1, 1))
+    # image transformation scale both GRAMIAN/MARKOV
     scaler = StandardScaler()
+    min_max_scaler_feature_range = (-1, 0) #for MinMaxScaler()
 
     # Training's test size
     training_test_size = 0.5
@@ -80,7 +86,7 @@ class Parameters:
     output_FC_2 = 70
     final_FCLayer_outputs = 1
 
-    learning_rate = 0.00001
+    learning_rate = 0.001
     momentum = 0.9
 
     dropout_probab = 0
@@ -90,10 +96,13 @@ class Parameters:
     num_epochs_input = 10000
 
     best_checkpoint_cum_loss = 0.002
+    min_best_cum_loss = 2.5
 
-    loss_threshold = 0.0001
+    loss_threshold = 0.001
+    lr_scheduler_partience = 10
+    lr_scheduler_mode = 'min'
 
-    max_stale_loss_epochs = 2000
+    max_stale_loss_epochs = max(4 * lr_scheduler_partience,300)
 
     epoch_running_loss_check = 2500
     
@@ -106,3 +115,6 @@ class Parameters:
             'optimizer_state_dict': None,
             'loss': None,
             }
+    
+    function_loss = nn.CrossEntropyLoss() #nn.MSELoss()
+    optimizer = "SGD" #SGD or Adam

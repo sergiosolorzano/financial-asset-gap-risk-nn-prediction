@@ -26,7 +26,7 @@ import helper_functions as helper_functions
 import torch
 print(torch.__version__)
 
-def plot_weights_gradients(weights_dict, gradients_dict, epoch):
+def plot_weights_gradients(weights_dict, gradients_dict, epoch, experiment_name, run_id):
     for name, weight_list in weights_dict.items():
         fig = plt.figure(figsize=(8, 4))
         plt.title(f"Epoch {epoch + 1} - Weights {name}")
@@ -39,7 +39,7 @@ def plot_weights_gradients(weights_dict, gradients_dict, epoch):
         plt.legend(loc="upper right")
 
         md_name = "plot_weights<p>"
-        helper_functions.write_and_log_plt(fig, epoch+1, name, md_name)
+        helper_functions.write_and_log_plt(fig, epoch+1, name, md_name, experiment_name, run_id)
 
     for name, gradient_list in gradients_dict.items():
         fig = plt.figure(figsize=(10, 6))
@@ -59,12 +59,12 @@ def plot_weights_gradients(weights_dict, gradients_dict, epoch):
         #     helper_functions.write_to_md("plot_gradients<p>",image_path)
 
         md_name = "plot_gradients<p>"
-        helper_functions.write_and_log_plt(fig, epoch+1, name, md_name)
+        helper_functions.write_and_log_plt(fig, epoch+1, name, md_name, experiment_name, run_id)
 
         #plt.show()
         plt.close(fig)
 
-def scatter_diagram_onevar_plot_mean(stack_input, stock_ticker):
+def scatter_diagram_onevar_plot_mean(stack_input, stock_ticker, experiment_name, run_id):
     torch.set_printoptions(threshold=torch.inf)
     reshaped_stack_input = stack_input.view(stack_input.size(0), stack_input.size(1), -1)
     
@@ -90,11 +90,11 @@ def scatter_diagram_onevar_plot_mean(stack_input, stock_ticker):
     plt.grid(True)
 
     helper_functions.write_and_log_plt(fig, None, f'{stock_ticker}_Image_Input_Mean_Values',
-                                       f'{stock_ticker}_Image_Input_Mean_Values')
+                                       f'{stock_ticker}_Image_Input_Mean_Values', experiment_name, run_id)
     #plt.show()
     plt.close(fig)
 
-def scatter_diagram_twovar_plot_mean(external_test_stock_ticker,train_stock_ticker,var1, var2):
+def scatter_diagram_twovar_plot_mean(external_test_stock_ticker,train_stock_ticker,var1, var2, experiment_name, run_id):
     torch.set_printoptions(threshold=torch.inf)
     reshaped_external_test_stack_input = var1.view(var1.size(0), var1.size(1), -1)
     reshaped_train_stock_ticker = var2.view(var2.size(0), var2.size(1), -1)
@@ -127,7 +127,7 @@ def scatter_diagram_twovar_plot_mean(external_test_stock_ticker,train_stock_tick
 
     helper_functions.write_and_log_plt(fig, None,
                                        f"{external_test_stock_ticker}_and_{train_stock_ticker}_Image_Input_Mean_Values",
-                                       f"{external_test_stock_ticker}_and_{train_stock_ticker}_Image_Input_Mean_Values")
+                                       f"{external_test_stock_ticker}_and_{train_stock_ticker}_Image_Input_Mean_Values", experiment_name, run_id)
     
 def plot_price_comparison_stocks(index_ticker,train_stock_ticker,stock_dataset_df, start_date, end_date):
     fig = compare_stocks(index_ticker,train_stock_ticker,stock_dataset_df, start_date, end_date)
@@ -182,7 +182,7 @@ def compare_stocks(index_ticker, stock_ticker, stock_dataset, start_date, end_da
 
     return fig
 
-def plot_image_correlations(series_correlations, mean_correlation):
+def plot_image_correlations(series_correlations, mean_correlation, experiment_name, run_id):
     # Plot the correlations
     fig = plt.figure(figsize=(10, 6))
     sns.histplot(series_correlations, kde=True, bins=30)
@@ -193,13 +193,13 @@ def plot_image_correlations(series_correlations, mean_correlation):
 
     helper_functions.write_and_log_plt(fig, None,
                                        f"Correlation_Trained_vs_Test_Stocks_Input_Image_Series",
-                                       f"Correlation_Trained_vs_Test_Stocks_Input_Image_Series")
+                                       f"Correlation_Trained_vs_Test_Stocks_Input_Image_Series", experiment_name, run_id)
 
     #plt.show()
     plt.close(fig)
 
     
-def quick_view_images(images_array, cols_used_count, cols_used):
+def quick_view_images(images_array, cols_used_count, cols_used, experiment_name, run_id):
     
     # Plot the first image of each column
     fig, axes = plt.subplots(nrows=1, ncols=cols_used_count, figsize=(20, 6))
@@ -230,18 +230,19 @@ def quick_view_images(images_array, cols_used_count, cols_used):
 
     helper_functions.write_and_log_plt(fig, None,
                                        f"quick_view_image",
-                                       f"quick_view_image")
+                                       f"quick_view_image", experiment_name, run_id)
 
     #plt.show()
     plt.close(fig)
 
 
 def plot_external_test_graphs(params, train_stack_input, external_test_stack_input,
-                              image_series_correlations, image_series_mean_correlation):
+                              image_series_correlations, image_series_mean_correlation,
+                              experiment_name, run_id):
 
     #scatter actual vs predicted
-    scatter_diagram_twovar_plot_mean(params.external_test_stock_ticker,params.train_stock_ticker,external_test_stack_input, train_stack_input)
+    scatter_diagram_twovar_plot_mean(params.external_test_stock_ticker,params.train_stock_ticker,external_test_stack_input, train_stack_input, experiment_name, run_id)
 
     #plot trained versus test stocks image series mean correlations
-    plot_image_correlations(image_series_correlations, image_series_mean_correlation)
+    plot_image_correlations(image_series_correlations, image_series_mean_correlation, experiment_name, run_id)
     print("trained versus test stocks image series mean correlation",image_series_mean_correlation)
