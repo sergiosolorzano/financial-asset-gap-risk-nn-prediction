@@ -12,17 +12,15 @@ from helper_functions_dir import helper_functions
 
 import mlflow
 
-def generate_dataset_to_images_process(stock_ticker, params, test_size, cols_used, run):
+def generate_dataset_to_images_process(stock_ticker, params, test_size, cols_used, run, experiment_name):
     #import Financial Data
-    stock_dataset_df = load_data.import_dataset(stock_ticker, params.start_date, params.end_date, run)
+    stock_dataset_df = load_data.import_dataset(stock_ticker, params.start_date, params.end_date, run, experiment_name)
 
     # plot price comparison stock vs index
     fig = plot_data.plot_price_comparison_stocks(params.index_ticker, stock_ticker, stock_dataset_df, params.start_date, params.end_date)
-    
     helper_functions.write_and_log_plt(fig, None,
                                        f"price_comp_{params.index_ticker}_vs_{stock_ticker}",
-                                       f"price_comp_{params.index_ticker}_vs_{stock_ticker}")
-
+                                       f"price_comp_{params.index_ticker}_vs_{stock_ticker}",experiment_name, run.info.run_id)
     # Generate images
     #print("generate_dataset_to_images_process algo",params.transform_algo)
     feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list, cols_used_count = image_transform.generate_features_lists(
@@ -39,7 +37,7 @@ def generate_dataset_to_images_process(stock_ticker, params, test_size, cols_use
     #Visualize Closing Price for one image in GAF or Markov:
     # A darker patch indicates lower correlation between the different elements of the price time series, 
     # possibly due to higher volatility or noise. The opposite is true for the lighter patches.
-    if params.scenario == 0: plot_data.quick_view_images(images_array, cols_used_count, cols_used)
+    if params.scenario == 0: plot_data.quick_view_images(images_array, cols_used_count, cols_used, experiment_name, run.info.run_id)
 
     #Prepare and Load Data
     images_array, labels_array = image_transform.squeeze_array(images_array, labels_array)

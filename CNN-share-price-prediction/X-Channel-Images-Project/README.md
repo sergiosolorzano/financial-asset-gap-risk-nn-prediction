@@ -1,9 +1,7 @@
-## Convolutional Neural Network with Bayesian hyperparameter optimization to predict next day share price from a stock price time series
-
+## Convolutional Neural Network to predict next day share price from a stock price time series
 
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Work%20In%20Progress-red" alt="Work In Progress">
-</p>
 
 ## Preface
 This work in progress project focuses on using CNNs to predict the next-day share price of financial assets. Bayesian optimization helps narrowing the search space to evaluate hyperparameters. Unfortunately, GADF-encoded images as inputs has resulted in low prediction accuracy. These results suggest the temporal correlation between each pair of prices in the series in the form of GADF-encoded inputs is not sufficiently robust to capture the temporal structure of prices. 
@@ -29,7 +27,7 @@ Render average of the above GAF images:
 
 A stack of 32x32 images with shape (5, 491, 32, 32) would represent each of the 5 share price features' time series. Each image represents a time series window of 32 days. I slide each window by 1 day from Ti to T(len time series -33) hence obtaining 491 time series windows or GAF images for each feature.
 
-The actual share price for each window is its the next day share price. 
+The actual share price for each window is its the next day share price.
 
 ## DATA
 I use [Yahoo Finance](https://pypi.org/project/yfinance/) python package and historical daily share price database.
@@ -69,5 +67,9 @@ The model incorporates drop out regularization on the fully connected layers.
 
 The choice of model used leverages prior work and there is no other particular reason but to test the concept.
 
+## ON-GOING RESULTS
+[![Results-Mlflow Dashboard](https://img.shields.io/badge/Results-Mlflow%20Dashboard-blue)](https://mlflow.tapgaze.com)
+<p>username and password: visitor
+
 ## ACKNOWLEDGEMENTS
-I thank [Yahoo Finance](https://pypi.org/project/yfinance/) for the time series data provided. I also thank for the inspiration [repo](https://github.com/ShubhamG2311/Financial-Time-Series-Forecasting), the [BayesianOptimization library s_opt module](https://github.com/bayesian-optimization/BayesianOptimization).
+I found this [repo](https://github.com/ShubhamG2311/Financial-Time-Series-Forecasting) insightful to get started with time series image encoding.

@@ -7,6 +7,7 @@ import re
 import json
 import mlflow.data.dataset_source_registry
 import numpy as np
+from pathlib import Path
 
 import time
 import matplotlib.pyplot as plt
@@ -54,16 +55,17 @@ def Save_BayesOpt_Model(scenario, net):
     PATH = f'./model_bayesOpt_iteration_{scenario}.pth'
     torch.save(net.state_dict(), PATH)
 
-def Save_Model_Arch(net, run_id, input_shape, input_type, mode):
+def Save_Model_Arch(net, run_id, input_shape, input_type, mode, experiment_name):
     summ = str(summary(net, input_size = input_shape, dtypes=input_type, mode=mode))
 
     os.makedirs(Parameters.model_arch_dir, exist_ok=True)
-    model_arch_fname = f"./{Parameters.model_arch_dir}/model_arch_runid_{run_id}.txt"
+    model_arch_fname_with_dir = f"{Parameters.model_arch_dir}/{Parameters.model_arch_fname}.txt"
     
-    save_txt_to_blob(summ, os.path.basename(model_arch_fname))
-    with open(model_arch_fname, "w", encoding="utf-8") as f:
+    #save_txt_to_blob(summ, os.path.basename(model_arch_fname), run_id, experiment_name)
+    with open("./" + model_arch_fname_with_dir, "w", encoding="utf-8") as f:
         f.write(summ)
-    mlflow.log_artifact(model_arch_fname)
+    
+    mlflow.log_artifact(local_path="./" + model_arch_fname_with_dir, run_id=run_id, artifact_path=Parameters.model_arch_dir)
 
 def update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net_state_dict, opti_state_dict, epoch_loss):
     print("***update_best_checkpoint_dict epoch",best_cum_loss_epoch, "epoch loss", epoch_loss)
@@ -75,18 +77,27 @@ def update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net_state_dict, opt
             'loss': epoch_loss,
             }
 
-def save_checkpoint_model(best_cum_loss_epoch, run_id):
-    PATH = f'./{Parameters.checkpoint_dir}/model_best_checkpoint_runid_{run_id}.pth'
-    torch.save(Parameters.checkpt_dict, PATH)
-    mlflow.log_artifact(PATH, run_id=run_id)
+def save_checkpoint_model(best_cum_loss_epoch, run_id, experiment_name):
+    model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}.pth'
+    torch.save(Parameters.checkpt_dict, "./" + model_checkpoint_fname_with_dir)
+    #blob_with_dirs = "models" + "/" + f'{Parameters.model_checkpoint_fname}.pth'
+    blob_with_dirs = Path("models", f'{Parameters.model_checkpoint_fname}.pth')
+    mlflow.log_artifact(local_path="./" + model_checkpoint_fname_with_dir, run_id=run_id, artifact_path=Parameters.checkpoint_dir)
     mlflow.log_param(f"best_checkpoint_epoch", best_cum_loss_epoch)
-    save_file_to_blob(PATH,os.path.basename(PATH))
+    #save_file_to_blob(PATH,os.path.basename(PATH), run_id, experiment_name)
 
-def save_full_model(run_id, net, model_signature):
-    PATH = f'./{Parameters.full_model_dir}/model_full_runid_{run_id}.pth'
-    torch.save(net, PATH)
+def save_full_model(run_id, net, model_signature, experiment_name):
+    # PATH = f'./{Parameters.full_model_dir}/{Parameters.model_full_fname}.pth'
+    # torch.save(net, PATH)
     pip_requirements = ['torch==2.3.0+cu121','torchvision==0.18.0+cu121']
-    mlflow.pytorch.log_model(net, os.path.basename(PATH),pip_requirements=pip_requirements, signature=model_signature)
+    
+    #blob_with_dirs = "models" + "/" + f'{Parameters.model_full_fname}.pth'
+    mlflow.pytorch.log_model(
+    pytorch_model=net,
+    artifact_path=Parameters.full_model_dir,
+    pip_requirements=pip_requirements,
+    signature=model_signature)
+    #mlflow.pytorch.log_model(net, blob_with_dirs,pip_requirements=pip_requirements, signature=model_signature)
 
 # def Load_State_Model(net, PATH):
 #     print("Loading State Model")
@@ -130,8 +141,8 @@ def write_scenario_to_log_file(accuracy):
 
     Scenario_Log(output_string)
 
-def Save_Model(run_id, net, model_signature):
-    save_full_model(run_id,net, model_signature)
+def Save_Model(run_id, net, model_signature, experiment_name):
+    save_full_model(run_id,net, model_signature, experiment_name)
 
 def write_to_md(text, image_path):
     if text.strip():
@@ -159,105 +170,114 @@ def get_next_image_number():
 
     return image_path
 
-def write_and_log_plt(fig, epoch, name, md_name):
+def write_and_log_plt(fig, epoch, name, md_name, experiment_name, run_id):
     #write image to md
     if Parameters.save_runs_to_md:
         image_path = get_next_image_number()
         plt.savefig(image_path, dpi=300)
         write_to_md(md_name,image_path)
     
-    if epoch is None:
-        mlflow.log_figure(fig, f"{Parameters.brute_force_image_mlflow_dir}/image_{name}.png")
-    else:    
-        mlflow.log_figure(fig, f"{Parameters.brute_force_image_mlflow_dir}/image_{name}_epoch_{epoch}.png")
-    
+    #if epoch is None:
+        #mlflow.log_figure(fig, f"{Parameters.brute_force_image_mlflow_dir}/image_{name}.png")
+    blob_with_dirs = f"images/image_{name}_{experiment_name}.png"
+    mlflow.log_figure(fig, blob_with_dirs)
+    # else:    
+    #     #blob_with_dirs = _credentials.blob_directory + "/" + experiment_name + "/" + run_id + "/" + "images" + "/" + f"image_{name}_epoch_{epoch}.png"
+    #     blob_with_dirs = f"images/image_{name}_epoch_{epoch}.png"
+    #     mlflow.log_figure(fig, blob_with_dirs)
     #plt.show()
     plt.close(fig)
 
-def save_df_to_blob(raw_data, blob_name):
+def save_df_to_blob(raw_data, blob_name, run_id, experiment_name):
     csv_buffer = io.StringIO()
     raw_data.to_csv(csv_buffer, index=True)
     csv_data = csv_buffer.getvalue()
 
-    connect_str = _credentials.AZURE_STORAGE_CONNECTION_STRING
+    access_key = _credentials.AZURE_STORAGE_ACCESS_KEY
     container_name = _credentials.storage_container_name
     directory = _credentials.blob_directory
+    storage_account = _credentials.storage_account_name
 
-    blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-    container_client = blob_service_client.get_container_client(f"{container_name}/{directory}")
-    try:
-        container_client.create_container()
-    except Exception as e:
-        print(f"Container already exists.")
-
-    blob_client = container_client.get_blob_client(blob_name)
+    container_url_with_sas = f"https://{storage_account}.blob.core.windows.net?{access_key}"
+    blob_service_client = BlobServiceClient(account_url=container_url_with_sas)
+    container_client = blob_service_client.get_container_client(container_name)
+    
+    blob_with_dirs = directory + "/" + run_id + "/artifacts/data/" + blob_name
+    blob_client = container_client.get_blob_client(blob_with_dirs)
     blob_client.upload_blob(csv_data, blob_type="BlockBlob", overwrite=True)
 
-    print(f"File uploaded to Blob as {blob_name}")
+    print(f"File uploaded {blob_name}")
     
     return blob_client.url
 
-def save_txt_to_blob(text, blob_name):
+def save_txt_to_blob(text, blob_name, run_id, experiment_name):
     text_data = text.encode('utf-8')
 
-    connect_str = _credentials.AZURE_STORAGE_CONNECTION_STRING
+    # connect_str = _credentials.AZURE_STORAGE_CONNECTION_STRING
+    # container_name = _credentials.storage_container_name
+    # directory = _credentials.blob_directory
+
+    # blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+    # container_client = blob_service_client.get_container_client(f"{container_name}/{directory}")
+    # try:
+    #     container_client.create_container()
+    # except Exception as e:
+    #     print(f"Container already exists.")
+
+    # blob_client = container_client.get_blob_client(blob_name)
+    # blob_client.upload_blob(text_data, blob_type="BlockBlob", overwrite=True)
+    # blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+    access_key = _credentials.AZURE_STORAGE_ACCESS_KEY
     container_name = _credentials.storage_container_name
     directory = _credentials.blob_directory
+    storage_account = _credentials.storage_account_name
 
-    blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-    container_client = blob_service_client.get_container_client(f"{container_name}/{directory}")
-    try:
-        container_client.create_container()
-    except Exception as e:
-        print(f"Container already exists.")
+    container_url_with_sas = f"https://{storage_account}.blob.core.windows.net?{access_key}"
+    blob_service_client = BlobServiceClient(account_url=container_url_with_sas)
+    container_client = blob_service_client.get_container_client(container_name)
 
-    blob_client = container_client.get_blob_client(blob_name)
+    blob_client = container_client.get_blob_client(directory + "/" + experiment_name + "/" + run_id +"/"+blob_name)
     blob_client.upload_blob(text_data, blob_type="BlockBlob", overwrite=True)
 
     print(f"File uploaded to Azure Blob Storage as {blob_name}")
     
     return blob_client.url
 
-def save_file_to_blob(file_path, blob_name):
+def save_file_to_blob(file_path, blob_name, run_id, experiment_name):
     with open(file_path, "rb") as file:
         file_data = file.read()
     
-    connect_str = _credentials.AZURE_STORAGE_CONNECTION_STRING
+    # connect_str = _credentials.AZURE_STORAGE_CONNECTION_STRING
+    # container_name = _credentials.storage_container_name
+    # directory = _credentials.blob_directory
+
+    # blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+    # container_client = blob_service_client.get_container_client(f"{container_name}/{directory}")
+    
+    # # Create the container if it does not exist
+    # try:
+    #     container_client.create_container()
+    # except Exception as e:
+    #     print(f"Container already exists")
+
+    # # Upload the file content to the blob
+    # blob_client = container_client.get_blob_client(blob_name)
+    # blob_client.upload_blob(file_data, blob_type="BlockBlob", overwrite=True)
+
+    # print(f"File uploaded to Azure Blob Storage as {blob_name}")
+    access_key = _credentials.AZURE_STORAGE_ACCESS_KEY
     container_name = _credentials.storage_container_name
     directory = _credentials.blob_directory
+    storage_account = _credentials.storage_account_name
 
-    blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-    container_client = blob_service_client.get_container_client(f"{container_name}/{directory}")
-    
-    # Create the container if it does not exist
-    try:
-        container_client.create_container()
-    except Exception as e:
-        print(f"Container already exists")
+    container_url_with_sas = f"https://{storage_account}.blob.core.windows.net?{access_key}"
+    blob_service_client = BlobServiceClient(account_url=container_url_with_sas)
+    container_client = blob_service_client.get_container_client(container_name)
 
-    # Upload the file content to the blob
-    blob_client = container_client.get_blob_client(blob_name)
+    blob_client = container_client.get_blob_client(directory + "/" + experiment_name + "/" + run_id + "/" + blob_name)
     blob_client.upload_blob(file_data, blob_type="BlockBlob", overwrite=True)
 
     print(f"File uploaded to Azure Blob Storage as {blob_name}")
-
-def read_csv_from_blob(blob_name):
-    connect_str = _credentials.AZURE_STORAGE_CONNECTION_STRING
-    container_name = _credentials.storage_container_name
-    directory = _credentials.blob_directory
-
-    blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-    
-    full_blob_path = f"{directory}/{blob_name}" if directory else blob_name
-
-    blob_client = blob_service_client.get_blob_client(container=container_name, blob=full_blob_path)
-    
-    download_stream = blob_client.download_blob()
-    csv_data = download_stream.readall().decode('utf-8')
-    
-    df = pd.read_csv(io.StringIO(csv_data))
-
-    return df
 
 #inputinput_or_pred_price_or_image = input/prediction and state if price or image dataset
 def mlflow_log_dataset(data_df, source, stock_ticker, input_or_pred_price_or_image, train_or_test_or_all, run, tags):

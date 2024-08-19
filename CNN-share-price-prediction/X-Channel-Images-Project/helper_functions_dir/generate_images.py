@@ -161,12 +161,11 @@ def Generate_feature_image_dataset_list_f32(labels_array, images_array, image_si
     feature_image_dataset_list_f32 = feature_image_dataset_list_f32.reshape(-1, image_size, image_size)
     #images_array = np.transpose(feature_image_dataset_list, (1, 0, 2, 3))
 
-    #scaler = MinMaxScaler(feature_range=(0, 1))
-    #scaler = StandardScaler()
     labels_array = np.array(labels_array)
     #print("labels array",labels_array)
     reshaped_labels_array = labels_array.reshape(-1, 1)
     #print("reshaped labels array",reshaped_labels_array)
+    
     labels_scaled_list_f32 = scaler.fit_transform(reshaped_labels_array).reshape(-1,).astype(np.float32)
     #print("scaled labels",labels_scaled_list_f32)
     print("4D image array shape",images_array.shape)

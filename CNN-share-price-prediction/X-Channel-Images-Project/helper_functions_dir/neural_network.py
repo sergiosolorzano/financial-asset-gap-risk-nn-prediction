@@ -123,18 +123,18 @@ def instantiate_net(params):
 
     return net
 
-def Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id):
+def Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name):
     #end of training    
-    print_mssg = f"End of Training: Cum Loss: {(epoch_cum_loss/len(train_loader))} at {epoch}.<p>"
+    print_mssg = f"End of Training: Cum Loss: {epoch_cum_loss} at {epoch}.<p>"
     print(print_mssg)
     if Parameters.save_runs_to_md:
         helper_functions.write_to_md(print_mssg,None)
 
     mlflow.log_metric("epoch_cum_loss",epoch_cum_loss,step=epoch)
     mlflow.log_param(f"last_epoch", epoch)
-    mlflow.log_param(f"best_cum_loss", best_cum_loss)
+    mlflow.log_param(f"best_final_cum_loss", best_cum_loss)
 
-    helper_functions.save_checkpoint_model(best_cum_loss_epoch, run_id)
+    helper_functions.save_checkpoint_model(best_cum_loss_epoch, run_id, experiment_name)
     
     end_time = time.time()
     # Calculate elapsed time
@@ -142,12 +142,12 @@ def Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, tr
     print(f"Elapsed time: {elapsed_time:.6f} seconds")
 
 
-def Train(params, train_loader, net, run_id):
+def Train(params, train_loader, net, run_id, experiment_name):
 
     inputs_list = []
 
     best_cum_loss_epoch = 0
-    best_cum_loss = 1
+    best_cum_loss = params.min_best_cum_loss
     best_checkpoint_cum_loss = params.best_checkpoint_cum_loss
 
     #torch.set_printoptions(threshold=torch.inf)
@@ -161,10 +161,16 @@ def Train(params, train_loader, net, run_id):
 
     net.apply(weights_init_he)
 
-    criterion = nn.MSELoss()
-    optimizer = optim.Adam(net.parameters(), lr=params.learning_rate)
+    #criterion = nn.MSELoss()
     #criterion = nn.CrossEntropyLoss()
-    #optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=momentum)
+    criterion = Parameters.function_loss
+
+    if Parameters.optimizer == "Adam":
+        optimizer = optim.Adam(net.parameters(), lr=params.learning_rate)
+    elif Parameters.optimizer == "SGD":
+        optimizer = optim.SGD(net.parameters(), lr=params.learning_rate, momentum=params.momentum)
+    
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode=params.lr_scheduler_mode, patience=params.lr_scheduler_partience)
 
     for epoch in range(params.num_epochs_input):
 
@@ -195,7 +201,7 @@ def Train(params, train_loader, net, run_id):
                 model_signature = mlflow.models.infer_signature(input_np,net(inputs).detach().cpu().numpy())
 
             if Parameters.save_arch_bool:
-                helper_functions.Save_Model_Arch(net, run_id, inputs.shape, [inputs.dtype], "train")
+                helper_functions.Save_Model_Arch(net, run_id, inputs.shape, [inputs.dtype], "train", experiment_name)
                 Parameters.save_arch_bool = False
             
             # for e in data[1]:
@@ -229,7 +235,7 @@ def Train(params, train_loader, net, run_id):
                                 gradients_dict[name].append(param.grad.detach().cpu().numpy())
                             weights_dict[name].append(param.detach().cpu().numpy())
 
-                    plot_data.plot_weights_gradients(weights_dict, gradients_dict, epoch)
+                    plot_data.plot_weights_gradients(weights_dict, gradients_dict, epoch,experiment_name, run_id)
     
                 first_batch = False
 
@@ -244,16 +250,17 @@ def Train(params, train_loader, net, run_id):
                 if Parameters.save_runs_to_md:
                     helper_functions.write_to_md(print_mssg,None)
 
-        mlflow.log_metric("epoch_cum_loss",epoch_cum_loss,step=epoch)
-        print("epoch_cum_loss",epoch_cum_loss,"epoch",epoch)
-
-        # loss<threshold: update checkpoint
-        print("Testing epoch_cum_loss",epoch_cum_loss,"vs bestcheckpointcumloss", best_checkpoint_cum_loss, "initial bestcheckpoint",params.best_checkpoint_cum_loss)
-        if epoch_cum_loss < best_checkpoint_cum_loss:
-            best_checkpoint_cum_loss = epoch_cum_loss
-            print("Reset params.best_checkpoint_cum_loss to", best_checkpoint_cum_loss, "neww best_cumloss",best_cum_loss)
+        # best_cum_loss improved
+        if epoch_cum_loss < best_cum_loss:
             best_cum_loss_epoch = epoch
             best_cum_loss = epoch_cum_loss
+            mlflow.log_metric("best_cum_loss",best_cum_loss,step=epoch)
+        
+        # loss<threshold: update checkpoint
+        if epoch_cum_loss < best_checkpoint_cum_loss:
+            best_checkpoint_cum_loss = epoch_cum_loss
+            #best_cum_loss_epoch = epoch
+            #best_cum_loss = epoch_cum_loss
             helper_functions.update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net.state_dict(), optimizer.state_dict(), epoch_cum_loss)
         
         #exit if below loss threshold
@@ -262,7 +269,7 @@ def Train(params, train_loader, net, run_id):
             if Parameters.save_runs_to_md:
                 helper_functions.write_to_md(f"Epoch Cum Loss is less than {params.loss_threshold}:{epoch_cum_loss} at {epoch}. Stopping training.<p>",None)
             
-            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id)
+            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name)
 
             return net, model_signature, stack_input
         
@@ -272,11 +279,18 @@ def Train(params, train_loader, net, run_id):
             if Parameters.save_runs_to_md:
                 helper_functions.write_to_md(f"[WARNING] Epoch Cum Loss Stale {epoch_cum_loss} at {epoch}. Abandon training.",None)
             
-            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id)
+            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name)
             return net, model_signature, stack_input
-    
+        
+        #optim learning rate scheduler
+        scheduler.step(epoch_cum_loss)
+        current_lr = scheduler.get_last_lr()[0]
+        epoch_metrics = {f"epoch_cum_loss": epoch_cum_loss,
+                         f"last_lr": current_lr}
+        mlflow.log_metrics(epoch_metrics,step=epoch)
+
     #end training without reaching loss_threshold
-    Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id)
+    Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name)
 
     #torch.set_printoptions()
                 
@@ -337,6 +351,9 @@ def Test(test_loader, net, stock_ticker):
 
     mean_correct_2dp_score = torch.mean(correct_2dp_score, dim=0)
     mean_correct_1dp_score = torch.mean(correct_1dp_score, dim=0)
+
+    #print("PREDICTED",predicted_list,"shape",predicted_list[0].shape)
+    mean_predicted = [tensor.mean() for tensor in predicted_list]
     
     error_list_iqr, error_pct_outside_iqr = compute_stats.calculate_iqr(error_list)
 
@@ -377,10 +394,14 @@ def Test(test_loader, net, stock_ticker):
     mlflow.log_metrics(accuracy_metrics)
     
     accuracyby_element_metrics = {}
+    pred_element_value = {}
     for idx, sc in enumerate(correct_2dp_score):
         accuracyby_element_metrics[f'{stock_ticker}_accuracy_2dp_score_ele_{idx}'] = correct_2dp_score[idx].double().item()
         accuracyby_element_metrics[f'{stock_ticker}_accuracy_1dp_score_ele_{idx}'] = correct_1dp_score[idx].double().item()
+    for idx, val in enumerate(mean_predicted):
+        pred_element_value[f'{stock_ticker}_pred_value_ele_{idx}'] = mean_predicted[idx].double().item()
     mlflow.log_metrics(accuracyby_element_metrics)
+    mlflow.log_metrics(pred_element_value)
 
     #print("abs_percentage_diffs",abs_percentage_diffs_np)
     return stack_input, predicted_list, actual_list, accuracy, stack_actual, stack_predicted
