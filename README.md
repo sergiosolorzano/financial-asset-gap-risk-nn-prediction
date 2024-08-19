@@ -19,7 +19,7 @@ This project is work in progress.
 ### simple-lstm: I am building my understanding how LSTM models function by building a simple LSTM project
 I have started by preparing a vanilla Recurrent Neural Network's (RNN), which I expect to be more powerful than fixed networks where the entire state of the network is lost after each data point is processed, something detrimental to the prediction power of the model where data points are related in time. By contrast, RNNs sequencing processing method and its design to influence outputs by the inputs fed in, in my case sequenced GADF-encoded images, and the history of inputs fed in the past which provides the ability to selectively embed information across sequence steps similar to an autoregressive approach, may capture these temporal relationships. This may lead me to test Long-Short-Term-Memory RNNs to help overcome vanishing gradients and capture long and short term memory that provides temporal memory for the time series. I may then add transformers to the design based on recent successes. Stay tuned !
 
-
+##
 If you find this helpful you can buy me a coffee :)
    
 <a href="https://www.buymeacoffee.com/sergiosolorzano" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
