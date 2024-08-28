@@ -14,8 +14,8 @@ from helper_functions_dir import generate_images
 class Parameters:
     scenario = 0
 
-    mlflow_experiment_name = 'gaprisk-SubXp005-2'
-    mlflow_experiment_description = 'Experiment-05-Function Loss And Optimizer Changes'
+    mlflow_experiment_name = 'gaprisk-SubXp005-1'
+    mlflow_experiment_description = "Experiment-05-GAF MinMax-Larger Time Series-1"#'Experiment-05-Function Loss And Optimizer Changes'
     
     brute_force_filename = 'brute_force_results.md'
     mlflow_credentials_fname = 'mlflow-creds.json'
@@ -116,5 +116,5 @@ class Parameters:
             'loss': None,
             }
     
-    function_loss = nn.CrossEntropyLoss() #nn.MSELoss()
+    function_loss = nn.MSELoss() #nn.CrossEntropyLoss() #nn.MSELoss()
     optimizer = "SGD" #SGD or Adam

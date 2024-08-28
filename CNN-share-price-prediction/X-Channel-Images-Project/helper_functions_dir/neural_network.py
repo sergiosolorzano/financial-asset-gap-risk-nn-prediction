@@ -28,7 +28,7 @@ from parameters import Parameters
 #set gpu env
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print("Device",device)
+print("At training - Device",device)
 print("cuda version",torch.version.cuda)
 
 class Net(nn.Module):
@@ -314,7 +314,8 @@ def Test(test_loader, net, stock_ticker):
     for i, data in enumerate(test_loader, 0):
         inputs, labels = data[0].to(device), data[1].to(device)
 
-        outputs = net(inputs)
+        with torch.no_grad():
+            outputs = net(inputs)
         
         input_tensor = inputs.data
         predicted_tensor = outputs.data
