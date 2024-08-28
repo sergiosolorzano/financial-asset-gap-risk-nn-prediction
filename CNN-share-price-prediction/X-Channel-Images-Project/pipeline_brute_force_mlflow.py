@@ -46,7 +46,7 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id):
         "external_test_size": Parameters.external_test_size,
         "transform_algo_type": Parameters.transform_algo_type,
         "transform_algo": Parameters.transform_algo,
-        "scaler": Parameters.scaler,
+        "scaler": str(type(Parameters.scaler).__name__),
         "min_max_scaler_feature_range": Parameters.min_max_scaler_feature_range,
         "image_resolution_x": Parameters.image_resolution_x,
         "image_resolution_y": Parameters.image_resolution_y,
