@@ -87,8 +87,8 @@ def save_checkpoint_model(best_cum_loss_epoch, run_id, experiment_name):
     #save_file_to_blob(PATH,os.path.basename(PATH), run_id, experiment_name)
 
 def save_full_model(run_id, net, model_signature, experiment_name):
-    # PATH = f'./{Parameters.full_model_dir}/{Parameters.model_full_fname}.pth'
-    # torch.save(net, PATH)
+    PATH = f'./{Parameters.full_model_dir}/{Parameters.model_full_fname}.pth'
+    torch.save(net, PATH)
     pip_requirements = ['torch==2.3.0+cu121','torchvision==0.18.0+cu121']
     
     #blob_with_dirs = "models" + "/" + f'{Parameters.model_full_fname}.pth'
