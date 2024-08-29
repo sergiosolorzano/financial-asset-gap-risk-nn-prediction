@@ -56,8 +56,6 @@ A LeNet5-design based Convolutional Neural Network visualized on Nitro:
 
 ![alt text](readme_images/cnn_arch.png)
 
-The model incorporates drop out regularization on the fully connected layers.
-
 The choice of model used leverages prior work and there is no other particular reason but to test the concept.
 
 ## ON-GOING RESULTS

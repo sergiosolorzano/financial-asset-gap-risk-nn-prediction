@@ -11,7 +11,7 @@ I continue experimenting with neural networks on this project. I am privileged t
 
 In this project we use different neural network approaches to estimate gap risk on the price of financial assets, and each approach is held in a subdirectory in this repo. The projects in this repo may slightly deviate from this objective as I explore and research associated predictions that help me build towards the end goal.
 
-This project is work in progress.
+The project is work in progress. You can follow the journey in this [blog](https://tapgaze.com/blog/neural-networks-and-gap-risk-in-finance).
 
 ## Project Directory Structure:
 ### CNN-bayesian-share-price-prediction: Convolutional Neural Network to predict next day share price from a stock price time series, with Bayesian hyperparameter optimization
