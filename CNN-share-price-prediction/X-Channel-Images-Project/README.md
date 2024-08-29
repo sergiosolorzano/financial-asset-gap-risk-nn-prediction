@@ -52,16 +52,9 @@ The chunks are encoded into GAF images which are the inputs to the network. The 
 Each image represents a time series window of 32 days but has 32x32=1024 data points (pixels) because GAF obtain a temporal correlation between each pair of prices in the series - a grid of prices.
 
 ## MODEL 
-A LeNet5-design based Convolutional Neural Network which includes:
-+ 1 Convolution Layer 1: It's output is processed through a Rectified Linear Unit ReLU activation function and Max Pool kernel.
-+ 1 Convolution Layer 2: It's output is processed through a ReLU activation function and Max Pool kernel.
-+ 1 Fully Connected Layer 1: It's output is processed through a ReLU activation function.
-+ 1 Fully Connected Layer 2: It's output is processed through a ReLU activation function.
-+ 1 Fully Connected Layer 3: It's output is processed through a ReLU activation function.
-+ filter_size_1=(2, 2) applied to Convo 1
-+ filter_size_2=(2, 3) applied to Max Pool
-+ filter_size_3=(2, 3) applied to Convo 2
-+ stride=2 for convo layers
+A LeNet5-design based Convolutional Neural Network visualized on Nitro:
+
+![alt text](readme_images/cnn_arch.png)
 
 The model incorporates drop out regularization on the fully connected layers.
 

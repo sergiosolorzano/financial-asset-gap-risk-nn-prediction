@@ -28,8 +28,14 @@ from parameters import Parameters
 #set gpu env
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print("CUDA Available:", torch.cuda.is_available())
+print("Num GPUs available",torch.cuda.device_count())
 print("At training - Device",device)
 print("cuda version",torch.version.cuda)
+#track mem used by tensors
+torch.cuda.memory_allocated()
+#track cached mem used by tensors
+torch.cuda.memory_cached()
 
 class Net(nn.Module):
     def __init__(self, params):
@@ -46,11 +52,13 @@ class Net(nn.Module):
         #num channels input, num channels output, filter size
         self.conv1 = nn.Conv2d(1, params.output_conv_1, params.filter_size_1, params.stride_1)
         self.bn1 = nn.BatchNorm2d(params.output_conv_1)
+        self.relu1 = nn.ReLU() 
         #filtersize,stride.
         #maxpool acts the same way in each channel, so doesn't need to be fed the num channels of the input
         self.pool = nn.MaxPool2d(kernel_size=params.filter_size_2, stride = params.stride_2)
         self.conv2 = nn.Conv2d(params.output_conv_1, params.output_conv_2, params.filter_size_3,params.stride_1)
         self.bn2 = nn.BatchNorm2d(params.output_conv_2)
+        self.relu2 = nn.ReLU() 
 
         H_out_1, W_out_1 = image_transform.conv_output_shape_dynamic((params.image_resolution_y, params.image_resolution_x), kernel_size=params.filter_size_1,stride=params.stride_1)
         H_out_2, W_out_2 = image_transform.conv_output_shape_dynamic((H_out_1, W_out_1), kernel_size=params.filter_size_2,stride=params.stride_2)
@@ -67,8 +75,10 @@ class Net(nn.Module):
 
         self.fc1 = nn.Linear(params.output_conv_2 * self.conv_output_size, params.output_FC_1)
         self.bn_fc1 = nn.BatchNorm1d(params.output_FC_1)
+        self.relu_fc1 = nn.ReLU()  
         self.fc2 = nn.Linear(params.output_FC_1, params.output_FC_2)
         self.bn_fc2 = nn.BatchNorm1d(params.output_FC_2)
+        self.relu_fc2 = nn.ReLU()
         self.fc3 = nn.Linear(params.output_FC_2, params.final_FCLayer_outputs)
         
         self.dropout1 = nn.Dropout(params.dropout_probab)
@@ -81,19 +91,42 @@ class Net(nn.Module):
 
     def forward(self, x):
         #BatchNorm after Conv and before Pooling
-        x = F.relu(self.bn1(self.conv1(x)))  
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu1(x)
         x = self.pool(x)
         #BatchNorm after Conv and before Pooling
-        x = F.relu(self.bn2(self.conv2(x)))
+        x = self.conv2(x)
+        x = self.bn2(x)
+        x = self.relu2(x)
         x = self.pool(x)
         x = x.view(-1, self.output_conv_2 * self.conv_output_size)
         #BatchNorm after FC and before Dropout
-        x = F.relu(self.bn_fc1(self.fc1(x)))
+        x = self.fc1(x)
+        x = self.bn_fc1(x)
+        x = self.relu_fc1(x) 
         if self.dropout_probab>0: x = self.dropout1(x)
         #BatchNorm after FC and before Dropout
-        x = F.relu(self.bn_fc2(self.fc2(x)))
+        x = self.fc2(x)
+        x = self.bn_fc2(x)
+        x = self.relu_fc2(x)
         if self.dropout_probab>0: x = self.dropout2(x)
         x = self.fc3(x)
+
+        #BatchNorm after Conv and before Pooling
+        # x = F.relu(self.bn1(self.conv1(x)))  
+        # x = self.pool(x)
+        # #BatchNorm after Conv and before Pooling
+        # x = F.relu(self.bn2(self.conv2(x)))
+        # x = self.pool(x)
+        # x = x.view(-1, self.output_conv_2 * self.conv_output_size)
+        # #BatchNorm after FC and before Dropout
+        # x = F.relu(self.bn_fc1(self.fc1(x)))
+        # if self.dropout_probab>0: x = self.dropout1(x)
+        # #BatchNorm after FC and before Dropout
+        # x = F.relu(self.bn_fc2(self.fc2(x)))
+        # if self.dropout_probab>0: x = self.dropout2(x)
+        # x = self.fc3(x)
         return x
 
 def weights_init_he(m):
