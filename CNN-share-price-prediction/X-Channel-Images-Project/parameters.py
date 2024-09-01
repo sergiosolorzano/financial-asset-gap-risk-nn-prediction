@@ -4,18 +4,21 @@ import os
 import pandas as pd
 from datetime import datetime
 import torch.nn as nn
+import torch
 
 #import scripts
 import importlib as importlib
 sys.path.append(os.path.abspath('./helper_functions_dir'))
 from helper_functions_dir import generate_images
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 #init parameters
 class Parameters:
     scenario = 0
 
-    mlflow_experiment_name = 'gaprisk-SubXp005-1'
-    mlflow_experiment_description = "Experiment-05-GAF MinMax-Larger Time Series-1"#'Experiment-05-Function Loss And Optimizer Changes'
+    mlflow_experiment_name = 'gaprisk-gpu-utiliz-1'
+    mlflow_experiment_description = "Optimize GPU utilization: workers-batchsize"#'Experiment-05-Function Loss And Optimizer Changes'
     
     brute_force_filename = 'brute_force_results.md'
     mlflow_credentials_fname = 'mlflow-creds.json'
@@ -45,8 +48,8 @@ class Parameters:
     
     # Close price time period
     start_date = '2021-12-05'
-    #end_date = '2023-06-25'
-    end_date = '2022-04-25'
+    end_date = '2023-06-25'
+    #end_date = '2022-04-25'
 
     #cols used
     training_cols_used = ["Open", "High", "Low", "Close"]
@@ -55,12 +58,12 @@ class Parameters:
     # Time series to image transformation algorithm: GRAMIAN 1; MARKOV 2
     transform_algo_type = 1
     transform_algo = generate_images.TransformAlgo.from_value(transform_algo_type)
-    image_resolution_x = 32
-    image_resolution_y = 32
+    image_resolution_x = 32#32
+    image_resolution_y = 32#32
     
     # GAF image inputs
     gaf_method = "summation"
-    transformed_img_sz = 32
+    transformed_img_sz = 32#32
     gaf_sample_range = (0, 1)
     
     # image transformation scale both GRAMIAN/MARKOV
@@ -68,7 +71,7 @@ class Parameters:
     min_max_scaler_feature_range = (-1, 0) #for MinMaxScaler()
 
     # Training's test size
-    training_test_size = 0.5
+    training_test_size = 0.5 #50% to capture two full features
     external_test_size = 1
 
     model_name ='LeNet-5 Based Net'
@@ -92,11 +95,12 @@ class Parameters:
     dropout_probab = 0
 
     batch_size = 16
+    num_workers = 0
 
     num_epochs_input = 10000
 
     best_checkpoint_cum_loss = 0.002
-    min_best_cum_loss = 2.5
+    min_best_cum_loss = torch.tensor(2.5, device=device, dtype=torch.float64)
 
     loss_threshold = 0.001
     lr_scheduler_partience = 10

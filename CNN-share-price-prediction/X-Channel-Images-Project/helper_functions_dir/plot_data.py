@@ -24,7 +24,6 @@ sys.path.append(os.path.abspath('./helper_functions_dir'))
 import helper_functions as helper_functions
 
 import torch
-print(torch.__version__)
 
 def plot_weights_gradients(weights_dict, gradients_dict, epoch, experiment_name, run_id):
     for name, weight_list in weights_dict.items():

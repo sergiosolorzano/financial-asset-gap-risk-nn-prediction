@@ -30,7 +30,6 @@ from parameters import Parameters
 import credentials
 
 import torch
-print(torch.__version__)
 
 _credentials = credentials.MLflow_Credentials()
 _credentials.get_credentials()
