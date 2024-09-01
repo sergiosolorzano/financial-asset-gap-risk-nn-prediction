@@ -33,12 +33,6 @@ def test_process(net, test_loader, params, stock_ticker, run, experiment_name, d
     tags = {'single_image_shape': f'{stack_predicted.shape}'}
     helper_functions.mlflow_log_dataset(predicted_df, full_blob_uri, stock_ticker, "predicted_image", "train_test", run, tags)
 
-    #TODO:reconstruct to stack
-    # numpy_array = df.to_numpy()
-    # reconstructed_tensor = torch.tensor(numpy_array)
-    # reconstructed_tensor = reconstructed_tensor.view(28, 16, 1, 32, 32)
-    # print("Reconstructed Tensor Shape:", reconstructed_tensor.shape)
-    
     # Plot image mean input values
     plot_data.scatter_diagram_onevar_plot_mean(stack_input, stock_ticker, experiment_name, run.info.run_id)
     
