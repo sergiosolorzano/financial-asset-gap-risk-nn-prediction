@@ -2,6 +2,8 @@ import os
 import sys
 import torch
 import numpy as np
+from torcheval.metrics import R2Score
+#from torcheval.metrics.functional.regression.r2_score import _r2_score_compute
 
 import mlflow
 from parameters import Parameters
@@ -11,9 +13,9 @@ import importlib as importlib
 sys.path.append(os.path.abspath('./helper_functions_dir'))
 import helper_functions as helper_functions
 
-def compute_and_report_error_stats(stack_actual, stack_predicted, stock_ticker):
+def compute_and_report_error_stats(stack_actual, stack_predicted, stock_ticker, device):
     #compute stats
-    error_stats = compute_error_stats(stack_actual, stack_predicted, stock_ticker)
+    error_stats = compute_error_stats(stack_actual, stack_predicted, stock_ticker, device)
     
     if Parameters.save_runs_to_md:
         text_mssg=f"Error Stats for {stock_ticker}<p>"
@@ -24,7 +26,11 @@ def compute_and_report_error_stats(stack_actual, stack_predicted, stock_ticker):
             helper_functions.write_to_md(text_mssg,None)
             print(f'{key}: {value}\n')
 
-def compute_error_stats(var1, var2, stock_ticker):
+def compute_error_stats(var1, var2, stock_ticker, device):
+    # print("**shape var1",var1.shape,"var1[0].shape",var1[0].shape,"var 1 len",len(var1))
+    # print("**shape var1",var2.shape,"var2[0].shape",var2[0].shape,"var 1 len",len(var2))
+    # print("var1",var1)
+    # print("var2",var2)
     mae = torch.mean(torch.abs(var1 - var2))
 
     mse = torch.mean((var1 - var2) ** 2)
@@ -33,23 +39,45 @@ def compute_error_stats(var1, var2, stock_ticker):
 
     mape = torch.mean(torch.abs((var1 - var2) / var1)) * 100
 
+    #R^2: Currently being investigated manual vs torcheval
     ss_total = torch.sum((var1 - torch.mean(var1)) ** 2)
     ss_residual = torch.sum((var1 - var2) ** 2)
     r2 = 1 - (ss_residual / ss_total)
+    print("R^2 manual",r2, "my ss_total", ss_total, "ss_residual", ss_residual)
 
-    error_metrics = {f"{stock_ticker} MAE": mae.double().item(),
-               f"{stock_ticker} MSE": mse.double().item(),
-               f"{stock_ticker} RMSE": rmse.double().item(),
-               f"{stock_ticker} R2": r2.double().item()
+    metric = R2Score(device=device)
+    update = metric.update(var1, var2)
+    print("sum_squared_residual",update.sum_squared_residual)
+    print("sum_obs",update.sum_obs)
+    print("torch.square(sum_obs)",torch.square(update.sum_obs))
+    print("num_obs",len(var1))
+    print("sum_squared_obs",update.sum_squared_obs)
+    r2_py = metric.compute()
+    print("R^2 pytorch",r2_py)
+
+    mae_cpu = mae.double().item()
+    mse_cpu = mse.double().item()
+    rmse_cpu = rmse.double().item()
+    mape_cpu = mape.double().item()
+    r2_cpu = r2.double().item()
+    r2_py_cpu = r2_py.double().item()
+
+    error_metrics = {f"{stock_ticker} MAE": mae_cpu,
+               f"{stock_ticker} MSE": mse_cpu,
+               f"{stock_ticker} RMSE": rmse_cpu,
+               f"{stock_ticker} R2": r2_cpu,
+               f"{stock_ticker} R2_py": r2_py_cpu
                }
+    
     mlflow.log_metrics(error_metrics)
 
     return {
-        'MAE': mae.item(),
-        'MSE': mse.item(),
-        'RMSE': rmse.item(),
-        'MAPE': mape.item(),
-        'R2': r2.item()
+        'MAE': mae_cpu,
+        'MSE': mse_cpu,
+        'RMSE': rmse_cpu,
+        'MAPE': mape_cpu,
+        'R2': r2_cpu,
+        'R2_py': r2_py_cpu
     }
 
 def self_correlation_feature_1_feature_2(stock_df,feature_1,feature_2):
@@ -92,13 +120,9 @@ def cross_stock_image_array_correlation(var1, var2):
     mean2 = torch.mean(var2, dim=1, keepdim=True)
     means = torch.stack((mean1, mean2), dim=0)
     means = means.squeeze(-1) 
-
-    print("var2.shape",var2.shape,"shape mean",mean2.shape, "means shape",means.shape)
     
     # Compute the correlation matrix
     correlation_matrix = torch.corrcoef(means)
-
-    correlation_matrix_np = correlation_matrix.numpy()
 
     return correlation_matrix
 
@@ -127,20 +151,16 @@ def cross_stock_image_array_correlation2(var1, var2, test_ticker, train_ticker):
     return correlations, mean_correlation
 
 def calculate_iqr(tensor_list):
-    stack = torch.stack(tensor_list, dim=1)
-    for stack_tensor in stack:
-        #print("stack_tensor shape",stack_tensor.shape)
-        Q1 = np.percentile(stack_tensor, 25)
-        Q3 = np.percentile(stack_tensor, 75)
-        IQR = Q3 - Q1
+    stack_flat_np = torch.stack(tensor_list, dim=0).detach().cpu().numpy()
     
-        lower_bound = Q1 - 1.5 * IQR
-        upper_bound = Q3 + 1.5 * IQR
-        
-        data_iqr = [x for x in stack_tensor if lower_bound <= x <= upper_bound]
-        #print("dataiqr",data_iqr)
-        error_pct_outside_iqr = ((len(stack_tensor) - len(data_iqr)) / len(stack_tensor)) * 100
-        #print("len dataiqr",len(data_iqr))
-        #print("dropped",percentage_dropped)
+    Q1 = np.percentile(stack_flat_np, 25)
+    Q3 = np.percentile(stack_flat_np, 75)
+    IQR = Q3 - Q1
 
-    return data_iqr, error_pct_outside_iqr
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    
+    data_iqr_np = stack_flat_np[(stack_flat_np >= lower_bound) & (stack_flat_np <= upper_bound)]
+    error_pct_outside_iqr = ((len(stack_flat_np) - len(data_iqr_np)) / len(stack_flat_np)) * 100
+
+    return data_iqr_np, error_pct_outside_iqr

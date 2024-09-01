@@ -1,7 +1,6 @@
 import os
 import sys
 import torch
-print(torch.__version__)
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler, SequentialSampler, Subset
 
 import numpy as np
@@ -20,11 +19,17 @@ import importlib as importlib
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), "..")))
 from parameters import Parameters
 
+# os.environ['OMP_NUM_THREADS'] = '16'
+# os.environ['OMP_PROC_BIND'] = 'CLOSE'
+# os.environ['OMP_SCHEDULE'] = 'dynamic'
+# os.environ['GOMP_CPU_AFFINITY'] = '0-23'
+
 class DataPrep(Dataset):
-    def __init__(self, inputs, labels):
+    def __init__(self, inputs, labels, num_workers):
         self.inputs = inputs #all features in one large array
         self.labels = labels
         self.transform = generate_images.SetTransform()
+        self.num_workers = num_workers
 
     def __len__(self):
       return len(self.inputs)
@@ -94,9 +99,12 @@ class DataPrep(Dataset):
         train_sampler = SequentialSampler(train_subset)
         test_sampler = SequentialSampler(test_subset)
 
-        train_loader = DataLoader(dataset, batch_size=batch_size, sampler=train_sampler,shuffle=train_shuffle)
-        test_loader = DataLoader(dataset, batch_size=batch_size, sampler=test_sampler)
-
+        if(self.num_workers>0):
+            train_loader = DataLoader(dataset, batch_size=batch_size, sampler=train_sampler,shuffle=train_shuffle, pin_memory=True, num_workers=self.num_workers,prefetch_factor=int(self.num_workers/2),persistent_workers=True)#
+            test_loader = DataLoader(dataset, batch_size=batch_size, sampler=test_sampler, pin_memory=True, num_workers=self.num_workers,prefetch_factor=int(self.num_workers/2),persistent_workers=True)#,prefetch_factor=4,persistent_workers=True
+        else:
+            train_loader = DataLoader(dataset, batch_size=batch_size, sampler=train_sampler,shuffle=train_shuffle, pin_memory=True, num_workers=0)
+            test_loader = DataLoader(dataset, batch_size=batch_size, sampler=test_sampler, pin_memory=True, num_workers=0)#,prefetch_factor=4,persistent_workers=True
         #for e in train_loader:
             #print("train loader ele",e)
 
@@ -119,7 +127,8 @@ def Generate_Train_And_Test_Loaders(feature_image_dataset_list_f32,labels_scaled
     #print("labels list",labels_scaled_list_f32)
 
     #generate a list for images and labels
-    data_prep_class = DataPrep(feature_image_dataset_list_f32, labels_scaled_list_f32)
+    print("****Dataloader num workers ",Parameters.num_workers)
+    data_prep_class = DataPrep(feature_image_dataset_list_f32, labels_scaled_list_f32, Parameters.num_workers)
     
 
     #print("feature_image_dataset_list_f32",feature_image_dataset_list_f32[0][0].shape)
