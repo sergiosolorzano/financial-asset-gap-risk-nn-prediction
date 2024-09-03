@@ -52538,3 +52538,219 @@ Accuracy 1dp: 45.3125%
 
 Accuracy 2dp: 1.5625%
 Accuracy 1dp: 20.3125%
+
+
+Accuracy 2dp: 5.3125%
+Accuracy 1dp: 59.6875%
+
+
+Accuracy 2dp: 3.281250238418579%
+Accuracy 1dp: 25.78125%
+
+
+Accuracy 2dp: 4.375%
+Accuracy 1dp: 50.0%
+
+
+Accuracy 2dp: 2.03125%
+Accuracy 1dp: 16.71875%
+
+
+Accuracy 2dp: 4.84375%
+Accuracy 1dp: 58.437503814697266%
+
+
+Accuracy 2dp: 0.78125%
+Accuracy 1dp: 18.75%
+
+
+Accuracy 2dp: 6.718750476837158%
+Accuracy 1dp: 60.000003814697266%
+
+
+Accuracy 2dp: 2.5%
+Accuracy 1dp: 25.312501907348633%
+
+
+Accuracy 2dp: 5.3125%
+Accuracy 1dp: 63.75%
+
+
+Accuracy 2dp: 3.59375%
+Accuracy 1dp: 23.59375%
+
+
+Accuracy 2dp: 8.28125%
+Accuracy 1dp: 63.125003814697266%
+
+
+Accuracy 2dp: 2.1875%
+Accuracy 1dp: 19.53125%
+
+
+Accuracy 2dp: 7.03125%
+Accuracy 1dp: 65.0%
+
+
+Accuracy 2dp: 4.375%
+Accuracy 1dp: 29.53125%
+
+
+Accuracy 2dp: 6.562500476837158%
+Accuracy 1dp: 60.9375%
+
+
+Accuracy 2dp: 5.625%
+Accuracy 1dp: 27.656251907348633%
+
+
+Accuracy 2dp: 6.562500476837158%
+Accuracy 1dp: 62.5%
+
+
+Accuracy 2dp: 2.34375%
+Accuracy 1dp: 22.8125%
+
+
+Accuracy 2dp: 3.59375%
+Accuracy 1dp: 45.3125%
+
+
+Accuracy 2dp: 2.1875%
+Accuracy 1dp: 26.5625%
+
+
+Accuracy 2dp: 4.0625%
+Accuracy 1dp: 51.25%
+
+
+Accuracy 2dp: 2.34375%
+Accuracy 1dp: 19.21875%
+
+
+Accuracy 2dp: 3.4375%
+Accuracy 1dp: 43.4375%
+
+
+Accuracy 2dp: 3.125%
+Accuracy 1dp: 21.40625%
+
+
+Accuracy 2dp: 3.90625%
+Accuracy 1dp: 51.406253814697266%
+
+
+Accuracy 2dp: 4.53125%
+Accuracy 1dp: 25.0%
+
+
+Accuracy 2dp: 6.40625%
+Accuracy 1dp: 55.46875%
+
+
+Accuracy 2dp: 1.8750001192092896%
+Accuracy 1dp: 23.4375%
+
+
+Accuracy 2dp: 3.750000238418579%
+Accuracy 1dp: 52.8125%
+
+
+Accuracy 2dp: 3.59375%
+Accuracy 1dp: 26.875001907348633%
+
+
+Accuracy 2dp: 2.5%
+Accuracy 1dp: 44.0625%
+
+
+Accuracy 2dp: 1.8750001192092896%
+Accuracy 1dp: 26.71875%
+
+
+Accuracy 2dp: 6.562500476837158%
+Accuracy 1dp: 51.406253814697266%
+
+
+Accuracy 2dp: 1.40625%
+Accuracy 1dp: 19.0625%
+
+
+Accuracy 2dp: 4.53125%
+Accuracy 1dp: 50.46875%
+
+
+Accuracy 2dp: 2.34375%
+Accuracy 1dp: 22.96875%
+
+
+Accuracy 2dp: 4.53125%
+Accuracy 1dp: 52.8125%
+
+
+Accuracy 2dp: 3.281250238418579%
+Accuracy 1dp: 26.875001907348633%
+
+
+Accuracy 2dp: 5.625%
+Accuracy 1dp: 55.0%
+
+
+Accuracy 2dp: 1.5625%
+Accuracy 1dp: 17.65625%
+
+
+Accuracy 2dp: 16.25%
+Accuracy 1dp: 88.90625%
+
+
+Accuracy 2dp: 3.4375%
+Accuracy 1dp: 33.75%
+
+
+Accuracy 2dp: 7.03125%
+Accuracy 1dp: 43.75%
+
+
+Accuracy 2dp: 4.1015625%
+Accuracy 1dp: 47.265625%
+
+
+Accuracy 2dp: 1.953125%
+Accuracy 1dp: 18.9453125%
+
+
+Accuracy 2dp: 5.2734375%
+Accuracy 1dp: 47.265625%
+
+
+Accuracy 2dp: 1.7578125%
+Accuracy 1dp: 15.8203125%
+
+
+Accuracy 2dp: 6.0546875%
+Accuracy 1dp: 48.6328125%
+
+
+Accuracy 2dp: 2.34375%
+Accuracy 1dp: 21.484375%
+
+
+Accuracy 2dp: 5.2734375%
+Accuracy 1dp: 50.1953125%
+
+
+Accuracy 2dp: 6.4453125%
+Accuracy 1dp: 49.609375%
+
+
+Accuracy 2dp: 3.7109375%
+Accuracy 1dp: 23.2421875%
+
+
+Accuracy 2dp: 7.421875%
+Accuracy 1dp: 54.8828125%
+
+
+Accuracy 2dp: 0.9765625%
+Accuracy 1dp: 17.96875%
