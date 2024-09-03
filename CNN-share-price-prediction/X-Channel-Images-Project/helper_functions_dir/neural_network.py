@@ -184,7 +184,7 @@ def Report_profiler(prof, profiler_key_averages, epoch):
         print(f"GPU {gpu.id}: {gpu.load * 100}% utilized")
         mlflow.log_param("gpu_utilization", gpu.load * 100)
 
-def Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name, profiler):
+def Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name):
     #end of training    
     print_mssg = f"End of Training: Cum Loss: {epoch_cum_loss} at {epoch}.<p>"
     print(print_mssg)
@@ -197,8 +197,8 @@ def Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, tr
     print(f"Elapsed time: {elapsed_time:.6f} seconds")
     mlflow.log_param(f"train_time", elapsed_time)
 
-    print("====");print(profiler.key_averages().table(sort_by="self_cpu_time_total"))
-    Report_profiler(profiler, profiler.key_averages(), epoch)
+    # print("====");print(profiler.key_averages().table(sort_by="self_cpu_time_total"))
+    # Report_profiler(profiler, profiler.key_averages(), epoch)
 
     mlflow.log_metric("epoch_cum_loss",epoch_cum_loss,step=epoch)
     mlflow.log_param(f"last_epoch", epoch)
@@ -235,11 +235,10 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
     elif Parameters.optimizer == "SGD":
         optimizer = optim.SGD(net.parameters(), lr=params.learning_rate, momentum=params.momentum)
     
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode=params.lr_scheduler_mode, patience=params.lr_scheduler_partience)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode=params.lr_scheduler_mode, patience=params.lr_scheduler_patience)
 
-    #profiler = torch.profiler.profile(profile_memory=True)
-    profiler = torch.profiler.profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True)
-    profiler.start()
+    # profiler = torch.profiler.profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True)
+    # profiler.start()
         
     for epoch in range(params.num_epochs_input):
 
@@ -341,9 +340,9 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
             if Parameters.save_runs_to_md:
                 helper_functions.write_to_md(f"Epoch Cum Loss is less than {params.loss_threshold}:{epoch_cum_loss} at {epoch}. Stopping training.<p>",None)
             
-            profiler.stop()
+            #profiler.stop()
 
-            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name, profiler)
+            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name)
 
             #return net, model_signature, stack_input
             return net, model_signature, stack_input
@@ -354,9 +353,9 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
             if Parameters.save_runs_to_md:
                 helper_functions.write_to_md(f"[WARNING] Epoch Cum Loss Stale {epoch_cum_loss} at {epoch}. Abandon training.",None)
             
-            profiler.stop()
+            #profiler.stop()
             
-            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name, profiler)
+            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name)
 
             return net, model_signature, stack_input
         
@@ -368,9 +367,9 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
         mlflow.log_metrics(epoch_metrics,step=epoch)
 
     #end training without reaching loss_threshold
-    profiler.stop()
+    #profiler.stop()
 
-    Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name, profiler)
+    Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name)
     
     torch.set_printoptions()
 

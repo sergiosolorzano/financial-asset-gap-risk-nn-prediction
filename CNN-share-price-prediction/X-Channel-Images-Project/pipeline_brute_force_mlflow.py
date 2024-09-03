@@ -113,113 +113,123 @@ def brute_force_function(credentials, device):
     #scalers = [StandardScaler(), MinMaxScaler(feature_range=(-1, 1)), MinMaxScaler(feature_range=(0, 1))] #MinMaxScaler()
     scalers = [MinMaxScaler(Parameters.min_max_scaler_feature_range)]
     #min_max_scaler_feature_range = [(-1, 0), (0, 1), (-1, 1)]
-    min_max_scaler_feature_range = [(-1, 0)]
+    min_max_scaler_feature_range = [(-1, 1)]
     #gaf_sample_ranges = [(-1, 0), (-1, 0.5), (-1, 1), (-0.5, 0), (-0.5, 0.5), (-0.5, 1), (0, 0.5), (0, 1)]
     #gaf_sample_ranges = [(-1, 0.5), (-1, 0), (-0.5, 0.5)]
-    #gaf_sample_ranges = [(-1, 0.5)]
+    gaf_sample_ranges = [(-1, 0.5)]
     #dropout_probabs = [0.25, 0.5]
     dropout_probabs = [0.25]
-    gaf_sample_ranges = [(0, 0.5)]
+    #gaf_sample_ranges = [(-1, 0.5)]
     batch_size_list=[16]#[16,32,64,128,256,512]
     num_workers = [0]#0,4,8,12,16
+    img_size = [128,256]
 
-    for b in batch_size_list:
-        for w in num_workers:
-            for t in transform_algo_types:
-                for m in gaf_methods:
-                    for d in dropout_probabs:
-                        for sc in scalers:
-                            for mm_sc in min_max_scaler_feature_range:
-                                for s in gaf_sample_ranges:
+    for i_s in img_size:
+        for b in batch_size_list:
+            for w in num_workers:
+                for t in transform_algo_types:
+                    for m in gaf_methods:
+                        for d in dropout_probabs:
+                            for sc in scalers:
+                                for mm_sc in min_max_scaler_feature_range:
+                                    for s in gaf_sample_ranges:
 
-                                    curr_datetime = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+                                        curr_datetime = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
-                                    with mlflow.start_run(run_name=f"run_{curr_datetime}") as run:
+                                        with mlflow.start_run(run_name=f"run_{curr_datetime}") as run:
 
-                                        run_id = run.info.run_id
-                                        print("runid",run_id)
+                                            #sys logs
+                                            print(mlflow.MlflowClient().get_run(run.info.run_id).data)
+                                            
+                                            run_id = run.info.run_id
+                                            print("runid",run_id)
 
-                                        Parameters.num_workers = w
-                                        Parameters.batch_size = b
-                                        Parameters.transform_algo_type = t
-                                        Parameters.gaf_method = m
-                                        Parameters.gaf_sample_range = s
-                                        Parameters.scaler = sc
-                                        Parameters.dropout_probab = d
-                                        Parameters.min_max_scaler_feature_range = mm_sc
+                                            Parameters.num_workers = w
+                                            Parameters.batch_size = b
+                                            Parameters.transform_algo_type = t
+                                            Parameters.gaf_method = m
+                                            Parameters.gaf_sample_range = s
+                                            Parameters.scaler = sc
+                                            Parameters.dropout_probab = d
+                                            Parameters.min_max_scaler_feature_range = mm_sc
+                                            Parameters.image_resolution_x = Parameters.image_resolution_y = Parameters.transformed_img_sz = i_s
 
-                                        mlflow_log_params(curr_datetime, experiment_name, experiment_id)
+                                            mlflow_log_params(curr_datetime, experiment_name, experiment_id)
 
-                                        if Parameters.save_runs_to_md:
-                                            helper_functions.write_to_md("<b><center>==========Optimization Iteration==========</center></b><p><p>",None)
-                                            #helper_functions.write_to_md(f"<p><b>transform_algo_type: {t} gaf_method: {m} gaf_sample_range: {s} scaler: {sc} dropout_probab: {d}</b><p>", None)
-                                            helper_functions.write_to_md(f"<p><b>gaf_sample_range: {s} scaler: {sc}</b><p>", None)
+                                            if Parameters.save_runs_to_md:
+                                                helper_functions.write_to_md("<b><center>==========Optimization Iteration==========</center></b><p><p>",None)
+                                                #helper_functions.write_to_md(f"<p><b>transform_algo_type: {t} gaf_method: {m} gaf_sample_range: {s} scaler: {sc} dropout_probab: {d}</b><p>", None)
+                                                helper_functions.write_to_md(f"<p><b>gaf_sample_range: {s} scaler: {sc}</b><p>", None)
+                                            
+                                            #################################
+                                            #       Train and Test          #
+                                            #################################
+
+                                            #generate training images
+                                            train_loader, test_loader, external_test_stock_dataset_df = pipeline_data.generate_dataset_to_images_process(Parameters.train_stock_ticker, 
+                                                                                                        Parameters, 
+                                                                                                        Parameters.training_test_size, 
+                                                                                                        Parameters.training_cols_used,
+                                                                                                        run, experiment_name)
                                         
-                                        #################################
-                                        #       Train and Test          #
-                                        #################################
+                                            net, train_stack_input = pipeline_train.train_process(train_loader, Parameters, run_id, experiment_name, device)
 
-                                        #generate training images
-                                        train_loader, test_loader, external_test_stock_dataset_df = pipeline_data.generate_dataset_to_images_process(Parameters.train_stock_ticker, 
-                                                                                                    Parameters, 
-                                                                                                    Parameters.training_test_size, 
-                                                                                                    Parameters.training_cols_used,
-                                                                                                    run, experiment_name)
-                                    
-                                        net, train_stack_input = pipeline_train.train_process(train_loader, Parameters, run_id, experiment_name, device)
+                                            #continue
+                                            
+                                            #test
+                                            # set model to eval
+                                            net  = neural_network.set_model_for_eval(net)
 
-                                        #continue
+                                            test_stack_input, test_stack_actual, test_stack_predicted = pipeline_test.test_process(net, test_loader, 
+                                                                                                                    Parameters, 
+                                                                                                                    Parameters.train_stock_ticker, run,
+                                                                                                                    experiment_name, device)
+
+                                            #################################
+                                            #       External Test           #
+                                            #################################
+                                            text_mssg= "<u><center>==========Run External Stock Tests:==========</center></u><p>"
+                                            print("\n\n",text_mssg)
+                                            if Parameters.save_runs_to_md:
+                                                helper_functions.write_to_md(text_mssg,None)
+                                            #load model
+                                            #PATH = f'./model_scen_{0}_full.pth'
+                                            #net = helper_functions.Load_Full_Model(PATH)
+
+                                            #external test image generation
+                                            train_loader, test_loader, external_test_stock_dataset_df = pipeline_data.generate_dataset_to_images_process(Parameters.external_test_stock_ticker, 
+                                                                                                        Parameters, 
+                                                                                                        Parameters.external_test_size, 
+                                                                                                        Parameters.external_test_cols_used,
+                                                                                                        run, experiment_name)
+
+                                            #test
+                                            external_test_stack_input, external_test_stack_actual, external_test_stack_predicted = pipeline_test.test_process(net, 
+                                                                                                                                                test_loader, 
+                                                                                                                                                Parameters,
+                                                                                                                                                Parameters.external_test_stock_ticker, run,
+                                                                                                                                                experiment_name, device)
+
+                                            #report stats
+                                            image_series_correlations, image_series_mean_correlation = external_test_pipeline.report_external_test_stats(
+                                                                                                Parameters, external_test_stock_dataset_df, 
+                                                                                                train_stack_input, external_test_stack_input,
+                                                                                                run, experiment_name)
+
+                                            plot_data.plot_external_test_graphs(Parameters, train_stack_input, external_test_stack_input,
+                                                                        image_series_correlations, image_series_mean_correlation,
+                                                                        experiment_name, run_id)
                                         
-                                        #test
-                                        # set model to eval
-                                        net  = neural_network.set_model_for_eval(net)
-
-                                        test_stack_input, test_stack_actual, test_stack_predicted = pipeline_test.test_process(net, test_loader, 
-                                                                                                                Parameters, 
-                                                                                                                Parameters.train_stock_ticker, run,
-                                                                                                                experiment_name, device)
-
-                                        #################################
-                                        #       External Test           #
-                                        #################################
-                                        text_mssg= "<u><center>==========Run External Stock Tests:==========</center></u><p>"
-                                        print("\n\n",text_mssg)
-                                        if Parameters.save_runs_to_md:
-                                            helper_functions.write_to_md(text_mssg,None)
-                                        #load model
-                                        #PATH = f'./model_scen_{0}_full.pth'
-                                        #net = helper_functions.Load_Full_Model(PATH)
-
-                                        #external test image generation
-                                        train_loader, test_loader, external_test_stock_dataset_df = pipeline_data.generate_dataset_to_images_process(Parameters.external_test_stock_ticker, 
-                                                                                                    Parameters, 
-                                                                                                    Parameters.external_test_size, 
-                                                                                                    Parameters.external_test_cols_used,
-                                                                                                    run, experiment_name)
-
-                                        #test
-                                        external_test_stack_input, external_test_stack_actual, external_test_stack_predicted = pipeline_test.test_process(net, 
-                                                                                                                                            test_loader, 
-                                                                                                                                            Parameters,
-                                                                                                                                            Parameters.external_test_stock_ticker, run,
-                                                                                                                                            experiment_name, device)
-
-                                        #report stats
-                                        image_series_correlations, image_series_mean_correlation = external_test_pipeline.report_external_test_stats(
-                                                                                            Parameters, external_test_stock_dataset_df, 
-                                                                                            train_stack_input, external_test_stack_input,
-                                                                                            run, experiment_name)
-
-                                        plot_data.plot_external_test_graphs(Parameters, train_stack_input, external_test_stack_input,
-                                                                    image_series_correlations, image_series_mean_correlation,
-                                                                    experiment_name, run_id)
-                                    
 if __name__ == "__main__":
 
     os.environ['OMP_NUM_THREADS'] = '16'
     os.environ['OMP_PROC_BIND'] = 'CLOSE'
     os.environ['OMP_SCHEDULE'] = 'dynamic'
     os.environ['GOMP_CPU_AFFINITY'] = '0-23'
+
+    #sys logging
+    mlflow.enable_system_metrics_logging()
+    mlflow.set_system_metrics_sampling_interval(Parameters.mlflow_system_log_freq)
 
     #set gpu env
     os.environ['CUDA_LAUNCH_BLOCKING'] = '1'

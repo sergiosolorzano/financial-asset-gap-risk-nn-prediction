@@ -17,8 +17,8 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class Parameters:
     scenario = 0
 
-    mlflow_experiment_name = 'gaprisk-gpu-utiliz-1'
-    mlflow_experiment_description = "Optimize GPU utilization: workers-batchsize"#'Experiment-05-Function Loss And Optimizer Changes'
+    mlflow_experiment_name = 'gaprisk-imagesize'
+    mlflow_experiment_description = "Test whether a larger history per image increases accuracy"#'Experiment-05-Function Loss And Optimizer Changes'
     
     brute_force_filename = 'brute_force_results.md'
     mlflow_credentials_fname = 'mlflow-creds.json'
@@ -35,6 +35,8 @@ class Parameters:
 
     plt_image_size = (12,5)
     
+    mlflow_system_log_freq = 180 #secs
+
     brute_force_image_mlflow_dir = 'brute_force_images_mlflow'
     checkpoint_dir = 'models/model_checkpoints'
     full_model_dir = 'models/full_models'
@@ -58,12 +60,12 @@ class Parameters:
     # Time series to image transformation algorithm: GRAMIAN 1; MARKOV 2
     transform_algo_type = 1
     transform_algo = generate_images.TransformAlgo.from_value(transform_algo_type)
-    image_resolution_x = 32#32
-    image_resolution_y = 32#32
+    image_resolution_x = 128#32
+    image_resolution_y = 128#32
     
     # GAF image inputs
     gaf_method = "summation"
-    transformed_img_sz = 32#32
+    transformed_img_sz = 128#32
     gaf_sample_range = (0, 1)
     
     # image transformation scale both GRAMIAN/MARKOV
@@ -103,10 +105,11 @@ class Parameters:
     min_best_cum_loss = torch.tensor(2.5, device=device, dtype=torch.float64)
 
     loss_threshold = 0.001
-    lr_scheduler_partience = 10
+    lr_scheduler_patience = 10000#10
     lr_scheduler_mode = 'min'
 
-    max_stale_loss_epochs = max(4 * lr_scheduler_partience,300)
+    #max_stale_loss_epochs = max(4 * lr_scheduler_patience,300)
+    max_stale_loss_epochs =100000
 
     epoch_running_loss_check = 2500
     

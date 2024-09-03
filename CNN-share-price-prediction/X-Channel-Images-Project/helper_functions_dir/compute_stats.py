@@ -39,34 +39,31 @@ def compute_error_stats(var1, var2, stock_ticker, device):
 
     mape = torch.mean(torch.abs((var1 - var2) / var1)) * 100
 
-    #R^2: Currently being investigated manual vs torcheval
     ss_total = torch.sum((var1 - torch.mean(var1)) ** 2)
     ss_residual = torch.sum((var1 - var2) ** 2)
     r2 = 1 - (ss_residual / ss_total)
     print("R^2 manual",r2, "my ss_total", ss_total, "ss_residual", ss_residual)
 
-    metric = R2Score(device=device)
-    update = metric.update(var1, var2)
-    print("sum_squared_residual",update.sum_squared_residual)
-    print("sum_obs",update.sum_obs)
-    print("torch.square(sum_obs)",torch.square(update.sum_obs))
-    print("num_obs",len(var1))
-    print("sum_squared_obs",update.sum_squared_obs)
-    r2_py = metric.compute()
-    print("R^2 pytorch",r2_py)
+    # metric = R2Score(device=device)
+    # update = metric.update(var2, var1)
+    # print("sum_squared_residual",update.sum_squared_residual)
+    # print("sum_obs",update.sum_obs)
+    # print("torch.square(sum_obs)",torch.square(update.sum_obs))
+    # print("num_obs",len(var1))
+    # print("sum_squared_obs",update.sum_squared_obs)
+    # r2_py = metric.compute()
+    # print("R^2 pytorch",r2_py)
 
     mae_cpu = mae.double().item()
     mse_cpu = mse.double().item()
     rmse_cpu = rmse.double().item()
     mape_cpu = mape.double().item()
     r2_cpu = r2.double().item()
-    r2_py_cpu = r2_py.double().item()
 
     error_metrics = {f"{stock_ticker} MAE": mae_cpu,
                f"{stock_ticker} MSE": mse_cpu,
                f"{stock_ticker} RMSE": rmse_cpu,
-               f"{stock_ticker} R2": r2_cpu,
-               f"{stock_ticker} R2_py": r2_py_cpu
+               f"{stock_ticker} R2": r2_cpu
                }
     
     mlflow.log_metrics(error_metrics)
@@ -76,8 +73,7 @@ def compute_error_stats(var1, var2, stock_ticker, device):
         'MSE': mse_cpu,
         'RMSE': rmse_cpu,
         'MAPE': mape_cpu,
-        'R2': r2_cpu,
-        'R2_py': r2_py_cpu
+        'R2': r2_cpu
     }
 
 def self_correlation_feature_1_feature_2(stock_df,feature_1,feature_2):
