@@ -122,7 +122,7 @@ def brute_force_function(credentials, device):
     #gaf_sample_ranges = [(-1, 0.5)]
     batch_size_list=[16]#[16,32,64,128,256,512]
     num_workers = [0]#0,4,8,12,16
-    img_size = [128,256]
+    img_size = [32]
 
     for i_s in img_size:
         for b in batch_size_list:

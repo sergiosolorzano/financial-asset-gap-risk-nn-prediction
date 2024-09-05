@@ -150,6 +150,7 @@ def generate_multiple_feature_images(dataset, cols_used, transformed_algo, image
     
     #transpose image for CNN
     #(5, 1, 491, 1, 32, 32)
+    print("Shape before transpose:", feature_image_dataset_list.shape)
     feature_image_dataset_list= np.transpose(feature_image_dataset_list, (1, 3, 0, 2, 4, 5))
     #print("Final Shape of images after transpose:", feature_image_dataset_list.shape)
 
