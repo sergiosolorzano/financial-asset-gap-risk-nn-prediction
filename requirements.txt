@@ -148,3 +148,7 @@ pyspark
 pymssql
 azure-storage-blob
 azure-identity
+gputil
+torcheval
+psutil
+pynvml

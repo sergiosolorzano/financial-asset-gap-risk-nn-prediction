@@ -2,15 +2,15 @@
 Layer (type:depth-idx)                   Output Shape              Param #
 ==========================================================================================
 Net                                      [16, 1]                   --
-├─Conv2d: 1-1                            [16, 40, 127, 126]        280
-├─BatchNorm2d: 1-2                       [16, 40, 127, 126]        80
-├─ReLU: 1-3                              [16, 40, 127, 126]        --
-├─MaxPool2d: 1-4                         [16, 40, 63, 63]          --
-├─Conv2d: 1-5                            [16, 12, 62, 61]          2,892
-├─BatchNorm2d: 1-6                       [16, 12, 62, 61]          24
-├─ReLU: 1-7                              [16, 12, 62, 61]          --
-├─MaxPool2d: 1-8                         [16, 12, 31, 30]          --
-├─Linear: 1-9                            [16, 100]                 1,116,100
+├─Conv2d: 1-1                            [16, 40, 31, 30]          280
+├─BatchNorm2d: 1-2                       [16, 40, 31, 30]          80
+├─ReLU: 1-3                              [16, 40, 31, 30]          --
+├─MaxPool2d: 1-4                         [16, 40, 15, 15]          --
+├─Conv2d: 1-5                            [16, 12, 14, 13]          2,892
+├─BatchNorm2d: 1-6                       [16, 12, 14, 13]          24
+├─ReLU: 1-7                              [16, 12, 14, 13]          --
+├─MaxPool2d: 1-8                         [16, 12, 7, 6]            --
+├─Linear: 1-9                            [16, 100]                 50,500
 ├─BatchNorm1d: 1-10                      [16, 100]                 200
 ├─ReLU: 1-11                             [16, 100]                 --
 ├─Dropout: 1-12                          [16, 100]                 --
@@ -20,13 +20,13 @@ Net                                      [16, 1]                   --
 ├─Dropout: 1-16                          [16, 70]                  --
 ├─Linear: 1-17                           [16, 1]                   71
 ==========================================================================================
-Total params: 1,126,857
-Trainable params: 1,126,857
+Total params: 61,257
+Trainable params: 61,257
 Non-trainable params: 0
-Total mult-adds (Units.MEGABYTES): 264.67
+Total mult-adds (Units.MEGABYTES): 13.52
 ==========================================================================================
-Input size (MB): 1.05
-Forward/backward pass size (MB): 87.76
-Params size (MB): 4.51
-Estimated Total Size (MB): 93.32
+Input size (MB): 0.07
+Forward/backward pass size (MB): 5.06
+Params size (MB): 0.25
+Estimated Total Size (MB): 5.37
 ==========================================================================================
