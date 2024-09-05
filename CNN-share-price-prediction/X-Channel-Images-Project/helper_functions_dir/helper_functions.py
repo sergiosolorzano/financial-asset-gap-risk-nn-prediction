@@ -22,9 +22,8 @@ from torchinfo import summary
 
 #import scripts
 import importlib as importlib
-#sys.path.append(os.path.abspath('./helper_functions_dir'))
 import plot_data as plot_data
-#import parameters as params
+
 from parameters import Parameters
 
 import credentials
