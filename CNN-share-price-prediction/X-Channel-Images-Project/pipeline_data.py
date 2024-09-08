@@ -20,7 +20,7 @@ def generate_dataset_to_images_process(stock_ticker, params, test_size, cols_use
     fig = plot_data.plot_price_comparison_stocks(params.index_ticker, stock_ticker, stock_dataset_df, params.start_date, params.end_date)
     helper_functions.write_and_log_plt(fig, None,
                                        f"price_comp_{params.index_ticker}_vs_{stock_ticker}",
-                                       f"price_comp_{params.index_ticker}_vs_{stock_ticker}",experiment_name, run.info.run_id)
+                                       f"price_comp_{params.index_ticker}_vs_{stock_ticker}",experiment_name, getattr(run, 'info', None).run_id if run else None)
     # Generate images
     #print("generate_dataset_to_images_process algo",params.transform_algo)
     feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list, cols_used_count = image_transform.generate_features_lists(
@@ -37,7 +37,7 @@ def generate_dataset_to_images_process(stock_ticker, params, test_size, cols_use
     #Visualize Closing Price for one image in GAF or Markov:
     # A darker patch indicates lower correlation between the different elements of the price time series, 
     # possibly due to higher volatility or noise. The opposite is true for the lighter patches.
-    if params.scenario == 0: plot_data.quick_view_images(images_array, cols_used_count, cols_used, experiment_name, run.info.run_id)
+    if params.scenario == 0: plot_data.quick_view_images(images_array, cols_used_count, cols_used, experiment_name, getattr(run, 'info', None).run_id if run else None)
 
     #Prepare and Load Data
     images_array, labels_array = image_transform.squeeze_array(images_array, labels_array)

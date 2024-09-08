@@ -127,7 +127,7 @@ def Generate_Train_And_Test_Loaders(feature_image_dataset_list_f32,labels_scaled
     #print("labels list",labels_scaled_list_f32)
 
     #generate a list for images and labels
-    print("****Dataloader num workers ",Parameters.num_workers)
+    #print("****Dataloader num workers ",Parameters.num_workers)
     data_prep_class = DataPrep(feature_image_dataset_list_f32, labels_scaled_list_f32, Parameters.num_workers)
     
 
@@ -180,10 +180,12 @@ def import_dataset(ticker, start_date, end_date, run, experiment_name):
     else:
         print("Column 'Date' is missing.")
     
-    blob_name = f"{Parameters.input_price_data_blob_fname}.csv"
-    full_blob_uri = helper_functions.save_df_to_blob(dataset_df, blob_name, run.info.run_id, experiment_name)
-    tags = {'source': 'yahoo'}
-    helper_functions.mlflow_log_dataset(dataset_df, full_blob_uri, ticker, "input_price", "train_test", run, tags)
+    if Parameters.enable_mlflow:
+        blob_name = f"{Parameters.input_price_data_blob_fname}.csv"
+        full_blob_uri = helper_functions.save_df_to_blob(dataset_df, blob_name, run.info.run_id, experiment_name)
+        tags = {'source': 'yahoo'}
+        helper_functions.mlflow_log_dataset(dataset_df, full_blob_uri, ticker, "input_price", "train_test", run, tags)
+    
     #set index back to Date for operations
     dataset_df = dataset_df.set_index('Date')
     return dataset_df

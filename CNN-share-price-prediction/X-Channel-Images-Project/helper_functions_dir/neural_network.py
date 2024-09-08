@@ -195,14 +195,15 @@ def Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, tr
     # Calculate elapsed time
     elapsed_time = end_time - start_time
     print(f"Elapsed time: {elapsed_time:.6f} seconds")
-    mlflow.log_param(f"train_time", elapsed_time)
+    if Parameters.enable_mlflow:
+        mlflow.log_param(f"train_time", elapsed_time)
 
-    # print("====");print(profiler.key_averages().table(sort_by="self_cpu_time_total"))
-    # Report_profiler(profiler, profiler.key_averages(), epoch)
+        # print("====");print(profiler.key_averages().table(sort_by="self_cpu_time_total"))
+        # Report_profiler(profiler, profiler.key_averages(), epoch)
 
-    mlflow.log_metric("epoch_cum_loss",epoch_cum_loss,step=epoch)
-    mlflow.log_param(f"last_epoch", epoch)
-    mlflow.log_param(f"best_final_cum_loss", best_cum_loss)
+        mlflow.log_metric("epoch_cum_loss",epoch_cum_loss,step=epoch)
+        mlflow.log_param(f"last_epoch", epoch)
+        mlflow.log_param(f"best_final_cum_loss", best_cum_loss)
 
     helper_functions.save_checkpoint_model(best_cum_loss_epoch, run_id, experiment_name)
 
@@ -269,7 +270,8 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
                     #print("epoch",epoch,"data i",i,"len image",len(inputs), "shape",inputs.shape, inputs)
                     #print("epoch",epoch,"data i",i,"label",labels,"labels shape",labels.shape, labels)
                     input_np = inputs.detach().cpu().numpy()
-                    model_signature = mlflow.models.infer_signature(input_np,net(inputs).detach().cpu().numpy())
+                    if Parameters.enable_mlflow:
+                        model_signature = mlflow.models.infer_signature(input_np,net(inputs).detach().cpu().numpy())
 
                 if Parameters.save_arch_bool:
                     helper_functions.Save_Model_Arch(net, run_id, inputs.shape, [inputs.dtype], "train", experiment_name)
@@ -325,7 +327,8 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
         if epoch_cum_loss < best_cum_loss:
             best_cum_loss_epoch = epoch
             best_cum_loss = epoch_cum_loss
-            mlflow.log_metric("best_cum_loss",best_cum_loss,step=epoch)
+            if Parameters.enable_mlflow:
+                mlflow.log_metric("best_cum_loss",best_cum_loss,step=epoch)
         
         # loss<threshold: update checkpoint
         if epoch_cum_loss < best_checkpoint_cum_loss:
@@ -345,7 +348,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
             Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name)
 
             #return net, model_signature, stack_input
-            return net, model_signature, stack_input
+            return net, model_signature if 'model_signature' in locals() else None or None, stack_input
         
         #exit if there's no improvement for x-epochs
         if (best_cum_loss_epoch + params.max_stale_loss_epochs) < epoch:
@@ -357,14 +360,15 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
             
             Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name)
 
-            return net, model_signature, stack_input
+            return net, model_signature if 'model_signature' in locals() else None, stack_input
         
         #optim learning rate scheduler
         scheduler.step(epoch_cum_loss)
         current_lr = scheduler.get_last_lr()[0]
         epoch_metrics = {f"epoch_cum_loss": epoch_cum_loss.item(),
                         f"last_lr": current_lr}
-        mlflow.log_metrics(epoch_metrics,step=epoch)
+        if Parameters.enable_mlflow:
+            mlflow.log_metrics(epoch_metrics,step=epoch)
 
     #end training without reaching loss_threshold
     #profiler.stop()
@@ -373,7 +377,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
     
     torch.set_printoptions()
 
-    return net, model_signature, stack_input
+    return net, model_signature if 'model_signature' in locals() else None, stack_input
 
 
 def Test(test_loader, net, stock_ticker, device):
@@ -452,10 +456,11 @@ def Test(test_loader, net, stock_ticker, device):
         helper_functions.write_to_md(text_mssg,None)
 
     # log metrics
-    accuracy_metrics = {f"{stock_ticker}_accuracy_2dp_score": correct_2dp_score.double().item(),
-               f"{stock_ticker}_accuracy_1dp_score": correct_1dp_score.double().item(),
-               f"{stock_ticker}_error_pct_outside_iqr": error_pct_outside_iqr}
-    mlflow.log_metrics(accuracy_metrics)
+    if Parameters.enable_mlflow:
+        accuracy_metrics = {f"{stock_ticker}_accuracy_2dp_score": correct_2dp_score.double().item(),
+                f"{stock_ticker}_accuracy_1dp_score": correct_1dp_score.double().item(),
+                f"{stock_ticker}_error_pct_outside_iqr": error_pct_outside_iqr}
+        mlflow.log_metrics(accuracy_metrics)
     
     # accuracyby_element_metrics = {}
     # pred_element_value = {}
