@@ -17,6 +17,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class Parameters:
     scenario = 0
 
+    enable_mlflow=False
     mlflow_experiment_name = 'gaprisk-imagesize'
     mlflow_experiment_description = "Test whether a larger history per image increases accuracy"#'Experiment-05-Function Loss And Optimizer Changes'
     

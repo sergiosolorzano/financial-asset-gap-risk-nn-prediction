@@ -42,7 +42,8 @@ def compute_error_stats(var1, var2, stock_ticker, device):
     ss_total = torch.sum((var1 - torch.mean(var1)) ** 2)
     ss_residual = torch.sum((var1 - var2) ** 2)
     r2 = 1 - (ss_residual / ss_total)
-    print("R^2 manual",r2, "my ss_total", ss_total, "ss_residual", ss_residual)
+    print("R^2",r2)
+    #print("R^2 manual",r2, "my ss_total", ss_total, "ss_residual", ss_residual)
 
     # metric = R2Score(device=device)
     # update = metric.update(var2, var1)
@@ -66,7 +67,8 @@ def compute_error_stats(var1, var2, stock_ticker, device):
                f"{stock_ticker} R2": r2_cpu
                }
     
-    mlflow.log_metrics(error_metrics)
+    if Parameters.enable_mlflow:
+        mlflow.log_metrics(error_metrics)
 
     return {
         'MAE': mae_cpu,
@@ -79,7 +81,8 @@ def compute_error_stats(var1, var2, stock_ticker, device):
 def self_correlation_feature_1_feature_2(stock_df,feature_1,feature_2):
     correlation = stock_df[feature_1].corr(stock_df[feature_2])
 
-    mlflow.log_metrics(f"correlation_{feature_1}_vs_{feature_2}", correlation)
+    if Parameters.enable_mlflow:
+        mlflow.log_metrics(f"correlation_{feature_1}_vs_{feature_2}", correlation)
 
     return (f'Correlation between {feature_1} and {feature_2}: {correlation:.4f}')
 
@@ -104,9 +107,8 @@ def cross_stock_df_correlation(stock_ticker,index_ticker,stock_1_df, stock_2_df)
         #print(f'Price Correlation between {feature} of {stock_ticker} and {index_ticker}: {correlation:.4f}')
         price_correl_metrics[f"Correl_Prices_feature_{feature}_stock_{stock_ticker}_vs_{index_ticker}"] = correlation
     
-    mlflow.log_metrics(price_correl_metrics)
-    
-
+    if Parameters.enable_mlflow:
+        mlflow.log_metrics(price_correl_metrics)
 
 def cross_stock_image_array_correlation(var1, var2):
     var1 = var1.view(64, -1)

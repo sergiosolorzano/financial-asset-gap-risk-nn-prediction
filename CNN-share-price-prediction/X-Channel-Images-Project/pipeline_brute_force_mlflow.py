@@ -23,6 +23,8 @@ import pipeline_test as pipeline_test
 import external_test_pipeline as external_test_pipeline
 
 import mlflow
+#context execution for mlflow with statement
+import contextlib
 from torchinfo import summary
 
 def mlflow_log_params(curr_datetime, experiment_name, experiment_id):
@@ -84,27 +86,31 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id):
 def brute_force_function(credentials, device):
 
     #logging.basicConfig(level=logging.DEBUG)
-    os.environ["AZURE_STORAGE_ACCESS_KEY"] = credentials.AZURE_STORAGE_ACCESS_KEY
-    mlflow.set_tracking_uri(f"mssql+pymssql://{credentials.username_db}:{credentials.password_db}@{credentials.server_db}.database.windows.net/{credentials.mlflow_db}")
+    
+    if Parameters.enable_mlflow:
+        os.environ["AZURE_STORAGE_ACCESS_KEY"] = credentials.AZURE_STORAGE_ACCESS_KEY
+        mlflow.set_tracking_uri(f"mssql+pymssql://{credentials.username_db}:{credentials.password_db}@{credentials.server_db}.database.windows.net/{credentials.mlflow_db}")
 
-    #create experiment
-    experiment_name = Parameters.mlflow_experiment_name
-    experiment_description = (Parameters.mlflow_experiment_description)
-    experiment_tags = {"mlflow.note.content": experiment_description,}
-    
-    experiment = mlflow.get_experiment_by_name(experiment_name)
-    if experiment is not None:
-        experiment_id = experiment.experiment_id
-        print(f"Experiment {experiment} id {experiment_id} exists.")
-    else:
-        mlflow.create_experiment(Parameters.mlflow_experiment_name, artifact_location=
-                                 f"wasbs://{credentials.storage_container_name}@{credentials.storage_account_name}.blob.core.windows.net/{credentials.blob_directory}",#wasbs://<container>@<storage_account_name>.blob.core.windows.net/<dir>
-                                 tags=experiment_tags)
+        #create experiment
+        experiment_name = Parameters.mlflow_experiment_name
+        experiment_description = (Parameters.mlflow_experiment_description)
+        experiment_tags = {"mlflow.note.content": experiment_description,}
+        
         experiment = mlflow.get_experiment_by_name(experiment_name)
-        experiment_id = experiment.experiment_id
-        print(f"Create experiment {experiment} id {experiment_id}")
-    
-    mlflow.set_experiment(experiment_name)
+        if experiment is not None:
+            experiment_id = experiment.experiment_id
+            print(f"Experiment {experiment} id {experiment_id} exists.")
+        else:
+            mlflow.create_experiment(Parameters.mlflow_experiment_name, artifact_location=
+                                    f"wasbs://{credentials.storage_container_name}@{credentials.storage_account_name}.blob.core.windows.net/{credentials.blob_directory}",#wasbs://<container>@<storage_account_name>.blob.core.windows.net/<dir>
+                                    tags=experiment_tags)
+            experiment = mlflow.get_experiment_by_name(experiment_name)
+            experiment_id = experiment.experiment_id
+            print(f"Create experiment {experiment} id {experiment_id}")
+        
+        mlflow.set_experiment(experiment_name)
+    else:
+        experiment_name = "Undefined"
     
     #transform_algo_types = [1,2]
     transform_algo_types = [1]
@@ -136,13 +142,17 @@ def brute_force_function(credentials, device):
 
                                         curr_datetime = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
-                                        with mlflow.start_run(run_name=f"run_{curr_datetime}") as run:
-
+                                        #with mlflow.start_run(run_name=f"run_{curr_datetime}") as run:
+                                        with (mlflow.start_run(run_name=f"run_{curr_datetime}") if Parameters.enable_mlflow else contextlib.nullcontext()) as run:
+   
                                             #sys logs
-                                            print(mlflow.MlflowClient().get_run(run.info.run_id).data)
+                                            if Parameters.enable_mlflow:
+                                                print(mlflow.MlflowClient().get_run(run.info.run_id).data)
                                             
-                                            run_id = run.info.run_id
-                                            print("runid",run_id)
+                                                run_id = run.info.run_id
+                                                print("runid",run_id)
+                                            else:
+                                                run_id=None
 
                                             Parameters.num_workers = w
                                             Parameters.batch_size = b
@@ -154,12 +164,12 @@ def brute_force_function(credentials, device):
                                             Parameters.min_max_scaler_feature_range = mm_sc
                                             Parameters.image_resolution_x = Parameters.image_resolution_y = Parameters.transformed_img_sz = i_s
 
-                                            mlflow_log_params(curr_datetime, experiment_name, experiment_id)
-
-                                            if Parameters.save_runs_to_md:
-                                                helper_functions.write_to_md("<b><center>==========Optimization Iteration==========</center></b><p><p>",None)
-                                                #helper_functions.write_to_md(f"<p><b>transform_algo_type: {t} gaf_method: {m} gaf_sample_range: {s} scaler: {sc} dropout_probab: {d}</b><p>", None)
-                                                helper_functions.write_to_md(f"<p><b>gaf_sample_range: {s} scaler: {sc}</b><p>", None)
+                                            if Parameters.enable_mlflow:
+                                                mlflow_log_params(curr_datetime, experiment_name, experiment_id)
+                                                if Parameters.save_runs_to_md:
+                                                    helper_functions.write_to_md("<b><center>==========Optimization Iteration==========</center></b><p><p>",None)
+                                                    #helper_functions.write_to_md(f"<p><b>transform_algo_type: {t} gaf_method: {m} gaf_sample_range: {s} scaler: {sc} dropout_probab: {d}</b><p>", None)
+                                                    helper_functions.write_to_md(f"<p><b>gaf_sample_range: {s} scaler: {sc}</b><p>", None)
                                             
                                             #################################
                                             #       Train and Test          #
@@ -228,8 +238,9 @@ if __name__ == "__main__":
     os.environ['GOMP_CPU_AFFINITY'] = '0-23'
 
     #sys logging
-    mlflow.enable_system_metrics_logging()
-    mlflow.set_system_metrics_sampling_interval(Parameters.mlflow_system_log_freq)
+    if Parameters.enable_mlflow:
+        mlflow.enable_system_metrics_logging()
+        mlflow.set_system_metrics_sampling_interval(Parameters.mlflow_system_log_freq)
 
     #set gpu env
     os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
