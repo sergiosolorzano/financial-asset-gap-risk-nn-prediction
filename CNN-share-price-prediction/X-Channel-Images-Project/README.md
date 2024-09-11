@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/badge/Status-Work%20In%20Progress-red" alt="Work In Progress">
 
 ## Preface
-This work in progress project focuses on using CNNs to predict the next-day share price of financial assets. Bayesian optimization helps narrowing the search space to evaluate hyperparameters. Unfortunately, GADF-encoded images as inputs has resulted in low prediction accuracy. These results suggest the temporal correlation between each pair of prices in the series in the form of GADF-encoded inputs is not sufficiently robust to capture the temporal structure of prices. 
+This work in progress project focuses on using CNNs to predict the next-day share price of financial assets. So far GAF-encoded images as inputs have resulted in average prediction accuracy. These results suggest the temporal correlation between each pair of prices in the series in the form of GAF-encoded inputs may not be sufficiently robust to capture the temporal structure of prices.
 
 <p align="center">
 <img width="150" alt="star" src="https://github.com/sergiosolorzano/ai_gallery/assets/24430655/3c0b02ea-9b11-401a-b6f5-c61b69ad651b">
@@ -13,8 +13,8 @@ This work in progress project focuses on using CNNs to predict the next-day shar
 ---------------------------------------------
 
 ## Description
-We train and optimize the hyperparameters for a LeNet5-design based Convolutional Neural Network to predict the next-day share price.
-We test the model with the share price time series of the Sylicon Valley Bank for the period before and after bankruptcy.
+We train and optimize the hyperparameters for a LeNet5-design Neural Network to predict the next-day share price.
+We test the model with the share price time series of the Sylicon Valley Bank for the period before and after bankruptcy. We then run evaluation on the Silvergate Bank stock time series.
 The repo runs on python and leverages available pytorch libraries.
 
 The share prices' day Low, High, Close, Open, Adjusted Close time series are encoded into 32x32 images using [pyts Gramian angular field (GAF)](https://pyts.readthedocs.io/en/stable/auto_examples/image/plot_single_gaf.html) to obtain a temporal correlation between each pair of prices in the series.
