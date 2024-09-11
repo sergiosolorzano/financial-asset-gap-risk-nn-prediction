@@ -13,13 +13,22 @@ from helper_functions_dir import generate_images
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+class Stock_Params:
+    start_date_train_stock_1 = '2021-12-05'
+    end_date_train_stock_1 = '2023-06-25'
+    train_stock_ticker_1 = 'SIVBQ'
+
+    start_date_train_stock_2 = '2021-12-05'
+    end_date_train_stock_2 = '2023-06-25'
+    train_stock_ticker_2 = 'SIVBQ'
+
 #init parameters
 class Parameters:
     scenario = 0
 
-    enable_mlflow=False
-    mlflow_experiment_name = 'gaprisk-imagesize'
-    mlflow_experiment_description = "Test whether a larger history per image increases accuracy"#'Experiment-05-Function Loss And Optimizer Changes'
+    enable_mlflow=True
+    mlflow_experiment_name = 'gaprisk-dyanmic-LR'
+    mlflow_experiment_description = "Test reset LR to exit local minima"
     
     brute_force_filename = 'brute_force_results.md'
     mlflow_credentials_fname = 'mlflow-creds.json'
@@ -51,7 +60,8 @@ class Parameters:
     
     # Close price time period
     start_date = '2021-12-05'
-    end_date = '2023-06-25'
+    #end_date = '2023-06-25'
+    end_date = '2023-01-25'
     #end_date = '2022-04-25'
 
     #cols used
@@ -61,13 +71,13 @@ class Parameters:
     # Time series to image transformation algorithm: GRAMIAN 1; MARKOV 2
     transform_algo_type = 1
     transform_algo = generate_images.TransformAlgo.from_value(transform_algo_type)
-    image_resolution_x = 128#32
-    image_resolution_y = 128#32
+    image_resolution_x = 32
+    image_resolution_y = 32
     
     # GAF image inputs
     gaf_method = "summation"
-    transformed_img_sz = 128#32
-    gaf_sample_range = (0, 1)
+    transformed_img_sz = 32
+    gaf_sample_range = (-1, 0.5)
     
     # image transformation scale both GRAMIAN/MARKOV
     scaler = StandardScaler()
@@ -100,17 +110,23 @@ class Parameters:
     batch_size = 16
     num_workers = 0
 
-    num_epochs_input = 10000
+    num_epochs_input = 20000
 
     best_checkpoint_cum_loss = 0.002
     min_best_cum_loss = torch.tensor(2.5, device=device, dtype=torch.float64)
 
-    loss_threshold = 0.001
-    lr_scheduler_patience = 10000#10
-    lr_scheduler_mode = 'min'
+    loss_stop_threshold = 0.000001
 
+    #LR scheduler
+    lr_scheduler_patience = 700 #10000 to ignore lrscheduler
+    lr_scheduler_mode = 'min'
     #max_stale_loss_epochs = max(4 * lr_scheduler_patience,300)
-    max_stale_loss_epochs =100000
+    max_stale_loss_epochs = 300
+    #max_stale_loss_epochs =100000 #to ignore lrscheduler
+    # LR reset
+    enable_lr_reset = True
+    lr_reset_rate = 0.001
+    lr_reset_threshold = 0.000001
 
     epoch_running_loss_check = 2500
     

@@ -74,12 +74,12 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id):
         "num_workers": Parameters.num_workers,
         "num_epochs_input": Parameters.num_epochs_input,
         "max_stale_loss_epochs": Parameters.max_stale_loss_epochs,
-        "loss_threshold": Parameters.loss_threshold,
+        "loss_threshold": Parameters.loss_stop_threshold,
         "epoch_running_loss_check": Parameters.epoch_running_loss_check,
         "epoch_running_gradients_check": Parameters.epoch_running_gradients_check,
         "loss_function": Parameters.function_loss,
-        "optimizer": Parameters.optimizer
-    }
+        "optimizer": Parameters.optimizer,
+        "lr_scheduler_patience": Parameters.lr_scheduler_patience    }
 
     mlflow.log_params(params_dict)
 
@@ -117,9 +117,9 @@ def brute_force_function(credentials, device):
     #gaf_methods = ["summation", "difference"]
     gaf_methods = ["summation"]
     #scalers = [StandardScaler(), MinMaxScaler(feature_range=(-1, 1)), MinMaxScaler(feature_range=(0, 1))] #MinMaxScaler()
-    scalers = [MinMaxScaler(Parameters.min_max_scaler_feature_range)]
     #min_max_scaler_feature_range = [(-1, 0), (0, 1), (-1, 1)]
-    min_max_scaler_feature_range = [(-1, 1)]
+    min_max_scaler_feature_range = [(-1, 0)]
+    scalers = [MinMaxScaler(min_max_scaler_feature_range[0])]
     #gaf_sample_ranges = [(-1, 0), (-1, 0.5), (-1, 1), (-0.5, 0), (-0.5, 0.5), (-0.5, 1), (0, 0.5), (0, 1)]
     #gaf_sample_ranges = [(-1, 0.5), (-1, 0), (-0.5, 0.5)]
     gaf_sample_ranges = [(-1, 0.5)]
@@ -238,9 +238,9 @@ if __name__ == "__main__":
     os.environ['GOMP_CPU_AFFINITY'] = '0-23'
 
     #sys logging
-    if Parameters.enable_mlflow:
-        mlflow.enable_system_metrics_logging()
-        mlflow.set_system_metrics_sampling_interval(Parameters.mlflow_system_log_freq)
+    # if Parameters.enable_mlflow:
+    #     mlflow.enable_system_metrics_logging()
+    #     mlflow.set_system_metrics_sampling_interval(Parameters.mlflow_system_log_freq)
 
     #set gpu env
     os.environ['CUDA_LAUNCH_BLOCKING'] = '1'

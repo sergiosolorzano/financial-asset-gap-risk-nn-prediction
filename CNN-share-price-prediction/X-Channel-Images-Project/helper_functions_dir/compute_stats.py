@@ -42,7 +42,7 @@ def compute_error_stats(var1, var2, stock_ticker, device):
     ss_total = torch.sum((var1 - torch.mean(var1)) ** 2)
     ss_residual = torch.sum((var1 - var2) ** 2)
     r2 = 1 - (ss_residual / ss_total)
-    print("R^2",r2)
+    print(f"Stock {stock_ticker} R^2",r2)
     #print("R^2 manual",r2, "my ss_total", ss_total, "ss_residual", ss_residual)
 
     # metric = R2Score(device=device)

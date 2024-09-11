@@ -6,6 +6,7 @@ import time
 import gc
 import re
 import GPUtil
+import random
 
 import torch
 import torchvision.transforms as transforms
@@ -124,12 +125,16 @@ def weights_init_he(m):
         #mode=fan_out: Used for convolutional layers to account for the output size of the layer
         nn.init.kaiming_uniform_(m.weight, mode='fan_out', nonlinearity='relu')
         if m.bias is not None:
+            #nn.init.uniform_(m.bias, 0, 0.5)
             nn.init.constant_(m.bias, 0)
+            #print(f"Convo Biases:\n{m.bias}")
     elif isinstance(m, nn.Linear):
         #mode=fan_in: Used for linear layers to account for the input size
         nn.init.kaiming_uniform_(m.weight, mode='fan_in', nonlinearity='relu')
         if m.bias is not None:
+            #nn.init.uniform_(m.bias, 0, 0.5)
             nn.init.constant_(m.bias, 0)
+            #print(f"Linear Biases:\n{m.bias}")
 
 def print_layer_weights(model):
     for name, param in model.named_parameters():
@@ -220,7 +225,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
 
     start_time = time.time()
 
-    print_mssg=f"Train params: learning_rate: {params.learning_rate}, momentum:{params.momentum} loss_threshold {params.loss_threshold}<p>"
+    print_mssg=f"Train params: learning_rate: {params.learning_rate}, momentum:{params.momentum} loss_threshold {params.loss_stop_threshold}<p>"
     #print(print_mssg)
     if params.save_runs_to_md:
         helper_functions.write_to_md(print_mssg,None)
@@ -237,7 +242,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
         optimizer = optim.SGD(net.parameters(), lr=params.learning_rate, momentum=params.momentum)
     
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode=params.lr_scheduler_mode, patience=params.lr_scheduler_patience)
-
+    
     # profiler = torch.profiler.profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True)
     # profiler.start()
         
@@ -316,7 +321,6 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
             stack_input = torch.stack(inputs_list, dim=0)
 
         # report curr cum loss
-        print(f"Cum loss: {epoch_cum_loss}")
         if ((epoch + 1) % params.epoch_running_loss_check == 0):
                 print_mssg = f"[{(epoch + 1):d}, {(i + 1):5d}] Cum loss: {(epoch_cum_loss):.9f}<p>"
                 print(print_mssg) 
@@ -330,6 +334,9 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
             if Parameters.enable_mlflow:
                 mlflow.log_metric("best_cum_loss",best_cum_loss,step=epoch)
         
+        print(f"Cum loss: {epoch_cum_loss} epoch {epoch} Best Cum Loss: {best_cum_loss} at epoch {best_cum_loss_epoch}")
+        print("scheduler LR",scheduler.get_last_lr()[0])#"optimizer loss",optimizer.param_groups[0]['lr']
+
         # loss<threshold: update checkpoint
         if epoch_cum_loss < best_checkpoint_cum_loss:
             best_checkpoint_cum_loss = epoch_cum_loss
@@ -338,10 +345,11 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
             helper_functions.update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net.state_dict(), optimizer.state_dict(), epoch_cum_loss)
         
         #exit if below loss threshold
-        if (epoch_cum_loss) < params.loss_threshold:
-            print(f"[WARNING] Epoch Cum Loss is less than {params.loss_threshold}:{epoch_cum_loss} at {epoch}. Stopping training.")
+        #print(f"Comparing Stop - Cum Loss {epoch_cum_loss} Vs {params.loss_stop_threshold}")
+        if epoch_cum_loss < params.loss_stop_threshold:
+            print(f"[WARNING] Epoch Cum Loss is less than {params.loss_stop_threshold}:{epoch_cum_loss} at {epoch}. Stopping training.")
             if Parameters.save_runs_to_md:
-                helper_functions.write_to_md(f"Epoch Cum Loss is less than {params.loss_threshold}:{epoch_cum_loss} at {epoch}. Stopping training.<p>",None)
+                helper_functions.write_to_md(f"Epoch Cum Loss is less than {params.loss_stop_threshold}:{epoch_cum_loss} at {epoch}. Stopping training.<p>",None)
             
             #profiler.stop()
 
@@ -350,8 +358,8 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
             #return net, model_signature, stack_input
             return net, model_signature if 'model_signature' in locals() else None or None, stack_input
         
-        #exit if there's no improvement for x-epochs
-        if (best_cum_loss_epoch + params.max_stale_loss_epochs) < epoch:
+        #exit if there's no improvement for x-epochs and LR Reset not enabled
+        if not params.enable_lr_reset and ((best_cum_loss_epoch + params.max_stale_loss_epochs) < epoch):
             print(f"[WARNING] Epoch Cum Loss Stale {epoch_cum_loss} at {epoch}. Abandon training.")
             if Parameters.save_runs_to_md:
                 helper_functions.write_to_md(f"[WARNING] Epoch Cum Loss Stale {epoch_cum_loss} at {epoch}. Abandon training.",None)
@@ -363,12 +371,22 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
             return net, model_signature if 'model_signature' in locals() else None, stack_input
         
         #optim learning rate scheduler
-        scheduler.step(epoch_cum_loss)
+        scheduler.step(epoch_cum_loss.item())
         current_lr = scheduler.get_last_lr()[0]
         epoch_metrics = {f"epoch_cum_loss": epoch_cum_loss.item(),
                         f"last_lr": current_lr}
         if Parameters.enable_mlflow:
             mlflow.log_metrics(epoch_metrics,step=epoch)
+
+        #LR reset
+        if params.enable_lr_reset and ((best_cum_loss_epoch + params.max_stale_loss_epochs) < epoch):
+            optimizer.param_groups[0]['lr'] = 0.01#params.lr_reset_rate
+            #scheduler.cooldown = params.lr_scheduler_patience
+            print(f"[WARNING] Current Scheduler LR {scheduler.get_last_lr()[0]} reset as Cum Loss Stale {epoch_cum_loss} at {epoch}. LR reset to {optimizer.param_groups[0]['lr']}.")
+        
+        if params.enable_lr_reset and optimizer.param_groups[0]['lr'] <=params.lr_reset_threshold:
+            print(f"Setting LR {optimizer.param_groups[0]['lr']} to Reset Rate {params.lr_reset_rate}")
+            optimizer.param_groups[0]['lr']=params.lr_reset_rate
 
     #end training without reaching loss_threshold
     #profiler.stop()
@@ -446,10 +464,10 @@ def Test(test_loader, net, stock_ticker, device):
     stack_predicted = torch.stack(predicted_list, dim=0).flatten()
         
     accuracy = [correct_2dp_score, correct_1dp_score]
-    print(); print(f"Accuracy 2 decimal places: {correct_2dp_score}%, "
+    print(); print(f"Stock {stock_ticker} Accuracy 2 decimal places: {correct_2dp_score}%, "
             f"Accuracy 1 decimal places: {correct_1dp_score}%\n")
 
-    text_mssg=(f"Accuracy 2 decimal places: {correct_2dp_score}% <p> \
+    text_mssg=(f"Stock {stock_ticker} Accuracy 2 decimal places: {correct_2dp_score}% <p> \
                Accuracy 1 decimal places: {correct_1dp_score}% <p>")
 
     if Parameters.save_runs_to_md:
