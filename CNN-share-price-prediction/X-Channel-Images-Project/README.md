@@ -18,12 +18,11 @@ We test the model with the share price time series of the Sylicon Valley Bank fo
 The repo runs on python and leverages available pytorch libraries.
 
 The share prices' day Low, High, Close, Open, Adjusted Close time series are encoded into 32x32 images using [pyts Gramian angular field (GAF)](https://pyts.readthedocs.io/en/stable/auto_examples/image/plot_single_gaf.html) to obtain a temporal correlation between each pair of prices in the series.
-Render of a GAF 32-day share price time series window for each feature:
-<img width="1045" alt="image" src="https://github.com/sergiosolorzano/CNN-bayesian-share-price-prediction/assets/24430655/985af796-f2d1-43c2-98e9-86e9610262dc">
+Render of a GAF 32-day share price time series window for each feature.
 
-Render average of the above GAF images:
+Render average GAF images:
 
-<img width="225" alt="image" src="https://github.com/sergiosolorzano/CNN-bayesian-share-price-prediction/assets/24430655/27cb4600-58c8-42ca-8968-d0a1b6d99586">
+![alt text](readme_images/gaf.jpg)
 
 A stack of 32x32 images with shape (5, 491, 32, 32) would represent each of the 5 share price features' time series. Each image represents a time series window of 32 days. I slide each window by 1 day from Ti to T(len time series -33) hence obtaining 491 time series windows or GAF images for each feature.
 
