@@ -41,13 +41,14 @@ def generate_dataset_to_images_process(stock_ticker, params, test_size, cols_use
 
     #Prepare and Load Data
     images_array, labels_array = image_transform.squeeze_array(images_array, labels_array)
-
+    
     feature_image_dataset_list_f32, labels_scaled_list_f32 = image_transform.Generate_feature_image_to_f32(
         labels_array, 
         images_array,
         params.transformed_img_sz, 
         params.scaler)
 
+    #print("***---***labels",labels_scaled_list_f32)
     train_loader, test_loader = load_data.Generate_Loaders(feature_image_dataset_list_f32,
                                                 labels_scaled_list_f32, test_size,
                                                 params.batch_size,
