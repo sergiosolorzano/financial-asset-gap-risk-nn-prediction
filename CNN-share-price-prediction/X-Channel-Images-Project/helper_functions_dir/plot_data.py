@@ -197,7 +197,40 @@ def plot_image_correlations(series_correlations, mean_correlation, experiment_na
     #plt.show()
     plt.close(fig)
 
+def plot_confusion_matrix(conf_matrix, stock_ticker, normalize, experiment_name, run_id):
+    raw_conf_matrix = conf_matrix.copy()
     
+    if normalize:
+        conf_matrix = conf_matrix.astype('float') / conf_matrix.sum(axis=1)[:, np.newaxis]
+        conf_matrix = np.round(conf_matrix * 100, 2)
+
+    # Create annotations with both raw counts and percentages
+    annotations = np.empty(conf_matrix.shape, dtype=object)
+    for i in range(conf_matrix.shape[0]):
+        for j in range(conf_matrix.shape[1]):
+            count = raw_conf_matrix[i, j]
+            percent = conf_matrix[i, j] if normalize else 0
+            annotations[i, j] = f'{count}\n({percent}%)'
+
+    if normalize:
+        fmt='0.2f'
+    else:
+        fmt='d'
+
+    # Plot confusion matrix
+    fig = plt.figure(figsize=(8, 6))
+    sns.heatmap(conf_matrix, annot=annotations, fmt='', cmap='Blues', 
+                xticklabels=['Next Day Price Down', 'Next Day Price Up'], 
+                yticklabels=['Next Day Price Down', 'Next Day Price Up'])
+    plt.xlabel('Predicted Labels')
+    plt.ylabel('True Labels')
+    plt.title(f'Confusion Matrix Test {stock_ticker}')
+
+    if Parameters.enable_mlflow:
+        helper_functions.write_and_log_plt(fig, None, f'{stock_ticker}_Confusion_Matrix', f'{stock_ticker}_Confusion_Matrix', experiment_name, run_id)
+    #plt.show()
+    plt.close(fig)
+
 def quick_view_images(images_array, cols_used_count, cols_used, experiment_name, run_id):
     
     # Plot the first image of each column

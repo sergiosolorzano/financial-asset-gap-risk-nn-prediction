@@ -1,6 +1,5 @@
 import os
 import sys
-import torch
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler, SequentialSampler, Subset
 
 import numpy as np
@@ -128,18 +127,19 @@ def Generate_Train_And_Test_Loaders(feature_image_dataset_list_f32,labels_scaled
 
     #generate a list for images and labels
     #print("****Dataloader num workers ",Parameters.num_workers)
+    #print("***labels",labels_scaled_list_f32)
     data_prep_class = DataPrep(feature_image_dataset_list_f32, labels_scaled_list_f32, Parameters.num_workers)
     
-
     #print("feature_image_dataset_list_f32",feature_image_dataset_list_f32[0][0].shape)
     #print("labels_scaled_list_f32",labels_scaled_list_f32.shape)
     #returns list size all observations of all features of size 2:
     #(image32x32,label) i.e. shape (4*480,32,32) and (4*480,1)
     dataset = data_prep_class.prepare_ordered_dataset()
 
-    for c in range(len(dataset[0])):
-        print(f"size labels {c}",dataset[1][c].size)
-        print(f"size image {c}",dataset[0][c].shape)
+    # for c in range(len(dataset[0])):
+    #     print(f"size labels {c}",dataset[1][c].size)
+    #     print("****labels",dataset[1][c])
+        #print(f"size image {c}",dataset[0][c].shape)
 
     train_loader, test_loader = data_prep_class.split_data(dataset, 
                                                             batch_size, test_size,

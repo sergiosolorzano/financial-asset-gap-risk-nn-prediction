@@ -1,6 +1,7 @@
 from sklearn.preprocessing import StandardScaler,MinMaxScaler
 import sys
 import os
+from enum import Enum
 import pandas as pd
 from datetime import datetime
 import torch.nn as nn
@@ -9,10 +10,23 @@ import torch
 #import scripts
 import importlib as importlib
 sys.path.append(os.path.abspath('./helper_functions_dir'))
-from helper_functions_dir import generate_images
+#from helper_functions_dir import generate_images
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+class TransformAlgo(Enum):
+    GRAMIAN = 1
+    MARKOV = 2
+
+    @classmethod
+    def from_value(cls, value):
+        for member in cls:
+            if member.value == value:
+                #print("received ",value,"matching", member.value, "member", member)
+                return member
+        raise ValueError(f"Unsupported value: {value}")
+
+#TODO
 class Stock_Params:
     start_date_train_stock_1 = '2021-12-05'
     end_date_train_stock_1 = '2023-06-25'
@@ -24,11 +38,14 @@ class Stock_Params:
 
 #init parameters
 class Parameters:
-    scenario = 0
+    scenario = 0 #local txt logging param
+    nn_predict_price = 0 #0=classification;1=regression
+    classification_class_price_down=0
+    classification_class_price_up=1
 
     enable_mlflow=True
-    mlflow_experiment_name = 'gaprisk-dyanmic-LR'
-    mlflow_experiment_description = "Test reset LR to exit local minima"
+    mlflow_experiment_name = 'gaprisk-classification'
+    mlflow_experiment_description = "Classify next day above or below price prediction"
     
     brute_force_filename = 'brute_force_results.md'
     mlflow_credentials_fname = 'mlflow-creds.json'
@@ -70,7 +87,7 @@ class Parameters:
 
     # Time series to image transformation algorithm: GRAMIAN 1; MARKOV 2
     transform_algo_type = 1
-    transform_algo = generate_images.TransformAlgo.from_value(transform_algo_type)
+    transform_algo = TransformAlgo.from_value(transform_algo_type)
     image_resolution_x = 32
     image_resolution_y = 32
     
@@ -79,7 +96,7 @@ class Parameters:
     transformed_img_sz = 32
     gaf_sample_range = (-1, 0.5)
     
-    # image transformation scale both GRAMIAN/MARKOV
+    # label scaler applied to labels only for both GRAMIAN/MARKOV
     scaler = StandardScaler()
     min_max_scaler_feature_range = (-1, 0) #for MinMaxScaler()
 
@@ -100,7 +117,13 @@ class Parameters:
     output_conv_2 = 12
     output_FC_1 = 100
     output_FC_2 = 70
-    final_FCLayer_outputs = 1
+
+    if nn_predict_price:
+        #next day price
+        final_FCLayer_outputs = 1
+    else:
+        #higher or lower price
+        final_FCLayer_outputs = 2
 
     learning_rate = 0.001
     momentum = 0.9
@@ -140,5 +163,9 @@ class Parameters:
             'loss': None,
             }
     
-    function_loss = nn.MSELoss() #nn.CrossEntropyLoss() #nn.MSELoss()
+    if nn_predict_price:
+        function_loss = nn.MSELoss()
+    else:
+        function_loss = nn.CrossEntropyLoss()
+
     optimizer = "SGD" #SGD or Adam

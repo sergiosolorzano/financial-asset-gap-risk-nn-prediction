@@ -139,9 +139,10 @@ def data_to_array(input_list):
 def write_scenario_to_log_file(accuracy):
     #write to file
     output_string = (f"Accuracy 2dp: {accuracy[0]}%\n"
-                    f"Accuracy 1dp: {accuracy[1]}%\n")
+                    f"Accuracy 1dp: {accuracy[1]}%\n",
+                    f"Classification Accuracy: {accuracy[2]}%\n")
 
-    Scenario_Log(output_string)
+    Scenario_Log(str(output_string))
 
 def Save_Model(run_id, net, model_signature, experiment_name):
     save_full_model(run_id,net, model_signature, experiment_name)

@@ -16,6 +16,7 @@ import torch.optim as optim
 import torch.backends.cudnn
 
 import numpy as np
+from sklearn.metrics import confusion_matrix
 
 import mlflow
 
@@ -26,6 +27,8 @@ import plot_data as plot_data
 import image_transform as image_transform
 import helper_functions as helper_functions
 import compute_stats as compute_stats
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from parameters import Parameters
 
 from torch.profiler import profile, ProfilerActivity
@@ -263,13 +266,16 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
             #non_blocking combined with dataloader pin_memory for simultaneous transfer&computation
             inputs, labels = data[0].to(device, non_blocking=True), data[1].to(device, non_blocking=True)
 
+            if Parameters.nn_predict_price==False:
+                labels = labels.flatten().long()
+
             #mixed precision
             with torch.autocast(device_type='cuda', dtype=torch.float16):
 
                 if epoch == 0:
                     input_tensor = inputs.data
                     inputs_list.append(input_tensor)
-
+                    
                 # get signature for model
                 if i==0 and epoch==0:
                     #print("epoch",epoch,"data i",i,"len image",len(inputs), "shape",inputs.shape, inputs)
@@ -287,7 +293,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
                 # forward + backward + optimize
                 outputs = net(inputs)
                 #print("outputs shape",outputs.shape,outputs)
-                #print("outputs",outputs)
+                #print("outputs",outputs,"labels",labels)
                 loss = criterion(outputs, labels)
             
             if loss is not None:
@@ -397,12 +403,15 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
 
     return net, model_signature if 'model_signature' in locals() else None, stack_input
 
-
-def Test(test_loader, net, stock_ticker, device):
+def Test(test_loader, net, stock_ticker, device, experiment_name, run):
     inputs_list = []
     accuracy = 0
     correct_2dp_list = []
     correct_1dp_list = []
+    correct_2dp_score = torch.tensor(0.0, device=device, dtype=torch.float32)
+    correct_1dp_score = torch.tensor(0.0, device=device, dtype=torch.float32)
+    correct_classification_score = torch.tensor(0, device=device, dtype=torch.int)
+    correct_classification_list = []
     error_list = []
     #dataframe vars
     predicted_list = []
@@ -419,10 +428,14 @@ def Test(test_loader, net, stock_ticker, device):
 
         with torch.no_grad():
             outputs = net(inputs)
+            #print("outputs",outputs)
         
         input_tensor = inputs.data
-        predicted_tensor = outputs.data
         actual_tensor = labels.data
+        if Parameters.nn_predict_price:
+            predicted_tensor = outputs.data
+        else:
+            _, predicted_tensor = torch.max(outputs, 1)
         
         inputs_list.append(input_tensor)
 
@@ -439,16 +452,30 @@ def Test(test_loader, net, stock_ticker, device):
         error_list.append(error_tensor)
         
         #accuracy
-        correct_2dp_tensor = (torch.abs(predicted_tensor - actual_tensor)<= 0.01)
-        correct_2dp_list.append(correct_2dp_tensor)
-        
-        correct_1dp_tensor = (torch.abs(predicted_tensor - actual_tensor)<= 0.1)
-        correct_1dp_list.append(correct_1dp_tensor)
+        if Parameters.nn_predict_price:
+            correct_2dp_tensor = (torch.abs(predicted_tensor - actual_tensor)<= 0.01)
+            correct_2dp_list.append(correct_2dp_tensor)
+            
+            correct_1dp_tensor = (torch.abs(predicted_tensor - actual_tensor)<= 0.1)
+            correct_1dp_list.append(correct_1dp_tensor)
+        else:
+            #print("predicted",predicted_tensor)
+            #print("Actual",actual_tensor)
+            correct_classification_tensor = torch.eq(predicted_tensor, actual_tensor)
+            correct_classification_list.append(correct_classification_tensor)
+            #print("list",correct_classification_tensor)
 
     torch.set_printoptions()
 
-    correct_2dp_score = calculate_score(correct_2dp_list)
-    correct_1dp_score = calculate_score(correct_1dp_list)
+    if Parameters.nn_predict_price:
+        correct_2dp_score = calculate_score(correct_2dp_list)
+        correct_1dp_score = calculate_score(correct_1dp_list)
+    else:
+        correct_classification_score = calculate_score(correct_classification_list)
+        if Parameters.enable_mlflow:
+            confusion_mtx(actual_list,predicted_list, stock_ticker, experiment_name, run.info.run_id)
+        else:
+            confusion_mtx(actual_list,predicted_list, stock_ticker, None, None)
 
     error_list_iqr, error_pct_outside_iqr = compute_stats.calculate_iqr(error_list)
 
@@ -463,21 +490,27 @@ def Test(test_loader, net, stock_ticker, device):
 
     stack_predicted = torch.stack(predicted_list, dim=0).flatten()
         
-    accuracy = [correct_2dp_score, correct_1dp_score]
+    accuracy = [correct_2dp_score, correct_1dp_score, correct_classification_score]
     print(); print(f"Stock {stock_ticker} Accuracy 2 decimal places: {correct_2dp_score}%, "
-            f"Accuracy 1 decimal places: {correct_1dp_score}%\n")
+            f"Accuracy 1 decimal places: {correct_1dp_score}%, "
+            f"Accuracy Classification {correct_classification_score}\n")
 
     text_mssg=(f"Stock {stock_ticker} Accuracy 2 decimal places: {correct_2dp_score}% <p> \
-               Accuracy 1 decimal places: {correct_1dp_score}% <p>")
+               Accuracy 1 decimal places: {correct_1dp_score}% <p> \
+               Accuracy Classification {correct_classification_score} <p>")
 
     if Parameters.save_runs_to_md:
         helper_functions.write_to_md(text_mssg,None)
 
     # log metrics
     if Parameters.enable_mlflow:
-        accuracy_metrics = {f"{stock_ticker}_accuracy_2dp_score": correct_2dp_score.double().item(),
-                f"{stock_ticker}_accuracy_1dp_score": correct_1dp_score.double().item(),
-                f"{stock_ticker}_error_pct_outside_iqr": error_pct_outside_iqr}
+        if Parameters.nn_predict_price:
+            accuracy_metrics = {f"{stock_ticker}_accuracy_2dp_score": correct_2dp_score.double().item(),
+                    f"{stock_ticker}_accuracy_1dp_score": correct_1dp_score.double().item(),
+                    f"{stock_ticker}_error_pct_outside_iqr": error_pct_outside_iqr}
+        else:
+            accuracy_metrics = {f"{stock_ticker}_accuracy_classification_score": correct_classification_score.double().item()}
+        
         mlflow.log_metrics(accuracy_metrics)
     
     # accuracyby_element_metrics = {}
@@ -491,11 +524,32 @@ def Test(test_loader, net, stock_ticker, device):
     # mlflow.log_metrics(pred_element_value)
 
     #print("abs_percentage_diffs",abs_percentage_diffs_np)
+
     return stack_input, predicted_list, actual_list, accuracy, stack_actual, stack_predicted
 
+def confusion_mtx(true_labels, predicted_labels, stock_ticker, experiment_name, run_id):
+    flattened_true_labels = flatten_labels(true_labels)
+    flattened_predicted_labels = flatten_labels(predicted_labels)
+    cm = confusion_matrix(flattened_true_labels, flattened_predicted_labels)
+    plot_data.plot_confusion_matrix(cm, stock_ticker, True, experiment_name, run_id)
+
+def flatten_labels(label_list):
+    flattened_labels = []
+    for label in label_list:
+        if label.dim() == 2:
+            flattened_labels.extend(label.view(-1).cpu().numpy())
+        else:
+            flattened_labels.extend(label.cpu().numpy())
+    return np.array(flattened_labels)
+
 def calculate_score(tensor_list):
-    stack = torch.stack(tensor_list, dim=1).flatten()
-    return (torch.sum(stack)/len(stack))*100
+    if Parameters.nn_predict_price:
+        stack = torch.stack(tensor_list, dim=1).flatten()
+        return (torch.sum(stack)/len(stack))*100
+    else:
+        stack = torch.stack(tensor_list, dim=1).flatten()
+        #print("*****Classification sum",stack.sum(),"total",len(stack))
+        return (stack.sum()/len(stack))*100
 
 def set_model_for_eval(net):
     net.eval()

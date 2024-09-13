@@ -1,5 +1,7 @@
 from math import floor
 from enum import Enum
+import sys
+import os
 
 import numpy as np
 
@@ -13,17 +15,7 @@ import importlib as importlib
 
 import torchvision.transforms as transforms
 
-class TransformAlgo(Enum):
-    GRAMIAN = 1
-    MARKOV = 2
-
-    @classmethod
-    def from_value(cls, value):
-        for member in cls:
-            if member.value == value:
-                #print("received ",value,"matching", member.value, "member", member)
-                return member
-        raise ValueError(f"Unsupported value: {value}")
+from parameters import Parameters, TransformAlgo
 
 def generate_transformed_images(dataset, transform_algo, gaf_img_sz=32, method="summation", gaf_sample_range=(0,1)):
     #print("len data series received:",len(dataset),"size",dataset.size)
@@ -122,7 +114,16 @@ def generate_multiple_feature_images(dataset, cols_used, transformed_algo, image
             
             #get next single value after the chunk as label to list
             #print("appending to temp label list-currcunk",cur_chunk,"imgsize",image_size,"labels",curr_sliding_window_data[(cur_chunk*image_size)+image_size])
-            temp_label_list.append(curr_sliding_window_data[(cur_chunk*image_size)+image_size])
+            
+            if Parameters.nn_predict_price:
+                temp_label_list.append(curr_sliding_window_data[(cur_chunk*image_size)+image_size])
+            else:
+                #next day price down
+                if curr_sliding_window_data[(cur_chunk*image_size)+image_size] < curr_sliding_window_data[(cur_chunk*image_size)+image_size-1]:
+                    temp_label_list.append(Parameters.classification_class_price_down)
+                #next day price up
+                else:
+                    temp_label_list.append(Parameters.classification_class_price_up)
             #feature_label_index_dataset_list.append(feature_data[cur_chunk + image_size + 1])
             #print("chunk",cur_chunk,"label for",column_name,"price",feature_data[cur_chunk + image_size + 1])
             #if(column_name == "Open"):
@@ -153,7 +154,7 @@ def generate_multiple_feature_images(dataset, cols_used, transformed_algo, image
     print("Shape before transpose:", feature_image_dataset_list.shape)
     feature_image_dataset_list= np.transpose(feature_image_dataset_list, (1, 3, 0, 2, 4, 5))
     #print("Final Shape of images after transpose:", feature_image_dataset_list.shape)
-
+    
     return feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list
 
 def Generate_feature_image_dataset_list_f32(labels_array, images_array, image_size, scaler):
@@ -167,7 +168,12 @@ def Generate_feature_image_dataset_list_f32(labels_array, images_array, image_si
     reshaped_labels_array = labels_array.reshape(-1, 1)
     #print("reshaped labels array",reshaped_labels_array)
     
-    labels_scaled_list_f32 = scaler.fit_transform(reshaped_labels_array).reshape(-1,).astype(np.float32)
+    #scale labels if regression prediction
+    if Parameters.nn_predict_price:
+        labels_scaled_list_f32 = scaler.fit_transform(reshaped_labels_array).reshape(-1,).astype(np.float32)
+    else:
+       labels_scaled_list_f32 = reshaped_labels_array.reshape(-1,).astype(np.float32)
+       
     #print("scaled labels",labels_scaled_list_f32)
     print("4D image array shape",images_array.shape)
     print("3D reshaped image array ",feature_image_dataset_list_f32.shape)

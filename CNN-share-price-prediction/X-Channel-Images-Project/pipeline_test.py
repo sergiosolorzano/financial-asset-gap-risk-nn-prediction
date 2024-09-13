@@ -16,7 +16,7 @@ from parameters import Parameters
 def test_process(net, test_loader, params, stock_ticker, run, experiment_name, device):
     
     # test
-    stack_input, predicted_list, actual_list, accuracy, stack_actual, stack_predicted  = neural_network.Test(test_loader,net, stock_ticker, device)
+    stack_input, predicted_list, actual_list, accuracy, stack_actual, stack_predicted  = neural_network.Test(test_loader,net, stock_ticker, device, experiment_name, run)
 
     #store and to mlflow these input and predicted stacks
     if Parameters.enable_mlflow:
