@@ -39,11 +39,11 @@ class Stock_Params:
 #init parameters
 class Parameters:
     scenario = 0 #local txt logging param
-    nn_predict_price = 0 #0=classification;1=regression
+    nn_predict_price = 1 #0=classification;1=regression
     classification_class_price_down=0
     classification_class_price_up=1
 
-    enable_mlflow=True
+    enable_mlflow=False
     mlflow_experiment_name = 'gaprisk-classification'
     mlflow_experiment_description = "Classify next day above or below price prediction"
     
