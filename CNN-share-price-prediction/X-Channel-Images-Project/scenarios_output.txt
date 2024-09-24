@@ -53231,3 +53231,7 @@ Accuracy 1dp: 44.642860412597656%
 ('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 52.622772216796875%\n')
 
 ('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 49.97209930419922%\n')
+
+('Accuracy 2dp: 10.714286804199219%\nAccuracy 1dp: 75.4464340209961%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.357143402099609%\nAccuracy 1dp: 41.517860412597656%\n', 'Classification Accuracy: 0%\n')
