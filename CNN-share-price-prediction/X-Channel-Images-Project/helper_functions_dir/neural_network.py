@@ -23,6 +23,8 @@ import mlflow
 #import scripts
 import importlib as importlib
 sys.path.append(os.path.abspath('./helper_functions_dir'))
+import adamw as adamw
+import cyclic_scheduler as cyclic_scheduler 
 import plot_data as plot_data
 import image_transform as image_transform
 import helper_functions as helper_functions
@@ -239,19 +241,25 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
     #criterion = nn.CrossEntropyLoss()
     criterion = Parameters.function_loss
 
-    if Parameters.optimizer == "Adam":
-        optimizer = optim.Adam(net.parameters(), lr=params.learning_rate)
-    elif Parameters.optimizer == "SGD":
-        optimizer = optim.SGD(net.parameters(), lr=params.learning_rate, momentum=params.momentum)
+    if Parameters.run_adamw:
+        optimizer = adamw.AdamW(net.parameters(), lr=params.learning_rate, weight_decay=Parameters.adamw_weight_decay)
+        scheduler = cyclic_scheduler.CyclicLRWithRestarts(optimizer, Parameters.batch_size, params.num_epochs_input, restart_period=Parameters.adamw_scheduler_restart_period, t_mult=Parameters.adamw_scheduler_t_mult, policy=Parameters.adamw_scheduler_cyclic_policy)
+    else:
+        if Parameters.optimizer == "Adam":
+            optimizer = optim.Adam(net.parameters(), lr=params.learning_rate)
+        elif Parameters.optimizer == "SGD":
+            optimizer = optim.SGD(net.parameters(), lr=params.learning_rate, momentum=params.momentum)
     
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode=params.lr_scheduler_mode, patience=params.lr_scheduler_patience)
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode=params.lr_scheduler_mode, patience=params.lr_scheduler_patience)
     
     # profiler = torch.profiler.profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True)
     # profiler.start()
         
     for epoch in range(params.num_epochs_input):
 
-        #epoch_cum_loss = 0.0
+        if Parameters.run_adamw:
+            scheduler.step()
+
         epoch_cum_loss = torch.tensor(0.0, device=device, dtype=torch.float64)
 
         gradients_dict = {name: [] for name, _ in net.named_parameters() if 'weight' in name}
@@ -341,7 +349,9 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
                 mlflow.log_metric("best_cum_loss",best_cum_loss,step=epoch)
         
         print(f"Cum loss: {epoch_cum_loss} epoch {epoch} Best Cum Loss: {best_cum_loss} at epoch {best_cum_loss_epoch}")
-        print("scheduler LR",scheduler.get_last_lr()[0])#"optimizer loss",optimizer.param_groups[0]['lr']
+        
+        if not Parameters.run_adamw:
+            print("scheduler LR",scheduler.get_last_lr()[0])#"optimizer loss",optimizer.param_groups[0]['lr']
 
         # loss<threshold: update checkpoint
         if epoch_cum_loss < best_checkpoint_cum_loss:
@@ -376,23 +386,32 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
 
             return net, model_signature if 'model_signature' in locals() else None, stack_input
         
-        #optim learning rate scheduler
-        scheduler.step(epoch_cum_loss.item())
-        current_lr = scheduler.get_last_lr()[0]
-        epoch_metrics = {f"epoch_cum_loss": epoch_cum_loss.item(),
+        if Parameters.run_adamw:
+            scheduler_param_group= scheduler.batch_step()
+            print("Getting Learning Rate ", scheduler_param_group['lr'])
+            print("Getting weight decay", scheduler_param_group['weight_decay'])
+            epoch_metrics = {f"epoch_cum_loss": epoch_cum_loss.item(),
+                        f"last_lr": scheduler_param_group['lr']}
+        else:
+            #optim learning rate scheduler for ReduceLROnPlateau
+            scheduler.step(epoch_cum_loss.item())
+            current_lr = scheduler.get_last_lr()[0]
+            epoch_metrics = {f"epoch_cum_loss": epoch_cum_loss.item(),
                         f"last_lr": current_lr}
+            
         if Parameters.enable_mlflow:
             mlflow.log_metrics(epoch_metrics,step=epoch)
 
         #LR reset
-        if params.enable_lr_reset and ((best_cum_loss_epoch + params.max_stale_loss_epochs) < epoch):
-            optimizer.param_groups[0]['lr'] = 0.01#params.lr_reset_rate
-            #scheduler.cooldown = params.lr_scheduler_patience
-            print(f"[WARNING] Current Scheduler LR {scheduler.get_last_lr()[0]} reset as Cum Loss Stale {epoch_cum_loss} at {epoch}. LR reset to {optimizer.param_groups[0]['lr']}.")
-        
-        if params.enable_lr_reset and optimizer.param_groups[0]['lr'] <=params.lr_reset_threshold:
-            print(f"Setting LR {optimizer.param_groups[0]['lr']} to Reset Rate {params.lr_reset_rate}")
-            optimizer.param_groups[0]['lr']=params.lr_reset_rate
+        if not Parameters.run_adamw:
+            if params.enable_lr_reset and ((best_cum_loss_epoch + params.max_stale_loss_epochs) < epoch):
+                optimizer.param_groups[0]['lr'] = 0.01#params.lr_reset_rate
+                #scheduler.cooldown = params.lr_scheduler_patience
+                print(f"[WARNING] Current Scheduler LR {scheduler.get_last_lr()[0]} reset as Cum Loss Stale {epoch_cum_loss} at {epoch}. LR reset to {optimizer.param_groups[0]['lr']}.")
+            
+            if params.enable_lr_reset and optimizer.param_groups[0]['lr'] <=params.lr_reset_threshold:
+                print(f"Setting LR {optimizer.param_groups[0]['lr']} to Reset Rate {params.lr_reset_rate}")
+                optimizer.param_groups[0]['lr']=params.lr_reset_rate
 
     #end training without reaching loss_threshold
     #profiler.stop()
