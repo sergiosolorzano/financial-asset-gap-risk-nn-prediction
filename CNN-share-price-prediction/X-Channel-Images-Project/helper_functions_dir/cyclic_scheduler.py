@@ -215,3 +215,4 @@ class CyclicLRWithRestarts(_LRScheduler):
                                                    self.get_lr(t_cur)):
             param_group['lr'] = lr
             param_group['weight_decay'] = weight_decay
+            return param_group
