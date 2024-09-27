@@ -140,12 +140,14 @@ class Parameters:
 
     loss_stop_threshold = 0.000001
 
-    run_adamw = True
+    #adamw
+    run_adamw = False
     adamw_weight_decay = 0.00001
-    adamw_scheduler_cyclic_policy = "cosine" #["cosine", "arccosine", "triangular", "triangular2", "exp_range"]
+    adamw_scheduler_cyclic_policy = "exp_range" #["cosine", "arccosine", "triangular", "triangular2", "exp_range"]
     adamw_scheduler_restart_period = 5 #epoch count in the first restart period
     adamw_scheduler_t_mult = 1.2 #multiplication factor by which the next restart period will expand/shrink
-    #LR scheduler
+    
+    #pytorch LR scheduler
     lr_scheduler_patience = 700 #10000 to ignore lrscheduler
     lr_scheduler_mode = 'min'
     #max_stale_loss_epochs = max(4 * lr_scheduler_patience,300)
