@@ -53247,3 +53247,15 @@ Accuracy 1dp: 44.642860412597656%
 ('Accuracy 2dp: 14.955358505249023%\nAccuracy 1dp: 74.33036041259766%\n', 'Classification Accuracy: 0%\n')
 
 ('Accuracy 2dp: 4.017857551574707%\nAccuracy 1dp: 45.312503814697266%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 13.616071701049805%\nAccuracy 1dp: 82.81250762939453%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 7.142857551574707%\nAccuracy 1dp: 42.187503814697266%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 10.267857551574707%\nAccuracy 1dp: 72.09822082519531%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.1339287757873535%\nAccuracy 1dp: 44.419647216796875%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 12.5%\nAccuracy 1dp: 79.01786041259766%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 6.473215103149414%\nAccuracy 1dp: 45.08928680419922%\n', 'Classification Accuracy: 0%\n')
