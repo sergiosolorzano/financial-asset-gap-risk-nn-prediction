@@ -126,7 +126,7 @@ def cross_stock_image_array_correlation(var1, var2):
 
 def cross_stock_image_array_correlation2(var1, var2, test_ticker, train_ticker):
     reshaped_var1 = var1.view(var1.size(0), var1.size(1), -1)
-    reshaped_var2 = var2.view(var1.size(0), var2.size(1), -1)
+    reshaped_var2 = var2.view(var2.size(0), var2.size(1), -1)
     
     #print("var1 shape",var1.shape,"reshaped",reshaped_var1.shape)
 

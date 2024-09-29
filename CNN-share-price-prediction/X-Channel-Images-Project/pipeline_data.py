@@ -10,21 +10,23 @@ import helper_functions_dir.plot_data as plot_data
 import helper_functions_dir.image_transform as image_transform
 from helper_functions_dir import helper_functions
 
-import mlflow
+#import mlflow
 
-def generate_dataset_to_images_process(stock_ticker, params, test_size, cols_used, run, experiment_name):
+def generate_dataset_to_images_process(stocks, params, test_size, cols_used, run, experiment_name):
     #import Financial Data
-    stock_dataset_df = load_data.import_dataset(stock_ticker, params.start_date, params.end_date, run, experiment_name)
+    stocks_dataset_df, stock_tickers = load_data.import_dataset(stocks, params.start_date, params.end_date, run, experiment_name)
 
-    # plot price comparison stock vs index
-    fig = plot_data.plot_price_comparison_stocks(params.index_ticker, stock_ticker, stock_dataset_df, params.start_date, params.end_date)
-    helper_functions.write_and_log_plt(fig, None,
-                                       f"price_comp_{params.index_ticker}_vs_{stock_ticker}",
-                                       f"price_comp_{params.index_ticker}_vs_{stock_ticker}",experiment_name, getattr(run, 'info', None).run_id if run else None)
+    # plot price comparison stock vs index when we don't concat stocks
+    if len(stock_tickers.split(',')) == 1:
+        fig = plot_data.plot_price_comparison_stocks(params.index_ticker, stock_tickers, stocks_dataset_df, params.start_date, params.end_date)
+        helper_functions.write_and_log_plt(fig, None,
+                                        f"price_comp_{params.index_ticker}_vs_{stock_tickers}",
+                                        f"price_comp_{params.index_ticker}_vs_{stock_tickers}",experiment_name, getattr(run, 'info', None).run_id if run else None)
+    
     # Generate images
     #print("generate_dataset_to_images_process algo",params.transform_algo)
     feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list, cols_used_count = image_transform.generate_features_lists(
-        stock_dataset_df, 
+        stocks_dataset_df, 
         cols_used,
         params.transform_algo, 
         params.transformed_img_sz, 
@@ -55,4 +57,4 @@ def generate_dataset_to_images_process(stock_ticker, params, test_size, cols_use
                                                 train_shuffle=False)
     
     
-    return train_loader, test_loader, stock_dataset_df
+    return train_loader, test_loader, stocks_dataset_df
