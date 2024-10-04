@@ -6,6 +6,8 @@ import sys
 import numpy as np
 import pandas as pd
 
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 import random as rand
@@ -263,7 +265,6 @@ def plot_train_eval_cross_correl_price_series(stocks, start_date, end_date, run,
     
     if Parameters.enable_mlflow:
         plot_train_series_correl(cross_corr_matrix, experiment_name, run.info.run_id)
-
 
 def plot_image_correlations(series_correlations, mean_correlation, experiment_name, run_id):
     # Plot the correlations

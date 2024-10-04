@@ -10,7 +10,6 @@ import torch
 #import scripts
 import importlib as importlib
 sys.path.append(os.path.abspath('./helper_functions_dir'))
-#from helper_functions_dir import generate_images
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -74,7 +73,9 @@ class Parameters:
     classification_class_price_down=0
     classification_class_price_up=1
 
-    enable_mlflow=False
+    log_returns = 1 #1=log return rebased price series else price series
+
+    enable_mlflow=True
     mlflow_experiment_name = 'gaprisk-concatstocks'
     mlflow_experiment_description = "Concat stocks to train"
     
@@ -101,20 +102,11 @@ class Parameters:
     model_arch_dir = 'models/architecture_models'
 
     # Stock tickers
-    #train_stock_ticker = 'SIVBQ'
-    #evaluation_test_stock_ticker = 'SICP'
-    #evaluation_test_stock_ticker = 'MSFT'
     train_tickers = ""
     eval_tickers = ""
     index_ticker = '^SP500-40'
     start_date = ''
     end_date = ''
-
-    # Close price time period
-    #start_date = '2021-12-05'
-    #end_date = '2023-06-25'
-    #end_date = '2023-01-25'
-    #end_date = '2022-04-25'
 
     #cols used
     training_cols_used = ["Open", "High", "Low", "Close"]
