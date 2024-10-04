@@ -175,10 +175,10 @@ class Parameters:
 
     loss_stop_threshold = 0.000001
 
-    #adamw
+    #adamw optimizer and cyclic scheduler
     run_adamw = False
     adamw_weight_decay = 0.00001
-    adamw_scheduler_cyclic_policy = "exp_range" #["cosine", "arccosine", "triangular", "triangular2", "exp_range"]
+    adamw_scheduler_cyclic_policy = "cosine" #["cosine", "arccosine", "triangular", "triangular2", "exp_range"]
     adamw_scheduler_restart_period = 5 #epoch count in the first restart period
     adamw_scheduler_t_mult = 1.2 #multiplication factor by which the next restart period will expand/shrink
     
@@ -210,4 +210,4 @@ class Parameters:
     else:
         function_loss = nn.CrossEntropyLoss()
 
-    optimizer = "SGD" #SGD or Adam
+    optimizer = "SGD" #SGD or Adam if adamw=False, else adamw
