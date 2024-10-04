@@ -74,7 +74,7 @@ class Parameters:
     classification_class_price_down=0
     classification_class_price_up=1
 
-    enable_mlflow=True
+    enable_mlflow=False
     mlflow_experiment_name = 'gaprisk-concatstocks'
     mlflow_experiment_description = "Concat stocks to train"
     
@@ -168,7 +168,7 @@ class Parameters:
     batch_size = 16
     num_workers = 0
 
-    num_epochs_input = 2#20000
+    num_epochs_input = 20000
 
     best_checkpoint_cum_loss = 0.002
     min_best_cum_loss = torch.tensor(2.5, device=device, dtype=torch.float64)

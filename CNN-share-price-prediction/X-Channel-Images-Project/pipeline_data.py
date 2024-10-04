@@ -28,8 +28,8 @@ def generate_dataset_to_images_process(stocks, params, test_size, cols_used, run
         dataset_df_copy['Date'] = range(len(dataset_df_copy))
         fig = plot_data.plot_concat_price_comparison_stocks(stock_tickers, dataset_df_copy)
         helper_functions.write_and_log_plt(fig, None,
-                                            f"concat_rebased_price_comp_{stock_tickers}",
-                                            f"concat_rebased_price_comp_{stock_tickers}",experiment_name, getattr(run, 'info', None).run_id if run else None)
+                                            f"concat_price_comp_{stock_tickers}",
+                                            f"concat_price_comp_{stock_tickers}",experiment_name, getattr(run, 'info', None).run_id if run else None)
     # Generate images
     #print("generate_dataset_to_images_process algo",params.transform_algo)
     feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list, cols_used_count = image_transform.generate_features_lists(
@@ -63,8 +63,4 @@ def generate_dataset_to_images_process(stocks, params, test_size, cols_used, run
                                                 params.batch_size,
                                                 train_shuffle=False)
     
-    
-    #cross correl if concat at train
-    
-
     return train_loader, test_loader, stocks_dataset_df

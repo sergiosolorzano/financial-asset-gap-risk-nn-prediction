@@ -10,13 +10,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import random as rand
 
-import threading
-
 import yfinance as yf
 
 from parameters import Parameters
 
-import mlflow
+#import mlflow
 
 #import scripts
 import importlib as importlib
@@ -145,7 +143,7 @@ def compare_concat_stocks(stock_ticker, stock_dataset):
     stock_data = stock_dataset.dropna()
 
     #rebase
-    stock_rebased = stock_data / stock_data.iloc[0] * 100
+    stock_rebased = stock_data# / stock_data.iloc[0] * 100
 
     fig, axs = plt.subplots(2, 2, figsize=(Parameters.plt_image_size[0], Parameters.plt_image_size[1]))
 
@@ -239,7 +237,6 @@ def plot_train_series_correl(cross_corr_matrix, experiment_name, run_id):
     #plt.show()
     plt.close(fig)
     
-#TODO
 def plot_train_eval_cross_correl_price_series(stocks, start_date, end_date, run, experiment_name):
     data_close = {}
 
@@ -261,11 +258,11 @@ def plot_train_eval_cross_correl_price_series(stocks, start_date, end_date, run,
         # calc correl training datasets
         df_close = pd.DataFrame(data_close)
         
-        cross_corr_matrix = df_close.corr(method='spearman')
-        #print("Train & Eval set cross_corr_matrix",cross_corr_matrix)
-        
-        if Parameters.enable_mlflow:
-            plot_train_series_correl(cross_corr_matrix, experiment_name, run.info.run_id)
+    cross_corr_matrix = df_close.corr(method='spearman')
+    #print("Train & Eval set cross_corr_matrix",cross_corr_matrix)
+    
+    if Parameters.enable_mlflow:
+        plot_train_series_correl(cross_corr_matrix, experiment_name, run.info.run_id)
 
 
 def plot_image_correlations(series_correlations, mean_correlation, experiment_name, run_id):
