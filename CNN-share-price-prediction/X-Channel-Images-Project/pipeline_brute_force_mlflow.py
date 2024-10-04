@@ -265,13 +265,26 @@ if __name__ == "__main__":
     #select stocks to train/eval
     stock_params = StockParams()
 
-    # Add stocks and set parameters
+    #test pre concat
     stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
-    stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
+    stock_params.add_eval_stock('SICP', '2021-12-05', '2023-01-25')
+
+    # run concat
+    #stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
     #stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
-    #stock_params.add_eval_stock('FITB', '2021-12-05', '2023-01-25')
-    stock_params.add_train_stock('FITB', '2021-12-05', '2023-01-25')
-    stock_params.add_eval_stock('RF', '2021-12-05', '2023-01-25')
+    #stock_params.add_train_stock('ALLY', '2021-12-05', '2023-01-25')
+    #stock_params.add_train_stock('CMA', '2021-12-05', '2023-01-25')
+    #stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
+    
+    #scenarios
+    #high correl
+    stock_params.add_eval_stock('CMA', '2021-12-05', '2023-01-25')
+    #medium correl
+    #stock_params.add_eval_stock('JPM', '2021-12-05', '2023-01-25')
+    #low correl
+    #stock_params.add_eval_stock('RF', '2021-12-05', '2023-01-25')
+    #nil correl
+    #stock_params.add_eval_stock('CROX', '2021-12-05', '2023-01-25')
 
     stock_params.set_param_strings()
     Parameters.train_tickers = stock_params.train_stock_tickers
