@@ -10,13 +10,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import random as rand
 
-import threading
-
 import yfinance as yf
 
 from parameters import Parameters
 
-import mlflow
+#import mlflow
 
 #import scripts
 import importlib as importlib
@@ -93,17 +91,19 @@ def scatter_diagram_onevar_plot_mean(stack_input, stock_ticker, experiment_name,
     #plt.show()
     plt.close(fig)
 
-def scatter_diagram_twovar_plot_mean(external_test_stock_ticker,train_stock_ticker,var1, var2, experiment_name, run_id):
+def scatter_diagram_twovar_plot_mean(evaluation_test_stock_ticker,train_stock_ticker,var1, var2, experiment_name, run_id):
     torch.set_printoptions(threshold=torch.inf)
-    reshaped_external_test_stack_input = var1.view(var1.size(0), var1.size(1), -1)
+    reshaped_evaluation_test_stack_input = var1.view(var1.size(0), var1.size(1), -1)
     reshaped_train_stock_ticker = var2.view(var2.size(0), var2.size(1), -1)
+    
+    print("Scatter len eval set",len(reshaped_evaluation_test_stack_input), "shape",reshaped_evaluation_test_stack_input.shape,"len train set",len(reshaped_train_stock_ticker),"shape",reshaped_train_stock_ticker.shape)
     
     test_means =[]
     train_means =[]
-    for batch_idx in range(reshaped_external_test_stack_input.size(0)):
+    for batch_idx in range(reshaped_evaluation_test_stack_input.size(0)):
     #loop through images of each channel
-        for chann in range(reshaped_external_test_stack_input.size(1)):
-            var1_chann_image = reshaped_external_test_stack_input[batch_idx, chann, :]
+        for chann in range(reshaped_evaluation_test_stack_input.size(1)):
+            var1_chann_image = reshaped_evaluation_test_stack_input[batch_idx, chann, :]
             var2_chann_image = reshaped_train_stock_ticker[batch_idx, chann, :]
             var1_mean_value = torch.mean(var1_chann_image).item()
             var2_mean_value = torch.mean(var2_chann_image).item()
@@ -112,27 +112,70 @@ def scatter_diagram_twovar_plot_mean(external_test_stock_ticker,train_stock_tick
 
     fig = plt.figure(figsize=(10, 6))
     df = pd.DataFrame({
-        f'{external_test_stock_ticker} test_mean': test_means,
+        f'{evaluation_test_stock_ticker} test_mean': test_means,
         f'{train_stock_ticker} train_mean': train_means
     })
     #print("input mean",df)
-    plt.scatter(df.index, df[f'{external_test_stock_ticker} test_mean'], c='red', marker='x', label=f'{external_test_stock_ticker} Mean Values')
+    plt.scatter(df.index, df[f'{evaluation_test_stock_ticker} test_mean'], c='red', marker='x', label=f'{evaluation_test_stock_ticker} Mean Values')
     plt.scatter(df.index, df[f'{train_stock_ticker} train_mean'], c='blue', marker='x', label=f'{train_stock_ticker} Mean Values')
-    plt.xlabel(f'{train_stock_ticker} and {external_test_stock_ticker} Input Mean Values')
+    plt.xlabel(f'{train_stock_ticker} and {evaluation_test_stock_ticker} Input Mean Values')
     plt.ylabel('Values')
-    plt.title(f'Scatter Diagram of {external_test_stock_ticker} and {train_stock_ticker} Image Input Mean Values')
+    plt.title(f'Scatter Diagram of {evaluation_test_stock_ticker} and {train_stock_ticker} Image Input Mean Values')
     plt.legend(loc="upper right")
     plt.grid(True)
 
     helper_functions.write_and_log_plt(fig, None,
-                                       f"{external_test_stock_ticker}_and_{train_stock_ticker}_Image_Input_Mean_Values",
-                                       f"{external_test_stock_ticker}_and_{train_stock_ticker}_Image_Input_Mean_Values", experiment_name, run_id)
+                                       f"{evaluation_test_stock_ticker}_and_{train_stock_ticker}_Image_Input_Mean_Values",
+                                       f"{evaluation_test_stock_ticker}_and_{train_stock_ticker}_Image_Input_Mean_Values", experiment_name, run_id)
     
-def plot_price_comparison_stocks(index_ticker,train_stock_ticker,stock_dataset_df, start_date, end_date):
-    fig = compare_stocks(index_ticker,train_stock_ticker,stock_dataset_df, start_date, end_date)
+def plot_price_comparison_stocks(index_ticker, train_stock_tickers, stock_dataset_df, start_date, end_date):
+    fig = compare_stocks(index_ticker,train_stock_tickers,stock_dataset_df, start_date, end_date)
     
     return fig
     
+def plot_concat_price_comparison_stocks(train_stock_tickers, stock_dataset_df):
+    fig = compare_concat_stocks(train_stock_tickers,stock_dataset_df)
+    
+    return fig
+
+def compare_concat_stocks(stock_ticker, stock_dataset):
+
+    stock_data = stock_dataset.dropna()
+
+    #rebase
+    stock_rebased = stock_data# / stock_data.iloc[0] * 100
+
+    fig, axs = plt.subplots(2, 2, figsize=(Parameters.plt_image_size[0], Parameters.plt_image_size[1]))
+
+    axs[0, 0].plot(stock_rebased.index, stock_rebased['Open'], label=f'{stock_ticker} Open Price', color='g')
+    axs[0, 0].plot(stock_rebased.index, stock_rebased['Close'], label=f'{stock_ticker} Close Price', color='m')
+    axs[0, 0].set_title('Open and Close Prices')
+    axs[0, 0].legend()
+    axs[0, 0].grid(True)
+
+    axs[0, 1].plot(stock_rebased.index, stock_rebased['Close'], label=f'{stock_ticker} Close Price', color='m')
+    axs[0, 1].plot(stock_rebased.index, stock_rebased['High'], label=f'{stock_ticker} High Price', color='b')
+    axs[0, 1].set_title('Close and High Prices')
+    axs[0, 1].legend()
+    axs[0, 1].grid(True)
+
+    axs[1, 0].plot(stock_rebased.index, stock_rebased['Close'], label=f'{stock_ticker} Close Price', color='m')
+    axs[1, 0].plot(stock_rebased.index, stock_rebased['Low'], label=f'{stock_ticker} Low Price', color='r')
+    axs[1, 0].set_title('Close and Low Prices')
+    axs[1, 0].legend()
+    axs[1, 0].grid(True)
+
+    axs[1, 1].plot(stock_rebased.index, stock_rebased['High'], label=f'{stock_ticker} High Price', color='b')
+    axs[1, 1].plot(stock_rebased.index, stock_rebased['Low'], label=f'{stock_ticker} Low Price', color='r')
+    axs[1, 1].set_title('High and Low Prices')
+    axs[1, 1].legend()
+    axs[1, 1].grid(True)
+
+    plt.tight_layout()
+    #plt.show()
+
+    return fig
+
 def compare_stocks(index_ticker, stock_ticker, stock_dataset, start_date, end_date):
 
     index_data = yf.download(index_ticker, start=start_date, end=end_date, interval='1d')
@@ -178,8 +221,49 @@ def compare_stocks(index_ticker, stock_ticker, stock_dataset, start_date, end_da
     axs[1, 1].grid(True)
 
     plt.tight_layout()
+    #plt.show()
 
     return fig
+
+def plot_train_series_correl(cross_corr_matrix, experiment_name, run_id):
+    fig = plt.figure(figsize=(10, 6))
+    sns.heatmap(cross_corr_matrix, annot=True, cmap='coolwarm', fmt='.2f')
+    plt.title('Cross-Correlation Matrix Training Time Series')
+
+    helper_functions.write_and_log_plt(fig, None,
+                                       f"Cross_Correlation_Matrix_Close_Training_Eval_Time_Series",
+                                       f"Cross_Correlation_Matrix_Close_Training_Eval_Time_Series", experiment_name, run_id)
+
+    #plt.show()
+    plt.close(fig)
+    
+def plot_train_eval_cross_correl_price_series(stocks, start_date, end_date, run, experiment_name):
+    data_close = {}
+
+    for s in stocks.get_train_stocks() + stocks.get_eval_stocks():
+        dataset_df = yf.download(s['ticker'], start=start_date, end=end_date, interval='1d')
+        dataset_df = dataset_df.dropna()
+        #reset column to save to csv and mlflow schema
+        dataset_df = dataset_df.reset_index()
+
+        #reorder to split the data to train and test
+        desired_order = ['Date','Open', 'Close', 'High', 'Low']
+        if 'Date' in dataset_df.columns:
+            dataset_df = dataset_df[desired_order]
+        else:
+            print("Column 'Date' is missing.")
+
+        data_close[s['ticker']] = dataset_df['Close']
+
+        # calc correl training datasets
+        df_close = pd.DataFrame(data_close)
+        
+    cross_corr_matrix = df_close.corr(method='spearman')
+    #print("Train & Eval set cross_corr_matrix",cross_corr_matrix)
+    
+    if Parameters.enable_mlflow:
+        plot_train_series_correl(cross_corr_matrix, experiment_name, run.info.run_id)
+
 
 def plot_image_correlations(series_correlations, mean_correlation, experiment_name, run_id):
     # Plot the correlations
@@ -268,13 +352,17 @@ def quick_view_images(images_array, cols_used_count, cols_used, experiment_name,
     plt.close(fig)
 
 
-def plot_external_test_graphs(params, train_stack_input, external_test_stack_input,
+def plot_evaluation_test_graphs(params, train_stack_input, evaluation_test_stack_input,
                               image_series_correlations, image_series_mean_correlation,
                               experiment_name, run_id):
 
     #scatter actual vs predicted
-    scatter_diagram_twovar_plot_mean(params.external_test_stock_ticker,params.train_stock_ticker,external_test_stack_input, train_stack_input, experiment_name, run_id)
+    scatter_diagram_twovar_plot_mean(params.eval_tickers,params.train_tickers,evaluation_test_stack_input, train_stack_input, experiment_name, run_id)
 
     #plot trained versus test stocks image series mean correlations
-    plot_image_correlations(image_series_correlations, image_series_mean_correlation, experiment_name, run_id)
-    print("trained versus test stocks image series mean correlation",image_series_mean_correlation)
+    print("len train_stack_input",len(train_stack_input),"len evaluation_test_stack_input",len(evaluation_test_stack_input))
+    if len(train_stack_input) == len(evaluation_test_stack_input):
+        plot_image_correlations(image_series_correlations, image_series_mean_correlation, experiment_name, run_id)
+        print("trained versus test stocks image series mean correlation",image_series_mean_correlation)
+    else:
+        print(f"Skip Plot Cross-Image Correlations because of size mismatch: Train size {len(train_stack_input)} Eval size {len(evaluation_test_stack_input)}")

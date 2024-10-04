@@ -13,40 +13,43 @@ sys.path.append(os.path.abspath('./helper_functions_dir'))
 import helper_functions_dir.neural_network as neural_network
 import helper_functions_dir.plot_data as plot_data
 import helper_functions_dir.helper_functions as helper_functions
-import helper_functions_dir.compute_stats as compute_stats 
+#import helper_functions_dir.compute_stats as compute_stats 
 import helper_functions_dir.credentials as credentials
 
 from parameters import Parameters
+from parameters import StockParams
 import pipeline_data as pipeline_data
 import pipeline_train as pipeline_train
 import pipeline_test as pipeline_test
-import external_test_pipeline as external_test_pipeline
+import evaluation_test_pipeline as evaluation_test_pipeline
 
 import mlflow
 #context execution for mlflow with statement
 import contextlib
 from torchinfo import summary
 
-def mlflow_log_params(curr_datetime, experiment_name, experiment_id):
+def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_params):
     
-    start_date_obj = datetime.strptime(Parameters.start_date, '%Y-%m-%d')
-    end_date_obj = datetime.strptime(Parameters.end_date, '%Y-%m-%d')
-    print("DayCount~",end_date_obj-start_date_obj)
 
+    #start_date_obj = datetime.strptime(stock_params.get_train_stocks()[0]['start_date'], '%Y-%m-%d')
+    start_date_obj = datetime.strptime(stock_params.start_date, '%Y-%m-%d')
+    end_date_obj = datetime.strptime(stock_params.end_date, '%Y-%m-%d')
+    print("DayCount~",(end_date_obj-start_date_obj))
+    
     params_dict = {
         "experiment_id": experiment_id,
         "experiment_name": experiment_name,
         "iteration": curr_datetime,
-        "train_stock_ticker": Parameters.train_stock_ticker,
-        "external_test_stock_ticker": Parameters.external_test_stock_ticker,
+        "train_stock_ticker": stock_params.train_stock_tickers,
+        "eval_stock_ticker": stock_params.eval_stock_tickers,
         "index_ticker": Parameters.index_ticker,
-        "start_date": Parameters.start_date,
-        "end_date": Parameters.end_date,
+        "start_date": stock_params.start_date,
+        "end_date": stock_params.end_date,
         "daycount": end_date_obj-start_date_obj,
         "training_testing_cols_used": Parameters.training_cols_used,
         "training_test_size": Parameters.training_test_size,
-        "external_test_cols_used": Parameters.external_test_cols_used,
-        "external_test_size": Parameters.external_test_size,
+        "evaluation_test_cols_used": Parameters.evaluation_test_cols_used,
+        "evaluation_test_size": Parameters.evaluation_test_size,
         "transform_algo_type": Parameters.transform_algo_type,
         "transform_algo": Parameters.transform_algo,
         "scaler": str(type(Parameters.scaler).__name__),
@@ -83,7 +86,7 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id):
 
     mlflow.log_params(params_dict)
 
-def brute_force_function(credentials, device):
+def brute_force_function(credentials, device, stock_params):
 
     #logging.basicConfig(level=logging.DEBUG)
     
@@ -165,7 +168,7 @@ def brute_force_function(credentials, device):
                                             Parameters.image_resolution_x = Parameters.image_resolution_y = Parameters.transformed_img_sz = i_s
 
                                             if Parameters.enable_mlflow:
-                                                mlflow_log_params(curr_datetime, experiment_name, experiment_id)
+                                                mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_params)
                                                 if Parameters.save_runs_to_md:
                                                     helper_functions.write_to_md("<b><center>==========Optimization Iteration==========</center></b><p><p>",None)
                                                     #helper_functions.write_to_md(f"<p><b>transform_algo_type: {t} gaf_method: {m} gaf_sample_range: {s} scaler: {sc} dropout_probab: {d}</b><p>", None)
@@ -176,7 +179,7 @@ def brute_force_function(credentials, device):
                                             #################################
 
                                             #generate training images
-                                            train_loader, test_loader, external_test_stock_dataset_df = pipeline_data.generate_dataset_to_images_process(Parameters.train_stock_ticker, 
+                                            train_loader, test_loader, evaluation_test_stock_dataset_df = pipeline_data.generate_dataset_to_images_process(stock_params.get_train_stocks(), 
                                                                                                         Parameters, 
                                                                                                         Parameters.training_test_size, 
                                                                                                         Parameters.training_cols_used,
@@ -192,13 +195,13 @@ def brute_force_function(credentials, device):
 
                                             test_stack_input, test_stack_actual, test_stack_predicted = pipeline_test.test_process(net, test_loader, 
                                                                                                                     Parameters, 
-                                                                                                                    Parameters.train_stock_ticker, run,
+                                                                                                                    Parameters.train_tickers, run,
                                                                                                                     experiment_name, device)
 
                                             #################################
-                                            #       External Test           #
+                                            #       Evaluation Test         #
                                             #################################
-                                            text_mssg= "<u><center>==========Run External Stock Tests:==========</center></u><p>"
+                                            text_mssg= "<u><center>==========Run Evaluation Stock Tests:==========</center></u><p>"
                                             print("\n\n",text_mssg)
                                             if Parameters.save_runs_to_md:
                                                 helper_functions.write_to_md(text_mssg,None)
@@ -207,26 +210,29 @@ def brute_force_function(credentials, device):
                                             #net = helper_functions.Load_Full_Model(PATH)
 
                                             #external test image generation
-                                            train_loader, test_loader, external_test_stock_dataset_df = pipeline_data.generate_dataset_to_images_process(Parameters.external_test_stock_ticker, 
+                                            train_loader, test_loader, evaluation_test_stock_dataset_df = pipeline_data.generate_dataset_to_images_process(stock_params.get_eval_stocks(), 
                                                                                                         Parameters, 
-                                                                                                        Parameters.external_test_size, 
-                                                                                                        Parameters.external_test_cols_used,
+                                                                                                        Parameters.evaluation_test_size, 
+                                                                                                        Parameters.evaluation_test_cols_used,
                                                                                                         run, experiment_name)
 
+                                            # plot correls
+                                            plot_data.plot_train_eval_cross_correl_price_series(stock_params, Parameters.start_date, Parameters.end_date, run, experiment_name)
+
                                             #test
-                                            external_test_stack_input, external_test_stack_actual, external_test_stack_predicted = pipeline_test.test_process(net, 
+                                            evaluation_test_stack_input, evaluation_test_stack_actual, evaluation_test_stack_predicted = pipeline_test.test_process(net, 
                                                                                                                                                 test_loader, 
                                                                                                                                                 Parameters,
-                                                                                                                                                Parameters.external_test_stock_ticker, run,
+                                                                                                                                                Parameters.eval_tickers, run,
                                                                                                                                                 experiment_name, device)
 
                                             #report stats
-                                            image_series_correlations, image_series_mean_correlation = external_test_pipeline.report_external_test_stats(
-                                                                                                Parameters, external_test_stock_dataset_df, 
-                                                                                                train_stack_input, external_test_stack_input,
+                                            image_series_correlations, image_series_mean_correlation = evaluation_test_pipeline.report_evaluation_test_stats(
+                                                                                                stock_params.get_eval_stocks(), Parameters, evaluation_test_stock_dataset_df, 
+                                                                                                train_stack_input, evaluation_test_stack_input,
                                                                                                 run, experiment_name)
 
-                                            plot_data.plot_external_test_graphs(Parameters, train_stack_input, external_test_stack_input,
+                                            plot_data.plot_evaluation_test_graphs(Parameters, train_stack_input, evaluation_test_stack_input,
                                                                         image_series_correlations, image_series_mean_correlation,
                                                                         experiment_name, run_id)
                                         
@@ -255,4 +261,35 @@ if __name__ == "__main__":
 
     _credentials = credentials.MLflow_Credentials()
     _credentials.get_credentials()
-    brute_force_function(_credentials, device)
+
+    #select stocks to train/eval
+    stock_params = StockParams()
+
+    #test pre concat
+    stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
+    stock_params.add_eval_stock('SICP', '2021-12-05', '2023-01-25')
+
+    # run concat
+    #stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
+    #stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
+    #stock_params.add_train_stock('ALLY', '2021-12-05', '2023-01-25')
+    #stock_params.add_train_stock('CMA', '2021-12-05', '2023-01-25')
+    #stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
+    
+    #scenarios
+    #high correl
+    stock_params.add_eval_stock('CMA', '2021-12-05', '2023-01-25')
+    #medium correl
+    #stock_params.add_eval_stock('JPM', '2021-12-05', '2023-01-25')
+    #low correl
+    #stock_params.add_eval_stock('RF', '2021-12-05', '2023-01-25')
+    #nil correl
+    #stock_params.add_eval_stock('CROX', '2021-12-05', '2023-01-25')
+
+    stock_params.set_param_strings()
+    Parameters.train_tickers = stock_params.train_stock_tickers
+    Parameters.eval_tickers = stock_params.eval_stock_tickers
+    Parameters.start_date = stock_params.start_date
+    Parameters.end_date = stock_params.end_date
+
+    brute_force_function(_credentials, device, stock_params)

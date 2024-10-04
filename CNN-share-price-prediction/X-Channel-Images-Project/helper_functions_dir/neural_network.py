@@ -254,7 +254,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
     
     # profiler = torch.profiler.profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True)
     # profiler.start()
-        
+    
     for epoch in range(params.num_epochs_input):
 
         if Parameters.run_adamw:

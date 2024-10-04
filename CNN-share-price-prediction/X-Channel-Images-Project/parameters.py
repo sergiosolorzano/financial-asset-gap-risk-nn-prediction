@@ -26,16 +26,47 @@ class TransformAlgo(Enum):
                 return member
         raise ValueError(f"Unsupported value: {value}")
 
-#TODO
-class Stock_Params:
-    start_date_train_stock_1 = '2021-12-05'
-    end_date_train_stock_1 = '2023-06-25'
-    train_stock_ticker_1 = 'SIVBQ'
+class StockParams:
+    def __init__(self):
+        self.train_stocks = []
+        self.eval_stocks = []
+        self.train_stock_tickers = ""
+        self.eval_stock_tickers = ""
+        self.start_date = ''
+        self.end_date = ''
 
-    start_date_train_stock_2 = '2021-12-05'
-    end_date_train_stock_2 = '2023-06-25'
-    train_stock_ticker_2 = 'SIVBQ'
+    def add_train_stock(self, ticker, start_date, end_date):
+        stock_info = {
+            'ticker': ticker,
+            'start_date': start_date,
+            'end_date': end_date
+        }
+        self.train_stocks.append(stock_info)
 
+    def add_eval_stock(self, ticker, start_date, end_date):
+        stock_info = {
+            'ticker': ticker,
+            'start_date': start_date,
+            'end_date': end_date
+        }
+        self.eval_stocks.append(stock_info)
+
+    def get_train_stocks(self):
+        return self.train_stocks
+    
+    def get_eval_stocks(self):
+        return self.eval_stocks
+    
+    def set_param_strings(self):
+        train_stocks = self.get_train_stocks()
+        eval_stocks = self.get_eval_stocks()
+        for s in train_stocks:
+            self.train_stock_tickers = "_".join([s['ticker'] for s in train_stocks])
+        for s in eval_stocks:
+            self.eval_stock_tickers = "_".join([s['ticker'] for s in eval_stocks])
+        self.start_date = train_stocks[0]['start_date']
+        self.end_date = train_stocks[0]['end_date']
+    
 #init parameters
 class Parameters:
     scenario = 0 #local txt logging param
@@ -44,8 +75,8 @@ class Parameters:
     classification_class_price_up=1
 
     enable_mlflow=False
-    mlflow_experiment_name = 'gaprisk-classification'
-    mlflow_experiment_description = "Classify next day above or below price prediction"
+    mlflow_experiment_name = 'gaprisk-concatstocks'
+    mlflow_experiment_description = "Concat stocks to train"
     
     brute_force_filename = 'brute_force_results.md'
     mlflow_credentials_fname = 'mlflow-creds.json'
@@ -70,20 +101,24 @@ class Parameters:
     model_arch_dir = 'models/architecture_models'
 
     # Stock tickers
-    train_stock_ticker = 'SIVBQ'
-    external_test_stock_ticker = 'SICP'
-    #external_test_stock_ticker = 'MSFT'
+    #train_stock_ticker = 'SIVBQ'
+    #evaluation_test_stock_ticker = 'SICP'
+    #evaluation_test_stock_ticker = 'MSFT'
+    train_tickers = ""
+    eval_tickers = ""
     index_ticker = '^SP500-40'
-    
+    start_date = ''
+    end_date = ''
+
     # Close price time period
-    start_date = '2021-12-05'
+    #start_date = '2021-12-05'
     #end_date = '2023-06-25'
-    end_date = '2023-01-25'
+    #end_date = '2023-01-25'
     #end_date = '2022-04-25'
 
     #cols used
     training_cols_used = ["Open", "High", "Low", "Close"]
-    external_test_cols_used = ["Open", "High"]
+    evaluation_test_cols_used = ["Open", "High"]
 
     # Time series to image transformation algorithm: GRAMIAN 1; MARKOV 2
     transform_algo_type = 1
@@ -102,7 +137,7 @@ class Parameters:
 
     # Training's test size
     training_test_size = 0.5 #50% to capture two full features
-    external_test_size = 1
+    evaluation_test_size = 1
 
     model_name ='LeNet-5 Based Net'
     # Default hyperparameters
