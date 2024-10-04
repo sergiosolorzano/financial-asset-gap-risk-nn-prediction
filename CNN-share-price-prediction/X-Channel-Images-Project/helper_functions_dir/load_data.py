@@ -173,7 +173,7 @@ def import_dataset(stocks, start_date, end_date, run, experiment_name):
         dataset_df = dataset_df.dropna()
         #print("Num rows for df Close col",len(dataset_df['Close']))
         #print("columns",dataset_df.columns)
-        #print("df",dataset_df)
+        #print(f"df {s['ticker']}",dataset_df, "rows",len(dataset_df))
         
         #reset column to save to csv and mlflow schema
         dataset_df = dataset_df.reset_index()
@@ -194,22 +194,25 @@ def import_dataset(stocks, start_date, end_date, run, experiment_name):
     
     #set index back to Date for operations
     concatenated_df = concatenated_df.set_index('Date')
-
     if Parameters.enable_mlflow:
             blob_name = f"{Parameters.input_price_data_blob_fname}.csv"
             full_blob_uri = helper_functions.save_df_to_blob(concatenated_df, blob_name, run.info.run_id, experiment_name)
             tags = {'source': 'yahoo'}
             helper_functions.mlflow_log_dataset(dataset_df, full_blob_uri, stock_tickers, "input_price", "train_test", run, tags)
         
-    # calc correl training datasets
-    df_close = pd.DataFrame(data_close)
+    # # calc correl training datasets
+    # df_close = pd.DataFrame(data_close)
+    # print("***df cols",df_close.columns)
     
-    if len(df_list) > 1:
-        cross_corr_matrix = df_close.corr(method='spearman')
-        print("Train set cross_corr_matrix",cross_corr_matrix)
+    # #concat stocks to train
+    # if len(df_list) > 1:
+    #     # filtered_dict = {k: v for k, v in my_dict.items() if k == "ticker"}
+    #     # print(filtered_dict)
+    #     cross_corr_matrix = df_close.corr(method='spearman')
+    #     print("Train set cross_corr_matrix",cross_corr_matrix)
         
-        if Parameters.enable_mlflow:
-            plot_data.plot_train_series_correl(cross_corr_matrix, experiment_name, run.info.run_id)
+    #     if Parameters.enable_mlflow:
+    #         plot_data.plot_train_series_correl(cross_corr_matrix, experiment_name, run.info.run_id)
 
     return concatenated_df, stock_tickers
 

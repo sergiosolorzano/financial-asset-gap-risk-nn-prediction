@@ -216,6 +216,9 @@ def brute_force_function(credentials, device, stock_params):
                                                                                                         Parameters.evaluation_test_cols_used,
                                                                                                         run, experiment_name)
 
+                                            # plot correls
+                                            plot_data.plot_train_eval_cross_correl_price_series(stock_params, Parameters.start_date, Parameters.end_date, run, experiment_name)
+
                                             #test
                                             evaluation_test_stack_input, evaluation_test_stack_actual, evaluation_test_stack_predicted = pipeline_test.test_process(net, 
                                                                                                                                                 test_loader, 
@@ -265,9 +268,10 @@ if __name__ == "__main__":
     # Add stocks and set parameters
     stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
     stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
-    #stock_params.add_eval_stock('SICP', '2021-12-05', '2023-01-25')
-    stock_params.add_eval_stock('FITB', '2021-12-05', '2023-01-25')
-    # stock_params.add_eval_stock('RF', '2021-12-05', '2023-01-25')
+    #stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
+    #stock_params.add_eval_stock('FITB', '2021-12-05', '2023-01-25')
+    stock_params.add_train_stock('FITB', '2021-12-05', '2023-01-25')
+    stock_params.add_eval_stock('RF', '2021-12-05', '2023-01-25')
 
     stock_params.set_param_strings()
     Parameters.train_tickers = stock_params.train_stock_tickers
