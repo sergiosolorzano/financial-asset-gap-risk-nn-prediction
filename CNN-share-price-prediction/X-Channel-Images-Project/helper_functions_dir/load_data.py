@@ -17,6 +17,8 @@ import helper_functions as helper_functions
 import importlib as importlib
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), "..")))
 from parameters import Parameters
+import helper_functions_dir.compute_stats as compute_stats
+import helper_functions_dir.plot_data as plot_data
 
 # os.environ['OMP_NUM_THREADS'] = '16'
 # os.environ['OMP_PROC_BIND'] = 'CLOSE'
@@ -159,40 +161,64 @@ def Generate_Loaders(feature_image_dataset_list_f32,labels_scaled_list_f32, test
 
     return train_loader,test_loader
 
-def import_dataset(ticker, start_date, end_date, run, experiment_name):
+def import_dataset(stocks, start_date, end_date, run, experiment_name):
 
-    dataset_df = yf.download(ticker, start=start_date, end=end_date, interval='1d')
-    #dataset_df['Date'] = pd.to_datetime(dataset_df['Date'])
-    dataset_df = dataset_df.dropna()
-    #print("Num rows for df Close col",len(dataset_df['Close']))
-    #print("columns",dataset_df.columns)
-    #print("df",dataset_df)
-    
-    #reset column to save to csv and mlflow schema
-    dataset_df = dataset_df.reset_index()
-    #dataset_df.index = pd.to_datetime(dataset_df.index)
-    #dataset_df = dataset_df.reset_index()
+    df_list = []
+    stock_tickers = ",".join([s['ticker'] for s in stocks])
+    data_close = {}
 
-    #reorder to split the data to train and test
-    desired_order = ['Date','Open', 'Close', 'High', 'Low']
-    if 'Date' in dataset_df.columns:
-        dataset_df = dataset_df[desired_order]
-    else:
-        print("Column 'Date' is missing.")
-    
-    if Parameters.enable_mlflow:
-        blob_name = f"{Parameters.input_price_data_blob_fname}.csv"
-        full_blob_uri = helper_functions.save_df_to_blob(dataset_df, blob_name, run.info.run_id, experiment_name)
-        tags = {'source': 'yahoo'}
-        helper_functions.mlflow_log_dataset(dataset_df, full_blob_uri, ticker, "input_price", "train_test", run, tags)
+    for s in stocks:
+        dataset_df = yf.download(s['ticker'], start=start_date, end=end_date, interval='1d')
+        #dataset_df['Date'] = pd.to_datetime(dataset_df['Date'])
+        dataset_df = dataset_df.dropna()
+        #print("Num rows for df Close col",len(dataset_df['Close']))
+        #print("columns",dataset_df.columns)
+        #print(f"df {s['ticker']}",dataset_df, "rows",len(dataset_df))
+        
+        #reset column to save to csv and mlflow schema
+        dataset_df = dataset_df.reset_index()
+        #dataset_df.index = pd.to_datetime(dataset_df.index)
+        #dataset_df = dataset_df.reset_index()
+
+        #reorder to split the data to train and test
+        desired_order = ['Date','Open', 'Close', 'High', 'Low']
+        if 'Date' in dataset_df.columns:
+            dataset_df = dataset_df[desired_order]
+        else:
+            print("Column 'Date' is missing.")
+
+        df_list.append(dataset_df)
+        data_close[s['ticker']] = dataset_df['Close']
+        
+    concatenated_df = pd.concat(df_list, axis=0, ignore_index=True)
     
     #set index back to Date for operations
-    dataset_df = dataset_df.set_index('Date')
-    return dataset_df
+    concatenated_df = concatenated_df.set_index('Date')
+    if Parameters.enable_mlflow:
+            blob_name = f"{Parameters.input_price_data_blob_fname}.csv"
+            full_blob_uri = helper_functions.save_df_to_blob(concatenated_df, blob_name, run.info.run_id, experiment_name)
+            tags = {'source': 'yahoo'}
+            helper_functions.mlflow_log_dataset(dataset_df, full_blob_uri, stock_tickers, "input_price", "train_test", run, tags)
+        
+    # # calc correl training datasets
+    # df_close = pd.DataFrame(data_close)
+    # print("***df cols",df_close.columns)
+    
+    # #concat stocks to train
+    # if len(df_list) > 1:
+    #     # filtered_dict = {k: v for k, v in my_dict.items() if k == "ticker"}
+    #     # print(filtered_dict)
+    #     cross_corr_matrix = df_close.corr(method='spearman')
+    #     print("Train set cross_corr_matrix",cross_corr_matrix)
+        
+    #     if Parameters.enable_mlflow:
+    #         plot_data.plot_train_series_correl(cross_corr_matrix, experiment_name, run.info.run_id)
 
-def import_stock_data(stock_ticker, start_date, end_date, run, experiment_name):
-    #import stock dataset
-    stock_dataset_df = import_dataset(stock_ticker, start_date, end_date, run, experiment_name)
-    stock_dataset_df.head()
+    return concatenated_df, stock_tickers
 
-    return stock_dataset_df
+# def import_stock_data(stock_ticker, start_date, end_date, run, experiment_name):
+#     #import stock dataset
+#     stock_dataset_df = import_dataset(stock_ticker, start_date, end_date, run, experiment_name)
+#     stock_dataset_df.head()
+
+#     return stock_dataset_df
