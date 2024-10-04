@@ -82,7 +82,9 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_param
         "epoch_running_gradients_check": Parameters.epoch_running_gradients_check,
         "loss_function": Parameters.function_loss,
         "optimizer": Parameters.optimizer,
-        "lr_scheduler_patience": Parameters.lr_scheduler_patience    }
+        "lr_scheduler_patience": Parameters.lr_scheduler_patience,
+        "log_returns": Parameters.log_returns
+        }
 
     mlflow.log_params(params_dict)
 
@@ -266,19 +268,51 @@ if __name__ == "__main__":
     stock_params = StockParams()
 
     #test pre concat
-    stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
-    stock_params.add_eval_stock('SICP', '2021-12-05', '2023-01-25')
+    # stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
+    # stock_params.add_eval_stock('SICP', '2021-12-05', '2023-01-25')
+
+    #run concat jobs
+    start_date='2021-12-05'
+    end_date='2023-01-25'
+    train_stocks_sets = [
+        ['SIVBQ', 'SICP'],
+        ['SIVBQ', 'SICP', 'ALLY']
+    ]
+    eval_stocks_job = ['CMA','JPM','CROX']
+
+    for t_stock_set in train_stocks_sets:
+
+        stock_params.train_stocks = []
+
+        for t_stock in t_stock_set:
+            stock_params.add_train_stock(t_stock, start_date, end_date)
+
+            stock_params.eval_stocks = []
+            
+        for e_stock in eval_stocks_job:
+            stock_params.add_eval_stock(e_stock, start_date, end_date)
+
+            stock_params.set_param_strings()
+            Parameters.train_tickers = stock_params.train_stock_tickers
+            Parameters.eval_tickers = stock_params.eval_stock_tickers
+            Parameters.start_date = stock_params.start_date
+            Parameters.end_date = stock_params.end_date
+            print("Combo Train",stock_params.train_stock_tickers,"Eval",stock_params.eval_stock_tickers)
+            
+            brute_force_function(_credentials, device, stock_params)
+
+            stock_params.eval_stocks = []
 
     # run concat
-    #stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
-    #stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
-    #stock_params.add_train_stock('ALLY', '2021-12-05', '2023-01-25')
+    # stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
+    # stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
+    # stock_params.add_train_stock('ALLY', '2021-12-05', '2023-01-25')
     #stock_params.add_train_stock('CMA', '2021-12-05', '2023-01-25')
     #stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
     
     #scenarios
     #high correl
-    stock_params.add_eval_stock('CMA', '2021-12-05', '2023-01-25')
+    #stock_params.add_eval_stock('CMA', '2021-12-05', '2023-01-25')
     #medium correl
     #stock_params.add_eval_stock('JPM', '2021-12-05', '2023-01-25')
     #low correl
@@ -286,10 +320,10 @@ if __name__ == "__main__":
     #nil correl
     #stock_params.add_eval_stock('CROX', '2021-12-05', '2023-01-25')
 
-    stock_params.set_param_strings()
-    Parameters.train_tickers = stock_params.train_stock_tickers
-    Parameters.eval_tickers = stock_params.eval_stock_tickers
-    Parameters.start_date = stock_params.start_date
-    Parameters.end_date = stock_params.end_date
+    # stock_params.set_param_strings()
+    # Parameters.train_tickers = stock_params.train_stock_tickers
+    # Parameters.eval_tickers = stock_params.eval_stock_tickers
+    # Parameters.start_date = stock_params.start_date
+    # Parameters.end_date = stock_params.end_date
 
-    brute_force_function(_credentials, device, stock_params)
+    # brute_force_function(_credentials, device, stock_params)

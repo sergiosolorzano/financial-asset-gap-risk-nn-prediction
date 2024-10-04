@@ -8,6 +8,8 @@ from datetime import datetime
 import yfinance as yf
 import mlflow
 
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -166,6 +168,7 @@ def import_dataset(stocks, start_date, end_date, run, experiment_name):
     df_list = []
     stock_tickers = ",".join([s['ticker'] for s in stocks])
     data_close = {}
+    concat_start_index = []
 
     for s in stocks:
         dataset_df = yf.download(s['ticker'], start=start_date, end=end_date, interval='1d')
@@ -189,8 +192,16 @@ def import_dataset(stocks, start_date, end_date, run, experiment_name):
 
         df_list.append(dataset_df)
         data_close[s['ticker']] = dataset_df['Close']
+
+        concat_start_index.append(len(dataset_df)+1)
+        #print("start index",concat_start_index)
         
     concatenated_df = pd.concat(df_list, axis=0, ignore_index=True)
+
+    start_indices_cumulative = [sum(concat_start_index[:i+1]) for i in range(len(concat_start_index))]
+    #print("Origin - Cum Start Index",start_indices_cumulative)
+    #remove last index
+    start_indices_cumulative.pop()
     
     #set index back to Date for operations
     concatenated_df = concatenated_df.set_index('Date')
@@ -200,25 +211,4 @@ def import_dataset(stocks, start_date, end_date, run, experiment_name):
             tags = {'source': 'yahoo'}
             helper_functions.mlflow_log_dataset(dataset_df, full_blob_uri, stock_tickers, "input_price", "train_test", run, tags)
         
-    # # calc correl training datasets
-    # df_close = pd.DataFrame(data_close)
-    # print("***df cols",df_close.columns)
-    
-    # #concat stocks to train
-    # if len(df_list) > 1:
-    #     # filtered_dict = {k: v for k, v in my_dict.items() if k == "ticker"}
-    #     # print(filtered_dict)
-    #     cross_corr_matrix = df_close.corr(method='spearman')
-    #     print("Train set cross_corr_matrix",cross_corr_matrix)
-        
-    #     if Parameters.enable_mlflow:
-    #         plot_data.plot_train_series_correl(cross_corr_matrix, experiment_name, run.info.run_id)
-
-    return concatenated_df, stock_tickers
-
-# def import_stock_data(stock_ticker, start_date, end_date, run, experiment_name):
-#     #import stock dataset
-#     stock_dataset_df = import_dataset(stock_ticker, start_date, end_date, run, experiment_name)
-#     stock_dataset_df.head()
-
-#     return stock_dataset_df
+    return concatenated_df, start_indices_cumulative, stock_tickers

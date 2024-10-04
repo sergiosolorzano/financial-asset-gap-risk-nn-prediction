@@ -1,5 +1,7 @@
 import os
 import sys
+import pandas as pd
+import numpy as np
 
 #import scripts
 import importlib as importlib
@@ -12,9 +14,38 @@ from helper_functions_dir import helper_functions
 
 #import mlflow
 
+def remap_to_log_returns(stocks_dataset_df, start_indices_cumulative):
+    #convert to log returns
+    #print("cum index",start_indices_cumulative, "len df", len(stocks_dataset_df))
+    stock_log_returns_df = pd.DataFrame()
+    for col in stocks_dataset_df.columns:
+        stock_log_returns_df[col] = np.log(stocks_dataset_df[col] / stocks_dataset_df[col].shift(1))
+    # set the log return concat location for the series to zero
+    for counter, i in enumerate(start_indices_cumulative):
+        stock_log_returns_df.iloc[i-counter-1]=0
+    
+    stock_log_returns_df = stock_log_returns_df.dropna()
+    # pd.set_option('display.max_rows', None)
+    # print("log stock_log_returns_df",stock_log_returns_df)
+
+    #rebase
+    rebased_df = pd.DataFrame()
+    for col in stock_log_returns_df.columns:
+        rebased_values = [100]
+        for log_return in stock_log_returns_df[col]:
+            next_rebased_value = rebased_values[-1] * (1 + log_return)
+            rebased_values.append(next_rebased_value)
+        rebased_df[col] = rebased_values[:-1] 
+        
+    stocks_dataset_df = rebased_df
+    # pd.set_option('display.max_rows', None)
+    # print("log stocks_dataset_df",stocks_dataset_df)
+
+    return stocks_dataset_df
+
 def generate_dataset_to_images_process(stocks, params, test_size, cols_used, run, experiment_name):
     #import Financial Data
-    stocks_dataset_df, stock_tickers = load_data.import_dataset(stocks, params.start_date, params.end_date, run, experiment_name)
+    stocks_dataset_df, start_indices_cumulative, stock_tickers = load_data.import_dataset(stocks, params.start_date, params.end_date, run, experiment_name)
     
     # plot price comparison stock vs index when we don't concat stocks
     if len(stock_tickers.split(',')) == 1:
@@ -30,6 +61,13 @@ def generate_dataset_to_images_process(stocks, params, test_size, cols_used, run
         helper_functions.write_and_log_plt(fig, None,
                                             f"concat_price_comp_{stock_tickers}",
                                             f"concat_price_comp_{stock_tickers}",experiment_name, getattr(run, 'info', None).run_id if run else None)
+    
+    if params.log_returns:
+        log_rebased_df = remap_to_log_returns(stocks_dataset_df, start_indices_cumulative)
+            
+        stocks_dataset_df = log_rebased_df
+        #print("log stocks_dataset_df",stocks_dataset_df)
+
     # Generate images
     #print("generate_dataset_to_images_process algo",params.transform_algo)
     feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list, cols_used_count = image_transform.generate_features_lists(
