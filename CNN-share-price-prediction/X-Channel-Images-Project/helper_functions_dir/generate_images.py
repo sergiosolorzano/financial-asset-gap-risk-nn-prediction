@@ -56,7 +56,7 @@ def generate_multiple_feature_images(dataset, cols_used, transformed_algo, image
 
     for idx, column_name in enumerate(dataset.columns):
 
-      #create open,  close, high, low images. The order of 
+      #create open,  close, high, low images. 
       if column_name in cols_used:
         temp_image_list = []
         temp_price_list = []
@@ -66,7 +66,7 @@ def generate_multiple_feature_images(dataset, cols_used, transformed_algo, image
 
         full_feature_data = dataset[column_name].values
         full_feature_num_samples = len(full_feature_data)
-        #print("full_feature_num_samples",full_feature_num_samples)
+        #print(f"full_feature_num_samples - col {column_name}",full_feature_num_samples)
         #if column_name == "Open": print("total input data",full_feature_data)
 
         num_windows = image_size
@@ -131,7 +131,7 @@ def generate_multiple_feature_images(dataset, cols_used, transformed_algo, image
               #feature_label_index_dataset_list.append(cur_chunk + image_size + 1)
               #print("at chunk",cur_chunk,"feature label list",feature_label_index_dataset_list)
         
-        if column_name == "Open": print("total chunks Open feature:",total_single_feature_chunks)
+        #if column_name == "Open": print("total chunks Open feature:", total_single_feature_chunks)
         #print(f"Column {column_name} temp image list len to append",len(temp_image_list))
         feature_image_dataset_list[column_idx].append(temp_image_list)
         #print("feature_image_dataset_list",feature_image_dataset_list)
