@@ -15,18 +15,21 @@ from helper_functions_dir import helper_functions
 #import mlflow
 
 def remap_to_log_returns(stocks_dataset_df, start_indices_cumulative):
+    np.set_printoptions(threshold=np.inf)
+    pd.set_option('display.max_rows', None)
+
     #convert to log returns
     #print("cum index",start_indices_cumulative, "len df", len(stocks_dataset_df))
     stock_log_returns_df = pd.DataFrame()
     for col in stocks_dataset_df.columns:
         stock_log_returns_df[col] = np.log(stocks_dataset_df[col] / stocks_dataset_df[col].shift(1))
     # set the log return concat location for the series to zero
-    for counter, i in enumerate(start_indices_cumulative):
-        stock_log_returns_df.iloc[i-counter-1]=0
+    if start_indices_cumulative is not None and len(start_indices_cumulative) > 0:
+        for counter, i in enumerate(start_indices_cumulative):
+            stock_log_returns_df.iloc[i-counter-1]=0
     
     stock_log_returns_df = stock_log_returns_df.dropna()
-    # pd.set_option('display.max_rows', None)
-    # print("log stock_log_returns_df",stock_log_returns_df)
+    #print("log stock_log_returns_df",stock_log_returns_df)
 
     #rebase
     rebased_df = pd.DataFrame()
@@ -37,11 +40,10 @@ def remap_to_log_returns(stocks_dataset_df, start_indices_cumulative):
             rebased_values.append(next_rebased_value)
         rebased_df[col] = rebased_values[:-1] 
         
-    stocks_dataset_df = rebased_df
     # pd.set_option('display.max_rows', None)
-    # print("log stocks_dataset_df",stocks_dataset_df)
+    #print("log rebased df",rebased_df)
 
-    return stocks_dataset_df
+    return rebased_df
 
 def generate_dataset_to_images_process(stocks, params, test_size, cols_used, run, experiment_name):
     #import Financial Data
@@ -63,6 +65,7 @@ def generate_dataset_to_images_process(stocks, params, test_size, cols_used, run
                                             f"concat_price_comp_{stock_tickers}",experiment_name, getattr(run, 'info', None).run_id if run else None)
     
     if params.log_returns:
+        #print("Raw Dataset",stocks_dataset_df)
         log_rebased_df = remap_to_log_returns(stocks_dataset_df, start_indices_cumulative)
             
         stocks_dataset_df = log_rebased_df

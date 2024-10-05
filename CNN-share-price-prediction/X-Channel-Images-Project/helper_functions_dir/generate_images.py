@@ -43,8 +43,6 @@ def generate_transformed_images(dataset, transform_algo, gaf_img_sz=32, method="
     
     return transformed_images
 
-np.set_printoptions(threshold=np.inf)
-
 def generate_multiple_feature_images(dataset, cols_used, transformed_algo, image_size=32, method="summation", gaf_sample_range = (0, 1)):
     
     feature_image_dataset_list=[[] for _ in range(len(cols_used))]

@@ -82,7 +82,7 @@ def self_correlation_feature_1_feature_2(stock_df,feature_1,feature_2):
     correlation = stock_df[feature_1].corr(stock_df[feature_2])
 
     if Parameters.enable_mlflow:
-        mlflow.log_metrics(f"correlation_{feature_1}_vs_{feature_2}", correlation)
+        mlflow.log_metric(f"correlation_{feature_1}_vs_{feature_2}", correlation)
 
     return (f'Correlation between {feature_1} and {feature_2}: {correlation:.4f}')
 
