@@ -30,7 +30,6 @@ from torchinfo import summary
 
 def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_params):
     
-
     #start_date_obj = datetime.strptime(stock_params.get_train_stocks()[0]['start_date'], '%Y-%m-%d')
     start_date_obj = datetime.strptime(stock_params.start_date, '%Y-%m-%d')
     end_date_obj = datetime.strptime(stock_params.end_date, '%Y-%m-%d')
@@ -88,10 +87,7 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_param
 
     mlflow.log_params(params_dict)
 
-def brute_force_function(credentials, device, stock_params):
-
-    #logging.basicConfig(level=logging.DEBUG)
-    
+def set_mlflow_experiment(credentials):
     if Parameters.enable_mlflow:
         os.environ["AZURE_STORAGE_ACCESS_KEY"] = credentials.AZURE_STORAGE_ACCESS_KEY
         mlflow.set_tracking_uri(f"mssql+pymssql://{credentials.username_db}:{credentials.password_db}@{credentials.server_db}.database.windows.net/{credentials.mlflow_db}")
@@ -116,6 +112,39 @@ def brute_force_function(credentials, device, stock_params):
         mlflow.set_experiment(experiment_name)
     else:
         experiment_name = "Undefined"
+
+    return experiment_name, experiment_id
+
+def brute_force_function(credentials, device, stock_params):
+
+    #logging.basicConfig(level=logging.DEBUG)
+    
+    # if Parameters.enable_mlflow:
+    #     os.environ["AZURE_STORAGE_ACCESS_KEY"] = credentials.AZURE_STORAGE_ACCESS_KEY
+    #     mlflow.set_tracking_uri(f"mssql+pymssql://{credentials.username_db}:{credentials.password_db}@{credentials.server_db}.database.windows.net/{credentials.mlflow_db}")
+
+    #     #create experiment
+    #     experiment_name = Parameters.mlflow_experiment_name
+    #     experiment_description = (Parameters.mlflow_experiment_description)
+    #     experiment_tags = {"mlflow.note.content": experiment_description,}
+        
+    #     experiment = mlflow.get_experiment_by_name(experiment_name)
+    #     if experiment is not None:
+    #         experiment_id = experiment.experiment_id
+    #         print(f"Experiment {experiment} id {experiment_id} exists.")
+    #     else:
+    #         mlflow.create_experiment(Parameters.mlflow_experiment_name, artifact_location=
+    #                                 f"wasbs://{credentials.storage_container_name}@{credentials.storage_account_name}.blob.core.windows.net/{credentials.blob_directory}",#wasbs://<container>@<storage_account_name>.blob.core.windows.net/<dir>
+    #                                 tags=experiment_tags)
+    #         experiment = mlflow.get_experiment_by_name(experiment_name)
+    #         experiment_id = experiment.experiment_id
+    #         print(f"Create experiment {experiment} id {experiment_id}")
+        
+    #     mlflow.set_experiment(experiment_name)
+    # else:
+    #     experiment_name = "Undefined"
+
+    experiment_name, experiment_id = set_mlflow_experiment(credentials)
     
     #transform_algo_types = [1,2]
     transform_algo_types = [1]
@@ -271,59 +300,86 @@ if __name__ == "__main__":
     # stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
     # stock_params.add_eval_stock('SICP', '2021-12-05', '2023-01-25')
 
-    #run concat jobs
-    start_date='2021-12-05'
-    end_date='2023-01-25'
-    train_stocks_sets = [
-        ['SIVBQ', 'SICP'],
-        ['SIVBQ', 'SICP', 'ALLY']
-    ]
-    eval_stocks_job = ['CMA','JPM','CROX']
+    batch_job = True
+    DTW_only = True
 
-    for t_stock_set in train_stocks_sets:
+    if DTW_only:
+        start_date='2021-12-05'
+        end_date='2023-01-25'
+        stock_list = ['SIVBQ','SICP','ALLY','CMA','JPM','CROX']
 
-        stock_params.train_stocks = []
+        curr_datetime = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
-        for t_stock in t_stock_set:
-            stock_params.add_train_stock(t_stock, start_date, end_date)
+        set_mlflow_experiment(_credentials)
 
-            stock_params.eval_stocks = []
-            
-        for e_stock in eval_stocks_job:
-            stock_params.add_eval_stock(e_stock, start_date, end_date)
+        run = None
+        if Parameters.enable_mlflow:
+            run = mlflow.start_run(run_name=f"run_{curr_datetime}")
+        
+        try:
+            # Pass the run variable to the dtw_map_all function
+            plot_data.dtw_map_all(stock_list, start_date, end_date, run, Parameters.mlflow_experiment_name)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+        finally:
+            # Ensure the run is ended
+            if Parameters.enable_mlflow:
+                mlflow.end_run()  
 
-            stock_params.set_param_strings()
-            Parameters.train_tickers = stock_params.train_stock_tickers
-            Parameters.eval_tickers = stock_params.eval_stock_tickers
-            Parameters.start_date = stock_params.start_date
-            Parameters.end_date = stock_params.end_date
-            print("Combo Train",stock_params.train_stock_tickers,"Eval",stock_params.eval_stock_tickers)
-            
-            brute_force_function(_credentials, device, stock_params)
+    if batch_job:
+        #run concat jobs
+        start_date='2021-12-05'
+        end_date='2023-01-25'
+        train_stocks_sets = [
+            ['SIVBQ', 'SICP'],
+            ['SIVBQ', 'SICP', 'ALLY']
+        ]
+        eval_stocks_job = ['CMA','JPM','CROX', 'ALLY', 'SICP']
 
-            stock_params.eval_stocks = []
+        for t_stock_set in train_stocks_sets:
 
-    # run concat
-    # stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
-    # stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
-    # stock_params.add_train_stock('ALLY', '2021-12-05', '2023-01-25')
-    #stock_params.add_train_stock('CMA', '2021-12-05', '2023-01-25')
-    #stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
-    
-    #scenarios
-    #high correl
-    #stock_params.add_eval_stock('CMA', '2021-12-05', '2023-01-25')
-    #medium correl
-    #stock_params.add_eval_stock('JPM', '2021-12-05', '2023-01-25')
-    #low correl
-    #stock_params.add_eval_stock('RF', '2021-12-05', '2023-01-25')
-    #nil correl
-    #stock_params.add_eval_stock('CROX', '2021-12-05', '2023-01-25')
+            stock_params.train_stocks = []
 
-    # stock_params.set_param_strings()
-    # Parameters.train_tickers = stock_params.train_stock_tickers
-    # Parameters.eval_tickers = stock_params.eval_stock_tickers
-    # Parameters.start_date = stock_params.start_date
-    # Parameters.end_date = stock_params.end_date
+            for t_stock in t_stock_set:
+                stock_params.add_train_stock(t_stock, start_date, end_date)
 
-    # brute_force_function(_credentials, device, stock_params)
+                stock_params.eval_stocks = []
+                
+            for e_stock in eval_stocks_job:
+                stock_params.add_eval_stock(e_stock, start_date, end_date)
+
+                stock_params.set_param_strings()
+                Parameters.train_tickers = stock_params.train_stock_tickers
+                Parameters.eval_tickers = stock_params.eval_stock_tickers
+                Parameters.start_date = stock_params.start_date
+                Parameters.end_date = stock_params.end_date
+                print("Combo Train",stock_params.train_stock_tickers,"Eval",stock_params.eval_stock_tickers)
+                
+                brute_force_function(_credentials, device, stock_params)
+
+                stock_params.eval_stocks = []
+    else:
+        # run concat
+        stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
+        stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
+        # stock_params.add_train_stock('ALLY', '2021-12-05', '2023-01-25')
+        # stock_params.add_train_stock('CMA', '2021-12-05', '2023-01-25')
+        # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
+        
+        #scenarios
+        #high correl
+        stock_params.add_eval_stock('CMA', '2021-12-05', '2023-01-25')
+        #medium correl
+        #stock_params.add_eval_stock('JPM', '2021-12-05', '2023-01-25')
+        #low correl
+        #stock_params.add_eval_stock('RF', '2021-12-05', '2023-01-25')
+        #nil correl
+        #stock_params.add_eval_stock('CROX', '2021-12-05', '2023-01-25')
+
+        stock_params.set_param_strings()
+        Parameters.train_tickers = stock_params.train_stock_tickers
+        Parameters.eval_tickers = stock_params.eval_stock_tickers
+        Parameters.start_date = stock_params.start_date
+        Parameters.end_date = stock_params.end_date
+
+        brute_force_function(_credentials, device, stock_params)

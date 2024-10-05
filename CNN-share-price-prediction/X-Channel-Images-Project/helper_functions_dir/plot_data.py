@@ -5,6 +5,7 @@ import sys
 
 import numpy as np
 import pandas as pd
+from fastdtw import fastdtw
 
 import matplotlib
 matplotlib.use('Agg')
@@ -15,8 +16,9 @@ import random as rand
 import yfinance as yf
 
 from parameters import Parameters
+import pipeline_data
 
-#import mlflow
+import mlflow
 
 #import scripts
 import importlib as importlib
@@ -238,6 +240,20 @@ def plot_train_series_correl(cross_corr_matrix, experiment_name, run_id):
 
     #plt.show()
     plt.close(fig)
+
+def plot_dtw_matrix(distance_matrix, stock_tickers, experiment_name, run_id):
+    fig = plt.figure(figsize=(10, 6))
+    sns.heatmap(distance_matrix.astype(float), annot=True, cmap='coolwarm', fmt='.2f', xticklabels=stock_tickers, yticklabels=stock_tickers)
+    plt.title('DTW Distance Heatmap')
+    plt.xlabel('Stock Tickers')
+    plt.ylabel('Stock Tickers')
+
+    helper_functions.write_and_log_plt(fig, None,
+                                       f"DTW Distance Heatmap",
+                                       f"DTW Distance Heatmap", experiment_name, run_id)
+
+    #plt.show()
+    plt.close(fig)
     
 def plot_train_eval_cross_correl_price_series(stocks, start_date, end_date, run, experiment_name):
     data_close = {}
@@ -260,11 +276,93 @@ def plot_train_eval_cross_correl_price_series(stocks, start_date, end_date, run,
         # calc correl training datasets
         df_close = pd.DataFrame(data_close)
         
+    # print("Cross Correl for tickers ",data_close.keys)
+    # print("cross correl data",df_close)
     cross_corr_matrix = df_close.corr(method='spearman')
     #print("Train & Eval set cross_corr_matrix",cross_corr_matrix)
+    # from fastdtw import fastdtw
+    # distance, path = fastdtw(data_close['SIVBQ'], data_close['CMA'])
+    # print("**distance",distance,"path", path)
     
     if Parameters.enable_mlflow:
         plot_train_series_correl(cross_corr_matrix, experiment_name, run.info.run_id)
+
+def plot_train_eval_cross_dtw_rebased_price_series(stocks, start_date, end_date, run, experiment_name):
+    data_close = {}
+
+    for s in stocks.get_train_stocks() + stocks.get_eval_stocks():
+        dataset_df = yf.download(s['ticker'], start=start_date, end=end_date, interval='1d')
+        dataset_df = dataset_df.dropna()
+        #reset column to save to csv and mlflow schema
+        dataset_df = dataset_df.reset_index()
+
+        #reorder to split the data to train and test
+        desired_order = ['Date','Open', 'Close', 'High', 'Low']
+        if 'Date' in dataset_df.columns:
+            dataset_df = dataset_df[desired_order]
+        else:
+            print("Column 'Date' is missing.")
+
+        #data_close[s['ticker']] = dataset_df['Close']
+
+        dataset_df.drop(columns=['Date'], inplace=True)
+        rebased_df = pipeline_data.remap_to_log_returns(dataset_df, None)
+        data_close[s['ticker']] = rebased_df['Close']
+        print(f"Rebased DF ticker {s['ticker']}: {data_close[s['ticker']]}")
+
+    print("Cross Correl for tickers ",data_close.keys())
+    # print("cross correl data",df_close)
+    train_stock_tickers = [s['ticker'] for s in stocks.get_train_stocks()]
+    eval_stock_tickers = [s['ticker'] for s in stocks.get_eval_stocks()]
+    
+    distance_matrix = pd.DataFrame(index=train_stock_tickers, columns=eval_stock_tickers)
+    for i, train_ticker in enumerate(train_stock_tickers):
+        if train_ticker in data_close:
+            for j, eval_ticker in enumerate(eval_stock_tickers):
+                if eval_ticker in data_close:
+                    distance, path = fastdtw(data_close[train_ticker], data_close[eval_ticker])
+                    distance_matrix.iloc[i, j] = distance
+                    print(f"**distance {train_ticker} vs {eval_ticker}", distance, "path", path)
+
+    plot_dtw_matrix(distance_matrix,train_stock_tickers,eval_stock_tickers,experiment_name,run.info.run_id)
+
+def dtw_map_all(stock_tickers, start_date, end_date, run, experiment_name):
+    data_close = {}
+
+    for t in stock_tickers:
+        dataset_df = yf.download(t, start=start_date, end=end_date, interval='1d')
+        dataset_df = dataset_df.dropna()
+        #reset column to save to csv and mlflow schema
+        dataset_df = dataset_df.reset_index()
+
+        #reorder to split the data to train and test
+        desired_order = ['Date','Open', 'Close', 'High', 'Low']
+        if 'Date' in dataset_df.columns:
+            dataset_df = dataset_df[desired_order]
+        else:
+            print("Column 'Date' is missing.")
+
+        #data_close[s['ticker']] = dataset_df['Close']
+
+        dataset_df.drop(columns=['Date'], inplace=True)
+        rebased_df = pipeline_data.remap_to_log_returns(dataset_df, None)
+        data_close[t] = rebased_df['Close']
+        print(f"Rebased DF ticker {t}: {data_close[t]}")
+
+    print("Cross Correl for tickers ",data_close.keys())
+    # print("cross correl data",df_close)
+    
+    distance_matrix = pd.DataFrame(index=stock_tickers, columns=stock_tickers)
+    for i, stock_ticker in enumerate(stock_tickers):
+        if stock_ticker in data_close:
+            for j, compare_ticker in enumerate(stock_tickers):
+                if compare_ticker in data_close:
+                    distance, path = fastdtw(data_close[stock_ticker], data_close[compare_ticker])
+                    distance_matrix.iloc[i, j] = distance
+                    print(f"**distance {stock_ticker} vs {compare_ticker}: {distance}, path: {path}")
+
+    plot_dtw_matrix(distance_matrix,stock_tickers,experiment_name,run.info.run_id)
+
 
 def plot_image_correlations(series_correlations, mean_correlation, experiment_name, run_id):
     # Plot the correlations
