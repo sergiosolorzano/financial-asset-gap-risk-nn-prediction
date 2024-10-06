@@ -54017,3 +54017,41 @@ Accuracy 1dp: 44.642860412597656%
 ('Accuracy 2dp: 2.455357313156128%\nAccuracy 1dp: 25.66964340209961%\n', 'Classification Accuracy: 0%\n')
 
 ('Accuracy 2dp: 1.85546875%\nAccuracy 1dp: 21.2890625%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.5390625%\nAccuracy 1dp: 20.99609375%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.232142925262451%\nAccuracy 1dp: 25.223217010498047%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.05078125%\nAccuracy 1dp: 22.4609375%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 3.348214626312256%\nAccuracy 1dp: 24.553573608398438%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.66015625%\nAccuracy 1dp: 20.21484375%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.05078125%\nAccuracy 1dp: 21.875%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.455357313156128%\nAccuracy 1dp: 27.90178680419922%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.24609375%\nAccuracy 1dp: 19.62890625%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.455357313156128%\nAccuracy 1dp: 30.580360412597656%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 3.02734375%\nAccuracy 1dp: 22.16796875%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.6785717010498047%\nAccuracy 1dp: 28.348217010498047%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.85546875%\nAccuracy 1dp: 26.07421875%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.241071701049805%\nAccuracy 1dp: 30.580360412597656%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.85546875%\nAccuracy 1dp: 21.97265625%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.0089287757873535%\nAccuracy 1dp: 24.77678680419922%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 3.02734375%\nAccuracy 1dp: 23.046875%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 3.125%\nAccuracy 1dp: 20.535715103149414%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.5390625%\nAccuracy 1dp: 20.3125%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.7857143878936768%\nAccuracy 1dp: 25.0%\n', 'Classification Accuracy: 0%\n')

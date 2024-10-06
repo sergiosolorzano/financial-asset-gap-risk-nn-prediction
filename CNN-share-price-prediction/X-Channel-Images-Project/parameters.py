@@ -31,8 +31,8 @@ class StockParams:
         self.eval_stocks = []
         self.train_stock_tickers = ""
         self.eval_stock_tickers = ""
-        self.start_date = ''
-        self.end_date = ''
+        # self.start_date = ''
+        # self.end_date = ''
 
     def add_train_stock(self, ticker, start_date, end_date):
         stock_info = {
@@ -63,8 +63,15 @@ class StockParams:
             self.train_stock_tickers = "_".join([s['ticker'] for s in train_stocks])
         for s in eval_stocks:
             self.eval_stock_tickers = "_".join([s['ticker'] for s in eval_stocks])
-        self.start_date = train_stocks[0]['start_date']
-        self.end_date = train_stocks[0]['end_date']
+    
+    def get_dates_by_ticker(self, ticker):
+        for stock in self.train_stocks:
+            if stock['ticker'] == ticker:
+                return stock['start_date'], stock['end_date']
+        for stock in self.eval_stocks:
+            if stock['ticker'] == ticker:
+                return stock['start_date'], stock['end_date']
+        return None
     
 #init parameters
 class Parameters:
@@ -73,11 +80,11 @@ class Parameters:
     classification_class_price_down=0
     classification_class_price_up=1
 
-    log_returns = True #1=log return rebased price series else price series
+    log_returns = False #1=log return rebased price series else price series
 
-    enable_mlflow=True
-    mlflow_experiment_name = 'gaprisk-concatstocks'
-    mlflow_experiment_description = "Concat stocks to train"
+    enable_mlflow=False
+    mlflow_experiment_name = 'gaprisk-concatstocks-2'
+    mlflow_experiment_description = "Concat stocks to train v2"
     
     brute_force_filename = 'brute_force_results.md'
     mlflow_credentials_fname = 'mlflow-creds.json'
@@ -105,8 +112,8 @@ class Parameters:
     train_tickers = ""
     eval_tickers = ""
     index_ticker = '^SP500-40'
-    start_date = ''
-    end_date = ''
+    # start_date = ''
+    # end_date = ''
 
     #cols used
     training_cols_used = ["Open", "High", "Low", "Close"]
@@ -160,7 +167,7 @@ class Parameters:
     batch_size = 16
     num_workers = 0
 
-    num_epochs_input = 2#20000
+    num_epochs_input = 20000
 
     best_checkpoint_cum_loss = 0.002
     min_best_cum_loss = torch.tensor(2.5, device=device, dtype=torch.float64)

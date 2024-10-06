@@ -45,13 +45,13 @@ def remap_to_log_returns(stocks_dataset_df, start_indices_cumulative):
 
     return rebased_df
 
-def generate_dataset_to_images_process(stocks, params, test_size, cols_used, run, experiment_name):
+def generate_dataset_to_images_process(stocksobj, stocks, params, test_size, cols_used, run, experiment_name):
     #import Financial Data
-    stocks_dataset_df, start_indices_cumulative, stock_tickers = load_data.import_dataset(stocks, params.start_date, params.end_date, run, experiment_name)
+    stocks_dataset_df, start_indices_cumulative, stock_tickers = load_data.import_dataset(stocks, run, experiment_name)
     
     # plot price comparison stock vs index when we don't concat stocks
     if len(stock_tickers.split(',')) == 1:
-        fig = plot_data.plot_price_comparison_stocks(params.index_ticker, stock_tickers, stocks_dataset_df, params.start_date, params.end_date)
+        fig = plot_data.plot_price_comparison_stocks(params.index_ticker, stock_tickers, stocks_dataset_df, stocksobj)
         helper_functions.write_and_log_plt(fig, None,
                                         f"price_comp_{params.index_ticker}_vs_{stock_tickers}",
                                         f"price_comp_{params.index_ticker}_vs_{stock_tickers}",experiment_name, getattr(run, 'info', None).run_id if run else None)

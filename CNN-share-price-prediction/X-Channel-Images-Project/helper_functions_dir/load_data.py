@@ -163,7 +163,7 @@ def Generate_Loaders(feature_image_dataset_list_f32,labels_scaled_list_f32, test
 
     return train_loader,test_loader
 
-def import_dataset(stocks, start_date, end_date, run, experiment_name):
+def import_dataset(stocks, run, experiment_name):
 
     df_list = []
     stock_tickers = ",".join([s['ticker'] for s in stocks])
@@ -171,7 +171,7 @@ def import_dataset(stocks, start_date, end_date, run, experiment_name):
     concat_start_index = []
 
     for s in stocks:
-        dataset_df = yf.download(s['ticker'], start=start_date, end=end_date, interval='1d')
+        dataset_df = yf.download(s['ticker'], start=s['start_date'], end=s['end_date'], interval='1d')
         #dataset_df['Date'] = pd.to_datetime(dataset_df['Date'])
         dataset_df = dataset_df.dropna()
         #print("Num rows for df Close col",len(dataset_df['Close']))

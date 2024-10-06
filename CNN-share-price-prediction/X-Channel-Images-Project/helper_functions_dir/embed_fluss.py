@@ -22,7 +22,7 @@ if cuda.is_available():
 else:
     print("no cuda for numba")
 
-dataset_df = yf.download(Parameters.train_stock_ticker, start=Parameters.start_date, end=Parameters.end_date, interval='1d')
+dataset_df = yf.download(Parameters.train_stock_ticker, start='2021-12-05', end='2023-01-25', interval='1d')
 dataset_df = dataset_df.dropna()
 
 dataset_df = dataset_df.reset_index()
