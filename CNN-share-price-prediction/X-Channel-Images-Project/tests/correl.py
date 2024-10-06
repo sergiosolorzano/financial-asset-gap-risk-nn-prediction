@@ -15,8 +15,8 @@ class StockParams:
         self.eval_stocks = []
         self.train_stock_tickers = ""
         self.eval_stock_tickers = ""
-        self.start_date = ''
-        self.end_date = ''
+        # self.start_date = ''
+        # self.end_date = ''
 
     def add_train_stock(self, ticker, start_date, end_date):
         stock_info = {
@@ -47,8 +47,8 @@ class StockParams:
             self.train_stock_tickers = "_".join([s['ticker'] for s in train_stocks])
         for s in eval_stocks:
             self.eval_stock_tickers = "_".join([s['ticker'] for s in eval_stocks])
-        self.start_date = train_stocks[0]['start_date']
-        self.end_date = train_stocks[0]['end_date']
+        # self.start_date = train_stocks[0]['start_date']
+        # self.end_date = train_stocks[0]['end_date']
 
 def plot_train_eval_cross_correl_price_series(stocks, start_date, end_date):
     data_close = {}
