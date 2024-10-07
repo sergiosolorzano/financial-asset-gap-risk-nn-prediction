@@ -13,7 +13,7 @@ sys.path.append(os.path.abspath('./helper_functions_dir'))
 import helper_functions_dir.neural_network as neural_network
 import helper_functions_dir.plot_data as plot_data
 import helper_functions_dir.helper_functions as helper_functions
-#import helper_functions_dir.compute_stats as compute_stats 
+import helper_functions_dir.process_price_series as process_price_series
 import helper_functions_dir.credentials as credentials
 
 from parameters import Parameters
@@ -23,24 +23,62 @@ import pipeline_train as pipeline_train
 import pipeline_test as pipeline_test
 import evaluation_test_pipeline as evaluation_test_pipeline
 
+
 import mlflow
 #context execution for mlflow with statement
 import contextlib
 from torchinfo import summary
 
-def calc_dwt_and_correl(run):
-    #report DWT
-    start_date='2021-12-05'
-    end_date='2023-01-25'
-    stock_ticker_list = ['SIVBQ','SICP','ALLY','CMA','JPM','CROX']
+def create_comparison_stocks_obj():
+    stock_params = StockParams()
 
-    try:
-        # Pass the run variable to the dtw_map_all function
-        plot_data.dtw_map_all(stock_ticker_list, start_date, end_date, run, Parameters.mlflow_experiment_name)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    # run concat
+    stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
+    stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
+    stock_params.add_train_stock('ALLY', '2021-12-05', '2023-01-25')
+    stock_params.add_train_stock('CMA', '2021-12-05', '2023-01-25')
+    stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
+    stock_params.add_train_stock('JPM', '2021-12-05', '2023-01-25')
+    stock_params.add_train_stock('CROX', '2021-12-05', '2023-01-25')
 
-    plot_data.plot_all_cross_correl_price_series(stock_ticker_list, start_date, end_date, run, Parameters.mlflow_experiment_name)
+    stock_params.set_param_strings()
+    Parameters.train_tickers = stock_params.train_stock_tickers
+    Parameters.eval_tickers = stock_params.eval_stock_tickers
+
+    return stock_params
+
+def create_train_eval_stocks_obj():
+    stock_params = StockParams()
+
+    # run concat
+    stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
+    # stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
+    # stock_params.add_train_stock('ALLY', '2021-12-05', '2023-01-25')
+    # stock_params.add_train_stock('CMA', '2021-12-05', '2023-01-25')
+    # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
+    
+    #scenarios
+    stock_params.add_eval_stock('SICP', '2021-12-05', '2023-01-25')
+    #high correl
+    #stock_params.add_eval_stock('CMA', '2021-12-05', '2023-01-25')
+    #medium correl
+    #stock_params.add_eval_stock('JPM', '2021-12-05', '2023-01-25')
+    #low correl
+    #stock_params.add_eval_stock('RF', '2021-12-05', '2023-01-25')
+    #nil correl
+    #stock_params.add_eval_stock('CROX', '2021-12-05', '2023-01-25')
+
+    stock_params.set_param_strings()
+    Parameters.train_tickers = stock_params.train_stock_tickers
+    Parameters.eval_tickers = stock_params.eval_stock_tickers
+
+    return stock_params
+
+def calc_dwt_and_correl(stocks,run):
+    
+    plot_data.dtw_map_all(stocks, run, Parameters.mlflow_experiment_name)
+    
+    plot_data.plot_all_cross_correl_price_series(stocks, run, Parameters.mlflow_experiment_name)
 
 def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_params):
     
@@ -197,7 +235,11 @@ def brute_force_function(credentials, device, stock_params):
                                             else:
                                                 run_id=None
 
-                                            calc_dwt_and_correl(run)
+                                            stock_comp_params = create_comparison_stocks_obj()
+                                            data_close, merged_df = process_price_series.log_rebase_dataset(stock_comp_params)
+                                            plot_data.plot_merged_log_series(merged_df, experiment_name, run_id)
+
+                                            calc_dwt_and_correl(stock_comp_params,run)
 
                                             Parameters.num_workers = w
                                             Parameters.batch_size = b
@@ -304,48 +346,29 @@ if __name__ == "__main__":
     _credentials = credentials.MLflow_Credentials()
     _credentials.get_credentials()
 
-    stock_params = StockParams()
+    stock_params = create_train_eval_stocks_obj()
+    # StockParams()
 
-    #run, experiment_name, experiment_id = None, None, None
-
-    # #report DWT
-    # start_date='2021-12-05'
-    # end_date='2023-01-25'
-    # stock_list = ['SIVBQ','SICP','ALLY','CMA','JPM','CROX']
-
-    # #experiment_name, experiment_id = set_mlflow_experiment(_credentials)
-
-    # # if Parameters.enable_mlflow:
-    # #     run = mlflow.start_run(run_name=f"run_{curr_datetime}")
+    # # run concat
+    # stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
+    # # stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
+    # # stock_params.add_train_stock('ALLY', '2021-12-05', '2023-01-25')
+    # # stock_params.add_train_stock('CMA', '2021-12-05', '2023-01-25')
+    # # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
     
-    # try:
-    #     # Pass the run variable to the dtw_map_all function
-    #     plot_data.dtw_map_all(stock_list, start_date, end_date, run, Parameters.mlflow_experiment_name)
-    # except Exception as e:
-    #     print(f"An error occurred: {e}")
-    
-    # run concat
-    stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
-    # stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
-    # stock_params.add_train_stock('ALLY', '2021-12-05', '2023-01-25')
-    # stock_params.add_train_stock('CMA', '2021-12-05', '2023-01-25')
-    # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
-    
-    #scenarios
-    stock_params.add_eval_stock('SICP', '2021-12-05', '2023-01-25')
-    #high correl
-    #stock_params.add_eval_stock('CMA', '2021-12-05', '2023-01-25')
-    #medium correl
-    #stock_params.add_eval_stock('JPM', '2021-12-05', '2023-01-25')
-    #low correl
-    #stock_params.add_eval_stock('RF', '2021-12-05', '2023-01-25')
-    #nil correl
-    #stock_params.add_eval_stock('CROX', '2021-12-05', '2023-01-25')
+    # #scenarios
+    # stock_params.add_eval_stock('SICP', '2021-12-05', '2023-01-25')
+    # #high correl
+    # #stock_params.add_eval_stock('CMA', '2021-12-05', '2023-01-25')
+    # #medium correl
+    # #stock_params.add_eval_stock('JPM', '2021-12-05', '2023-01-25')
+    # #low correl
+    # #stock_params.add_eval_stock('RF', '2021-12-05', '2023-01-25')
+    # #nil correl
+    # #stock_params.add_eval_stock('CROX', '2021-12-05', '2023-01-25')
 
-    stock_params.set_param_strings()
-    Parameters.train_tickers = stock_params.train_stock_tickers
-    Parameters.eval_tickers = stock_params.eval_stock_tickers
-    # Parameters.start_date = stock_params.start_date
-    # Parameters.end_date = stock_params.end_date
+    # stock_params.set_param_strings()
+    # Parameters.train_tickers = stock_params.train_stock_tickers
+    # Parameters.eval_tickers = stock_params.eval_stock_tickers
 
     brute_force_function(_credentials, device, stock_params)

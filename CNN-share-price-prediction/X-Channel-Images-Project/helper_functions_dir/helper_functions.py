@@ -11,7 +11,6 @@ from pathlib import Path
 
 import time
 import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
@@ -27,6 +26,8 @@ import importlib as importlib
 import plot_data as plot_data
 
 from parameters import Parameters
+
+matplotlib.use(Parameters.matplotlib_use)
 
 import credentials
 
