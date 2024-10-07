@@ -359,18 +359,6 @@ def compare_stocks(index_ticker, stock_ticker, stock_dataset, stocks):
 
     return fig
 
-def plot_train_series_correl(cross_corr_matrix, experiment_name, run_id):
-    fig = plt.figure(figsize=(10, 6))
-    sns.heatmap(cross_corr_matrix, annot=True, cmap='coolwarm', fmt='.2f')
-    plt.title('Cross-Correlation Matrix Time Series')
-
-    helper_functions.write_and_log_plt(fig, None,
-                                       f"Cross_Correlation_Matrix_Time_Series",
-                                       f"Cross_Correlation_Matrix_Close_Time_Series", experiment_name, run_id)
-
-    #plt.show()
-    plt.close(fig)
-
 def plot_dtw_matrix(distance_matrix, stock_tickers, experiment_name, run_id):
     print("AT plot_dtw_matrix",distance_matrix)
     fig = plt.figure(figsize=(10, 6))
@@ -386,6 +374,18 @@ def plot_dtw_matrix(distance_matrix, stock_tickers, experiment_name, run_id):
     #plt.show()
     plt.close(fig)
     
+def plot_train_series_correl(cross_corr_matrix, experiment_name, run_id):
+    fig = plt.figure(figsize=(10, 6))
+    sns.heatmap(cross_corr_matrix, annot=True, cmap='coolwarm', fmt='.2f')
+    plt.title('Cross-Correlation Matrix Time Series')
+
+    helper_functions.write_and_log_plt(fig, None,
+                                       f"Cross_Correlation_Matrix_Time_Series",
+                                       f"Cross_Correlation_Matrix_Close_Time_Series", experiment_name, run_id)
+
+    #plt.show()
+    plt.close(fig)
+    
 def plot_all_cross_correl_price_series(stocks, run, experiment_name):
     
     data_close, merged_df = process_price_series.log_rebase_dataset(stocks)
@@ -396,37 +396,37 @@ def plot_all_cross_correl_price_series(stocks, run, experiment_name):
     if Parameters.enable_mlflow:
         plot_train_series_correl(cross_corr_matrix, experiment_name, run.info.run_id)
 
-def plot_train_eval_cross_correl_price_series(stocks, run, experiment_name):
-    data_close = {}
+# def plot_train_eval_cross_correl_price_series(stocks, run, experiment_name):
+#     data_close = {}
 
-    for s in stocks.get_train_stocks() + stocks.get_eval_stocks():
-        dataset_df = yf.download(s['ticker'], start=s['start_date'], end=s['end_date'], interval='1d')
-        dataset_df = dataset_df.dropna()
-        #reset column to save to csv and mlflow schema
-        dataset_df = dataset_df.reset_index()
+#     for s in stocks.get_train_stocks() + stocks.get_eval_stocks():
+#         dataset_df = yf.download(s['ticker'], start=s['start_date'], end=s['end_date'], interval='1d')
+#         dataset_df = dataset_df.dropna()
+#         #reset column to save to csv and mlflow schema
+#         dataset_df = dataset_df.reset_index()
 
-        #reorder to split the data to train and test
-        desired_order = ['Date','Open', 'Close', 'High', 'Low']
-        if 'Date' in dataset_df.columns:
-            dataset_df = dataset_df[desired_order]
-        else:
-            print("Column 'Date' is missing.")
+#         #reorder to split the data to train and test
+#         desired_order = ['Date','Open', 'Close', 'High', 'Low']
+#         if 'Date' in dataset_df.columns:
+#             dataset_df = dataset_df[desired_order]
+#         else:
+#             print("Column 'Date' is missing.")
 
-        data_close[s['ticker']] = dataset_df['Close']
+#         data_close[s['ticker']] = dataset_df['Close']
 
-        # calc correl training datasets
-        df_close = pd.DataFrame(data_close)
+#         # calc correl training datasets
+#         df_close = pd.DataFrame(data_close)
         
-    # print("Cross Correl for tickers ",data_close.keys)
-    # print("cross correl data",df_close)
-    cross_corr_matrix = df_close.corr(method='spearman')
-    #print("Train & Eval set cross_corr_matrix",cross_corr_matrix)
-    # from fastdtw import fastdtw
-    # distance, path = fastdtw(data_close['SIVBQ'], data_close['CMA'])
-    # print("**distance",distance,"path", path)
+#     # print("Cross Correl for tickers ",data_close.keys)
+#     # print("cross correl data",df_close)
+#     cross_corr_matrix = df_close.corr(method='spearman')
+#     #print("Train & Eval set cross_corr_matrix",cross_corr_matrix)
+#     # from fastdtw import fastdtw
+#     # distance, path = fastdtw(data_close['SIVBQ'], data_close['CMA'])
+#     # print("**distance",distance,"path", path)
     
-    if Parameters.enable_mlflow:
-        plot_train_series_correl(cross_corr_matrix, experiment_name, run.info.run_id)
+#     if Parameters.enable_mlflow:
+#         plot_train_series_correl(cross_corr_matrix, experiment_name, run.info.run_id)
 
 def dtw_map_all(stocks, run, experiment_name):
     
