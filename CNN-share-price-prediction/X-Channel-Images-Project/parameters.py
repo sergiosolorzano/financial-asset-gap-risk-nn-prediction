@@ -73,8 +73,13 @@ class StockParams:
                 return stock['start_date'], stock['end_date']
         return None
     
+    def get_all_tickers(self):
+        all_stocks = self.train_stocks + self.eval_stocks  # Combine both lists
+        return [stock['ticker'] for stock in all_stocks] 
+    
 #init parameters
 class Parameters:
+    matplotlib_use = "Agg"
     scenario = 0 #local txt logging param
     nn_predict_price = 1 #0=classification;1=regression
     classification_class_price_down=0
@@ -82,7 +87,7 @@ class Parameters:
 
     log_returns = False #1=log return rebased price series else price series
 
-    enable_mlflow=False
+    enable_mlflow=True
     mlflow_experiment_name = 'gaprisk-concatstocks-2'
     mlflow_experiment_description = "Concat stocks to train v2"
     

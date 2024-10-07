@@ -5,9 +5,13 @@ import numpy as np
 import pandas as pd
 
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use(Parameters.matplotlib_use)
 import matplotlib.pyplot as plt
 import yfinance as yf
+
+from parameters import Parameters
+
+matplotlib.use(Parameters.matplotlib_use)
 
 class StockParams:
     def __init__(self):

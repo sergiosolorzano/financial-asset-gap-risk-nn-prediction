@@ -8,7 +8,6 @@ import pandas as pd
 from fastdtw import fastdtw
 
 import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 import random as rand
@@ -24,8 +23,12 @@ import mlflow
 import importlib as importlib
 sys.path.append(os.path.abspath('./helper_functions_dir'))
 import helper_functions as helper_functions
+import process_price_series as process_price_series
 
 import torch
+import load_data
+
+matplotlib.use(Parameters.matplotlib_use)
 
 def plot_weights_gradients(weights_dict, gradients_dict, epoch, experiment_name, run_id):
     for name, weight_list in weights_dict.items():
@@ -132,15 +135,140 @@ def scatter_diagram_twovar_plot_mean(evaluation_test_stock_ticker,train_stock_ti
                                        f"{evaluation_test_stock_ticker}_and_{train_stock_ticker}_Image_Input_Mean_Values",
                                        f"{evaluation_test_stock_ticker}_and_{train_stock_ticker}_Image_Input_Mean_Values", experiment_name, run_id)
     
+def plot_confusion_matrix(conf_matrix, stock_ticker, normalize, experiment_name, run_id):
+    raw_conf_matrix = conf_matrix.copy()
+    
+    if normalize:
+        conf_matrix = conf_matrix.astype('float') / conf_matrix.sum(axis=1)[:, np.newaxis]
+        conf_matrix = np.round(conf_matrix * 100, 2)
+
+    # Create annotations with both raw counts and percentages
+    annotations = np.empty(conf_matrix.shape, dtype=object)
+    for i in range(conf_matrix.shape[0]):
+        for j in range(conf_matrix.shape[1]):
+            count = raw_conf_matrix[i, j]
+            percent = conf_matrix[i, j] if normalize else 0
+            annotations[i, j] = f'{count}\n({percent}%)'
+
+    if normalize:
+        fmt='0.2f'
+    else:
+        fmt='d'
+
+    # Plot confusion matrix
+    fig = plt.figure(figsize=(8, 6))
+    sns.heatmap(conf_matrix, annot=annotations, fmt='', cmap='Blues', 
+                xticklabels=['Next Day Price Down', 'Next Day Price Up'], 
+                yticklabels=['Next Day Price Down', 'Next Day Price Up'])
+    plt.xlabel('Predicted Labels')
+    plt.ylabel('True Labels')
+    plt.title(f'Confusion Matrix Test {stock_ticker}')
+
+    if Parameters.enable_mlflow:
+        helper_functions.write_and_log_plt(fig, None, f'{stock_ticker}_Confusion_Matrix', f'{stock_ticker}_Confusion_Matrix', experiment_name, run_id)
+    #plt.show()
+    plt.close(fig)
+
+def quick_view_images(images_array, cols_used_count, cols_used, experiment_name, run_id):
+    
+    # Plot the first image of each column
+    fig, axes = plt.subplots(nrows=1, ncols=cols_used_count, figsize=(20, 6))
+    for ax in axes:
+        ax.set_aspect('equal')
+
+    #print("shape images array",images_array.shape,"shape image",images_array[0][0][0][0].shape)
+    for i in range(cols_used_count):
+        axes[i].imshow(images_array[0][0][i][0], cmap='hot')
+        axes[i].set_title(f"Column {cols_used[i]} ")
+
+    #average first image of all features
+    average_images = []
+    for i in range(cols_used_count):
+        average_images.append(images_array[0][0][i][0])
+
+    average_image = np.mean(average_images, axis=0)
+
+    # Hide axes
+    for ax in axes:
+        ax.axis('off')
+
+    # Plot the average image separately
+    fig = plt.figure()
+    plt.imshow(average_image, cmap='hot')
+    plt.title("Average Image")
+    plt.axis('off')  # Hide axes
+
+    helper_functions.write_and_log_plt(fig, None,
+                                       f"quick_view_image",
+                                       f"quick_view_image", experiment_name, run_id)
+
+    #plt.show()
+    plt.close(fig)
+
+def plot_evaluation_test_graphs(params, train_stack_input, evaluation_test_stack_input,
+                              image_series_correlations, image_series_mean_correlation,
+                              experiment_name, run_id):
+
+    #scatter actual vs predicted
+    scatter_diagram_twovar_plot_mean(params.eval_tickers,params.train_tickers,evaluation_test_stack_input, train_stack_input, experiment_name, run_id)
+
+    #plot trained versus test stocks image series mean correlations
+    print("len train_stack_input",len(train_stack_input),"len evaluation_test_stack_input",len(evaluation_test_stack_input))
+    if len(train_stack_input) == len(evaluation_test_stack_input):
+        plot_image_correlations(image_series_correlations, image_series_mean_correlation, experiment_name, run_id)
+        print("trained versus test stocks image series mean correlation",image_series_mean_correlation)
+    else:
+        print(f"Skip Plot Cross-Image Correlations because of size mismatch: Train size {len(train_stack_input)} Eval size {len(evaluation_test_stack_input)}")
+
+def plot_image_correlations(series_correlations, mean_correlation, experiment_name, run_id):
+    # Plot the correlations
+    fig = plt.figure(figsize=(10, 6))
+    sns.histplot(series_correlations, kde=True, bins=30)
+    plt.axvline(mean_correlation, color='red', linestyle='--', linewidth=2, label=f'Mean: {mean_correlation:.2f}')
+    plt.title('Distribution of Trained vs Test Stocks Input Image Series Correlations')
+    plt.xlabel('Image Correlation Coefficient')
+    plt.ylabel('Frequency')
+
+    helper_functions.write_and_log_plt(fig, None,
+                                       f"Correlation_Trained_vs_Test_Stocks_Input_Image_Series",
+                                       f"Correlation_Trained_vs_Test_Stocks_Input_Image_Series", experiment_name, run_id)
+
+    #plt.show()
+    plt.close(fig)
+
 def plot_price_comparison_stocks(index_ticker, train_stock_tickers, stock_dataset_df, stocks):
     fig = compare_stocks(index_ticker,train_stock_tickers,stock_dataset_df, stocks)
     
     return fig
-    
+
 def plot_concat_price_comparison_stocks(train_stock_tickers, stock_dataset_df):
     fig = compare_concat_stocks(train_stock_tickers,stock_dataset_df)
     
     return fig
+
+def plot_merged_log_series(merged_df, experiment_name, run_id):
+    fig = plt.figure(figsize=(10, 6))
+    
+    # Loop through the columns (tickers) except 'Date'
+    for column in merged_df.columns:
+        if column != 'Date':
+            plt.plot(merged_df['Date'], merged_df[column], label=column)
+
+    # Set labels and title
+    plt.xlabel('Date')
+    plt.ylabel('Rebased Price')
+    plt.title(f'Log Rebased Time Series for {[col for col in merged_df.columns if col != 'Date']}')
+    plt.legend()
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    plt.tight_layout()
+
+    helper_functions.write_and_log_plt(fig, None,
+                                       f"Log_Rebased_Time_Series_for_{[col for col in merged_df.columns if col != 'Date']}",
+                                       f"Log_Rebased_Time_Series_for_{[col for col in merged_df.columns if col != 'Date']}", experiment_name, run_id)
+
+    #plt.show()
+    plt.close(fig)
 
 def compare_concat_stocks(stock_ticker, stock_dataset):
 
@@ -234,16 +362,17 @@ def compare_stocks(index_ticker, stock_ticker, stock_dataset, stocks):
 def plot_train_series_correl(cross_corr_matrix, experiment_name, run_id):
     fig = plt.figure(figsize=(10, 6))
     sns.heatmap(cross_corr_matrix, annot=True, cmap='coolwarm', fmt='.2f')
-    plt.title('Cross-Correlation Matrix Training Time Series')
+    plt.title('Cross-Correlation Matrix Time Series')
 
     helper_functions.write_and_log_plt(fig, None,
-                                       f"Cross_Correlation_Matrix_Close_Training_Eval_Time_Series",
-                                       f"Cross_Correlation_Matrix_Close_Training_Eval_Time_Series", experiment_name, run_id)
+                                       f"Cross_Correlation_Matrix_Time_Series",
+                                       f"Cross_Correlation_Matrix_Close_Time_Series", experiment_name, run_id)
 
     #plt.show()
     plt.close(fig)
 
 def plot_dtw_matrix(distance_matrix, stock_tickers, experiment_name, run_id):
+    print("AT plot_dtw_matrix",distance_matrix)
     fig = plt.figure(figsize=(10, 6))
     sns.heatmap(distance_matrix.astype(float), annot=True, cmap='coolwarm', fmt='.2f', xticklabels=stock_tickers, yticklabels=stock_tickers)
     plt.title('DTW Distance Heatmap')
@@ -257,34 +386,12 @@ def plot_dtw_matrix(distance_matrix, stock_tickers, experiment_name, run_id):
     #plt.show()
     plt.close(fig)
     
-def plot_all_cross_correl_price_series(stock_tickers, start_date, end_date, run, experiment_name):
-    data_close = {}
-
-    for s in stock_tickers:
-        dataset_df = yf.download(s, start=start_date, end=end_date, interval='1d')
-        dataset_df = dataset_df.dropna()
-        #reset column to save to csv and mlflow schema
-        dataset_df = dataset_df.reset_index()
-
-        #reorder to split the data to train and test
-        desired_order = ['Date','Open', 'Close', 'High', 'Low']
-        if 'Date' in dataset_df.columns:
-            dataset_df = dataset_df[desired_order]
-        else:
-            print("Column 'Date' is missing.")
-
-        data_close[s] = dataset_df['Close']
-
-        # calc correl training datasets
-        df_close = pd.DataFrame(data_close)
-        
-    # print("Cross Correl for tickers ",data_close.keys)
-    # print("cross correl data",df_close)
+def plot_all_cross_correl_price_series(stocks, run, experiment_name):
+    
+    data_close, merged_df = process_price_series.log_rebase_dataset(stocks)
+    
+    df_close = pd.DataFrame(data_close)
     cross_corr_matrix = df_close.corr(method='spearman')
-    #print("Train & Eval set cross_corr_matrix",cross_corr_matrix)
-    # from fastdtw import fastdtw
-    # distance, path = fastdtw(data_close['SIVBQ'], data_close['CMA'])
-    # print("**distance",distance,"path", path)
     
     if Parameters.enable_mlflow:
         plot_train_series_correl(cross_corr_matrix, experiment_name, run.info.run_id)
@@ -321,70 +428,12 @@ def plot_train_eval_cross_correl_price_series(stocks, run, experiment_name):
     if Parameters.enable_mlflow:
         plot_train_series_correl(cross_corr_matrix, experiment_name, run.info.run_id)
 
-def plot_train_eval_cross_dtw_rebased_price_series(stocks, start_date, end_date, run, experiment_name):
-    data_close = {}
-
-    for s in stocks.get_train_stocks() + stocks.get_eval_stocks():
-        dataset_df = yf.download(s['ticker'], start=start_date, end=end_date, interval='1d')
-        dataset_df = dataset_df.dropna()
-        #reset column to save to csv and mlflow schema
-        dataset_df = dataset_df.reset_index()
-
-        #reorder to split the data to train and test
-        desired_order = ['Date','Open', 'Close', 'High', 'Low']
-        if 'Date' in dataset_df.columns:
-            dataset_df = dataset_df[desired_order]
-        else:
-            print("Column 'Date' is missing.")
-
-        #data_close[s['ticker']] = dataset_df['Close']
-
-        dataset_df.drop(columns=['Date'], inplace=True)
-        rebased_df = pipeline_data.remap_to_log_returns(dataset_df, None)
-        data_close[s['ticker']] = rebased_df['Close']
-        print(f"Rebased DF ticker {s['ticker']}: {data_close[s['ticker']]}")
-
-    print("Cross Correl for tickers ",data_close.keys())
-    # print("cross correl data",df_close)
-    train_stock_tickers = [s['ticker'] for s in stocks.get_train_stocks()]
-    eval_stock_tickers = [s['ticker'] for s in stocks.get_eval_stocks()]
+def dtw_map_all(stocks, run, experiment_name):
     
-    distance_matrix = pd.DataFrame(index=train_stock_tickers, columns=eval_stock_tickers)
-    for i, train_ticker in enumerate(train_stock_tickers):
-        if train_ticker in data_close:
-            for j, eval_ticker in enumerate(eval_stock_tickers):
-                if eval_ticker in data_close:
-                    distance, path = fastdtw(data_close[train_ticker], data_close[eval_ticker])
-                    distance_matrix.iloc[i, j] = distance
-                    #print(f"**distance {train_ticker} vs {eval_ticker}", distance, "path", path)
-                    
-    plot_dtw_matrix(distance_matrix,train_stock_tickers,eval_stock_tickers,experiment_name,run.info.run_id)
-
-def dtw_map_all(stock_tickers, start_date, end_date, run, experiment_name):
-    data_close = {}
-
-    for t in stock_tickers:
-        dataset_df = yf.download(t, start=start_date, end=end_date, interval='1d')
-        dataset_df = dataset_df.dropna()
-        #reset column to save to csv and mlflow schema
-        dataset_df = dataset_df.reset_index()
-
-        #reorder to split the data to train and test
-        desired_order = ['Date','Open', 'Close', 'High', 'Low']
-        if 'Date' in dataset_df.columns:
-            dataset_df = dataset_df[desired_order]
-        else:
-            print("Column 'Date' is missing.")
-
-        #data_close[s['ticker']] = dataset_df['Close']
-
-        dataset_df.drop(columns=['Date'], inplace=True)
-        rebased_df = pipeline_data.remap_to_log_returns(dataset_df, None)
-        data_close[t] = rebased_df['Close']
-        #print(f"Rebased DF ticker {t}: {data_close[t]}")
+    data_close, merged_df = process_price_series.log_rebase_dataset(stocks)
 
     print("DTW for tickers ",data_close.keys())
-    # print("cross correl data",df_close)
+    stock_tickers = stocks.get_all_tickers()
     
     distance_matrix = pd.DataFrame(index=stock_tickers, columns=stock_tickers)
     for i, stock_ticker in enumerate(stock_tickers):
@@ -400,104 +449,4 @@ def dtw_map_all(stock_tickers, start_date, end_date, run, experiment_name):
     plot_dtw_matrix(distance_matrix,stock_tickers,experiment_name,run.info.run_id)
 
 
-def plot_image_correlations(series_correlations, mean_correlation, experiment_name, run_id):
-    # Plot the correlations
-    fig = plt.figure(figsize=(10, 6))
-    sns.histplot(series_correlations, kde=True, bins=30)
-    plt.axvline(mean_correlation, color='red', linestyle='--', linewidth=2, label=f'Mean: {mean_correlation:.2f}')
-    plt.title('Distribution of Trained vs Test Stocks Input Image Series Correlations')
-    plt.xlabel('Image Correlation Coefficient')
-    plt.ylabel('Frequency')
 
-    helper_functions.write_and_log_plt(fig, None,
-                                       f"Correlation_Trained_vs_Test_Stocks_Input_Image_Series",
-                                       f"Correlation_Trained_vs_Test_Stocks_Input_Image_Series", experiment_name, run_id)
-
-    #plt.show()
-    plt.close(fig)
-
-def plot_confusion_matrix(conf_matrix, stock_ticker, normalize, experiment_name, run_id):
-    raw_conf_matrix = conf_matrix.copy()
-    
-    if normalize:
-        conf_matrix = conf_matrix.astype('float') / conf_matrix.sum(axis=1)[:, np.newaxis]
-        conf_matrix = np.round(conf_matrix * 100, 2)
-
-    # Create annotations with both raw counts and percentages
-    annotations = np.empty(conf_matrix.shape, dtype=object)
-    for i in range(conf_matrix.shape[0]):
-        for j in range(conf_matrix.shape[1]):
-            count = raw_conf_matrix[i, j]
-            percent = conf_matrix[i, j] if normalize else 0
-            annotations[i, j] = f'{count}\n({percent}%)'
-
-    if normalize:
-        fmt='0.2f'
-    else:
-        fmt='d'
-
-    # Plot confusion matrix
-    fig = plt.figure(figsize=(8, 6))
-    sns.heatmap(conf_matrix, annot=annotations, fmt='', cmap='Blues', 
-                xticklabels=['Next Day Price Down', 'Next Day Price Up'], 
-                yticklabels=['Next Day Price Down', 'Next Day Price Up'])
-    plt.xlabel('Predicted Labels')
-    plt.ylabel('True Labels')
-    plt.title(f'Confusion Matrix Test {stock_ticker}')
-
-    if Parameters.enable_mlflow:
-        helper_functions.write_and_log_plt(fig, None, f'{stock_ticker}_Confusion_Matrix', f'{stock_ticker}_Confusion_Matrix', experiment_name, run_id)
-    #plt.show()
-    plt.close(fig)
-
-def quick_view_images(images_array, cols_used_count, cols_used, experiment_name, run_id):
-    
-    # Plot the first image of each column
-    fig, axes = plt.subplots(nrows=1, ncols=cols_used_count, figsize=(20, 6))
-    for ax in axes:
-        ax.set_aspect('equal')
-
-    #print("shape images array",images_array.shape,"shape image",images_array[0][0][0][0].shape)
-    for i in range(cols_used_count):
-        axes[i].imshow(images_array[0][0][i][0], cmap='hot')
-        axes[i].set_title(f"Column {cols_used[i]} ")
-
-    #average first image of all features
-    average_images = []
-    for i in range(cols_used_count):
-        average_images.append(images_array[0][0][i][0])
-
-    average_image = np.mean(average_images, axis=0)
-
-    # Hide axes
-    for ax in axes:
-        ax.axis('off')
-
-    # Plot the average image separately
-    fig = plt.figure()
-    plt.imshow(average_image, cmap='hot')
-    plt.title("Average Image")
-    plt.axis('off')  # Hide axes
-
-    helper_functions.write_and_log_plt(fig, None,
-                                       f"quick_view_image",
-                                       f"quick_view_image", experiment_name, run_id)
-
-    #plt.show()
-    plt.close(fig)
-
-
-def plot_evaluation_test_graphs(params, train_stack_input, evaluation_test_stack_input,
-                              image_series_correlations, image_series_mean_correlation,
-                              experiment_name, run_id):
-
-    #scatter actual vs predicted
-    scatter_diagram_twovar_plot_mean(params.eval_tickers,params.train_tickers,evaluation_test_stack_input, train_stack_input, experiment_name, run_id)
-
-    #plot trained versus test stocks image series mean correlations
-    print("len train_stack_input",len(train_stack_input),"len evaluation_test_stack_input",len(evaluation_test_stack_input))
-    if len(train_stack_input) == len(evaluation_test_stack_input):
-        plot_image_correlations(image_series_correlations, image_series_mean_correlation, experiment_name, run_id)
-        print("trained versus test stocks image series mean correlation",image_series_mean_correlation)
-    else:
-        print(f"Skip Plot Cross-Image Correlations because of size mismatch: Train size {len(train_stack_input)} Eval size {len(evaluation_test_stack_input)}")

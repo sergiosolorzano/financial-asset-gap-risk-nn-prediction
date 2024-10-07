@@ -5,7 +5,6 @@ import sys
 import pandas as pd
 import numpy as np
 import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import stumpy
 import yfinance as yf
@@ -14,6 +13,8 @@ from sklearn.preprocessing import StandardScaler,MinMaxScaler
 import importlib as importlib
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), "..")))
 from parameters import Parameters
+
+matplotlib.use(Parameters.matplotlib_use)
 
 from numba import cuda
 

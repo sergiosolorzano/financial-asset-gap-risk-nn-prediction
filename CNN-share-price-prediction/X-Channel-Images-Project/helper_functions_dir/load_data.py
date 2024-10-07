@@ -9,7 +9,6 @@ import yfinance as yf
 import mlflow
 
 import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -21,6 +20,8 @@ sys.path.append(os.path.abspath(os.path.join(os.getcwd(), "..")))
 from parameters import Parameters
 import helper_functions_dir.compute_stats as compute_stats
 import helper_functions_dir.plot_data as plot_data
+
+matplotlib.use(Parameters.matplotlib_use)
 
 # os.environ['OMP_NUM_THREADS'] = '16'
 # os.environ['OMP_PROC_BIND'] = 'CLOSE'
