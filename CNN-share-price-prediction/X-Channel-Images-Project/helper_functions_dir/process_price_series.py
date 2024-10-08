@@ -24,9 +24,6 @@ import importlib as importlib
 sys.path.append(os.path.abspath('./helper_functions_dir'))
 import helper_functions as helper_functions
 
-import torch
-import load_data
-
 matplotlib.use(Parameters.matplotlib_use)
 
 def log_rebase_dataset(stocks):
@@ -37,10 +34,8 @@ def log_rebase_dataset(stocks):
         print("Log Rebasing Stock",s['ticker'])
         dataset_df = yf.download(s['ticker'], start=s['start_date'], end=s['end_date'], interval='1d')
         dataset_df = dataset_df.dropna()
-        #reset column to save to csv and mlflow schema
         dataset_df = dataset_df.reset_index()
 
-        #reorder to split the data to train and test
         desired_order = ['Date','Open', 'Close', 'High', 'Low']
         if 'Date' in dataset_df.columns:
             dataset_df = dataset_df[desired_order]
@@ -54,17 +49,14 @@ def log_rebase_dataset(stocks):
         rebased_df = pipeline_data.remap_to_log_returns(dataset_df, None)
         rebased_df['Date'] = date_col.values[:-1]
         data_close[s['ticker']] = rebased_df['Close']
-        #print(f"Rebased DF ticker {s['ticker']}: {data_close[s['ticker']]}")
 
         if merged_df is None:
-            # Initialize merged_df with the first stock's data
             merged_df = pd.DataFrame({'Date': rebased_df['Date'], s['ticker']: rebased_df['Close']})
         else:
-            # Merge subsequent stock data
             merged_df = merged_df.merge(
                 pd.DataFrame({'Date': rebased_df['Date'], s['ticker']: rebased_df['Close']}), 
                 on='Date', 
-                how='outer'  # Keep all dates, even if some stocks don't have data for certain dates
+                how='outer' 
             )
 
     return data_close, merged_df

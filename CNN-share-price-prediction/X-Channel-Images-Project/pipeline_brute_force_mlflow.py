@@ -32,7 +32,6 @@ from torchinfo import summary
 def create_comparison_stocks_obj():
     stock_params = StockParams()
 
-    # run concat
     stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
     stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
     stock_params.add_train_stock('ALLY', '2021-12-05', '2023-01-25')
@@ -52,8 +51,8 @@ def create_train_eval_stocks_obj():
 
     # run concat
     stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
-    # stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
-    # stock_params.add_train_stock('ALLY', '2021-12-05', '2023-01-25')
+    #stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
+    stock_params.add_train_stock('ALLY', '2021-12-05', '2023-01-25')
     # stock_params.add_train_stock('CMA', '2021-12-05', '2023-01-25')
     # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
     
@@ -235,10 +234,19 @@ def brute_force_function(credentials, device, stock_params):
                                             else:
                                                 run_id=None
 
+                                            #plot all stocks
                                             stock_comp_params = create_comparison_stocks_obj()
                                             data_close, merged_df = process_price_series.log_rebase_dataset(stock_comp_params)
                                             plot_data.plot_merged_log_series(merged_df, experiment_name, run_id)
 
+                                            #plot single training and eval stocks
+                                            data_close, merged_df = process_price_series.log_rebase_dataset(stock_params)
+                                            plot_data.plot_price_comparison_stocks(merged_df, experiment_name, run)
+                                            
+                                            #plot training (with concat) and eval stocks
+                                            plot_data.plot_train_and_eval_df(stock_params,experiment_name,run)
+
+                                            #calc and plot dwt and correl
                                             calc_dwt_and_correl(stock_comp_params,run)
 
                                             Parameters.num_workers = w
@@ -300,9 +308,6 @@ def brute_force_function(credentials, device, stock_params):
                                                                                                         Parameters.evaluation_test_cols_used,
                                                                                                         run, experiment_name)
 
-                                            # plot correls
-                                            #plot_data.plot_train_eval_cross_correl_price_series(stock_params, run, experiment_name)
-
                                             #test
                                             evaluation_test_stack_input, evaluation_test_stack_actual, evaluation_test_stack_predicted = pipeline_test.test_process(net, 
                                                                                                                                                 test_loader, 
@@ -347,28 +352,5 @@ if __name__ == "__main__":
     _credentials.get_credentials()
 
     stock_params = create_train_eval_stocks_obj()
-    # StockParams()
-
-    # # run concat
-    # stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
-    # # stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
-    # # stock_params.add_train_stock('ALLY', '2021-12-05', '2023-01-25')
-    # # stock_params.add_train_stock('CMA', '2021-12-05', '2023-01-25')
-    # # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
     
-    # #scenarios
-    # stock_params.add_eval_stock('SICP', '2021-12-05', '2023-01-25')
-    # #high correl
-    # #stock_params.add_eval_stock('CMA', '2021-12-05', '2023-01-25')
-    # #medium correl
-    # #stock_params.add_eval_stock('JPM', '2021-12-05', '2023-01-25')
-    # #low correl
-    # #stock_params.add_eval_stock('RF', '2021-12-05', '2023-01-25')
-    # #nil correl
-    # #stock_params.add_eval_stock('CROX', '2021-12-05', '2023-01-25')
-
-    # stock_params.set_param_strings()
-    # Parameters.train_tickers = stock_params.train_stock_tickers
-    # Parameters.eval_tickers = stock_params.eval_stock_tickers
-
     brute_force_function(_credentials, device, stock_params)

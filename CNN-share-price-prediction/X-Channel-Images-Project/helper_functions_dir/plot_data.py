@@ -15,7 +15,7 @@ import random as rand
 import yfinance as yf
 
 from parameters import Parameters
-import pipeline_data
+import load_data
 
 import mlflow
 
@@ -26,7 +26,7 @@ import helper_functions as helper_functions
 import process_price_series as process_price_series
 
 import torch
-import load_data
+import pipeline_data
 
 matplotlib.use(Parameters.matplotlib_use)
 
@@ -236,16 +236,6 @@ def plot_image_correlations(series_correlations, mean_correlation, experiment_na
     #plt.show()
     plt.close(fig)
 
-def plot_price_comparison_stocks(index_ticker, train_stock_tickers, stock_dataset_df, stocks):
-    fig = compare_stocks(index_ticker,train_stock_tickers,stock_dataset_df, stocks)
-    
-    return fig
-
-def plot_concat_price_comparison_stocks(train_stock_tickers, stock_dataset_df):
-    fig = compare_concat_stocks(train_stock_tickers,stock_dataset_df)
-    
-    return fig
-
 def plot_merged_log_series(merged_df, experiment_name, run_id):
     fig = plt.figure(figsize=(10, 6))
     
@@ -269,95 +259,6 @@ def plot_merged_log_series(merged_df, experiment_name, run_id):
 
     #plt.show()
     plt.close(fig)
-
-def compare_concat_stocks(stock_ticker, stock_dataset):
-
-    stock_data = stock_dataset.dropna()
-
-    #rebase
-    stock_rebased = stock_data# / stock_data.iloc[0] * 100
-
-    fig, axs = plt.subplots(2, 2, figsize=(Parameters.plt_image_size[0], Parameters.plt_image_size[1]))
-
-    axs[0, 0].plot(stock_rebased.index, stock_rebased['Open'], label=f'{stock_ticker} Open Price', color='g')
-    axs[0, 0].plot(stock_rebased.index, stock_rebased['Close'], label=f'{stock_ticker} Close Price', color='m')
-    axs[0, 0].set_title('Open and Close Prices')
-    axs[0, 0].legend()
-    axs[0, 0].grid(True)
-
-    axs[0, 1].plot(stock_rebased.index, stock_rebased['Close'], label=f'{stock_ticker} Close Price', color='m')
-    axs[0, 1].plot(stock_rebased.index, stock_rebased['High'], label=f'{stock_ticker} High Price', color='b')
-    axs[0, 1].set_title('Close and High Prices')
-    axs[0, 1].legend()
-    axs[0, 1].grid(True)
-
-    axs[1, 0].plot(stock_rebased.index, stock_rebased['Close'], label=f'{stock_ticker} Close Price', color='m')
-    axs[1, 0].plot(stock_rebased.index, stock_rebased['Low'], label=f'{stock_ticker} Low Price', color='r')
-    axs[1, 0].set_title('Close and Low Prices')
-    axs[1, 0].legend()
-    axs[1, 0].grid(True)
-
-    axs[1, 1].plot(stock_rebased.index, stock_rebased['High'], label=f'{stock_ticker} High Price', color='b')
-    axs[1, 1].plot(stock_rebased.index, stock_rebased['Low'], label=f'{stock_ticker} Low Price', color='r')
-    axs[1, 1].set_title('High and Low Prices')
-    axs[1, 1].legend()
-    axs[1, 1].grid(True)
-
-    plt.tight_layout()
-    #plt.show()
-
-    return fig
-
-def compare_stocks(index_ticker, stock_ticker, stock_dataset, stocks):
-
-    start_date, end_date = stocks.get_dates_by_ticker(stock_ticker)
-
-    index_data = yf.download(index_ticker, start=start_date, end=end_date, interval='1d')
-
-    stock_data = stock_dataset.dropna()
-    index_data = index_data.dropna()
-
-    stock_data = stock_data[stock_data.index <= end_date]
-    index_data = index_data[index_data.index <= end_date]
-
-    #rebase
-    stock_rebased = stock_data / stock_data.iloc[0] * 100
-    index_rebased = index_data / index_data.iloc[0] * 100
-
-    fig, axs = plt.subplots(2, 2, figsize=(Parameters.plt_image_size[0], Parameters.plt_image_size[1]))
-
-    axs[0, 0].plot(stock_rebased.index, stock_rebased['Open'], label=f'{stock_ticker} Open Price', color='g')
-    axs[0, 0].plot(stock_rebased.index, stock_rebased['Close'], label=f'{stock_ticker} Close Price', color='m')
-    axs[0, 0].plot(index_rebased.index, index_rebased['Close'], label=f'{index_ticker} Close Price', color='m', linestyle='--')
-    axs[0, 0].set_title('Open and Close Prices')
-    axs[0, 0].legend()
-    axs[0, 0].grid(True)
-
-    axs[0, 1].plot(stock_rebased.index, stock_rebased['Close'], label=f'{stock_ticker} Close Price', color='m')
-    axs[0, 1].plot(stock_rebased.index, stock_rebased['High'], label=f'{stock_ticker} High Price', color='b')
-    axs[0, 1].plot(index_rebased.index, index_rebased['Close'], label=f'{index_ticker} Close Price', color='m', linestyle='--')
-    axs[0, 1].set_title('Close and High Prices')
-    axs[0, 1].legend()
-    axs[0, 1].grid(True)
-
-    axs[1, 0].plot(stock_rebased.index, stock_rebased['Close'], label=f'{stock_ticker} Close Price', color='m')
-    axs[1, 0].plot(stock_rebased.index, stock_rebased['Low'], label=f'{stock_ticker} Low Price', color='r')
-    axs[1, 0].plot(index_rebased.index, index_rebased['Close'], label=f'{index_ticker} Close Price', color='m', linestyle='--')
-    axs[1, 0].set_title('Close and Low Prices')
-    axs[1, 0].legend()
-    axs[1, 0].grid(True)
-
-    axs[1, 1].plot(stock_rebased.index, stock_rebased['High'], label=f'{stock_ticker} High Price', color='b')
-    axs[1, 1].plot(stock_rebased.index, stock_rebased['Low'], label=f'{stock_ticker} Low Price', color='r')
-    axs[1, 1].plot(index_rebased.index, index_rebased['High'], label=f'{index_ticker} High Price', color='b', linestyle='--')
-    axs[1, 1].set_title('High and Low Prices')
-    axs[1, 1].legend()
-    axs[1, 1].grid(True)
-
-    plt.tight_layout()
-    #plt.show()
-
-    return fig
 
 def plot_dtw_matrix(distance_matrix, stock_tickers, experiment_name, run_id):
     print("AT plot_dtw_matrix",distance_matrix)
@@ -396,6 +297,128 @@ def plot_all_cross_correl_price_series(stocks, run, experiment_name):
     if Parameters.enable_mlflow:
         plot_train_series_correl(cross_corr_matrix, experiment_name, run.info.run_id)
 
+def dtw_map_all(stocks, run, experiment_name):
+    
+    data_close, merged_df = process_price_series.log_rebase_dataset(stocks)
+
+    print("DTW for tickers ",data_close.keys())
+    stock_tickers = stocks.get_all_tickers()
+    
+    distance_matrix = pd.DataFrame(index=stock_tickers, columns=stock_tickers)
+    for i, stock_ticker in enumerate(stock_tickers):
+        if stock_ticker in data_close:
+            for j, compare_ticker in enumerate(stock_tickers):
+                if compare_ticker in data_close:
+                    distance, path = fastdtw(data_close[stock_ticker], data_close[compare_ticker])
+                    distance_matrix.iloc[i, j] = distance
+                    #print(f"**distance {stock_ticker} vs {compare_ticker}: {distance}, path: {path}")
+                    # if Parameters.enable_mlflow:
+                    #     mlflow.log_param(f"dwt_path_train_{stock_ticker}_eval_{eval_ticker}",path)
+
+    plot_dtw_matrix(distance_matrix,stock_tickers,experiment_name,run.info.run_id)
+
+def plot_train_and_eval_df(stocks, experiment_name,run):
+    #concat train stocks if more than 1 to train
+    train_stocks_dataset_df, start_indices_cumulative, stock_tickers = load_data.import_dataset(stocks.get_train_stocks(), run, experiment_name)
+    train_log_rebased_df = pipeline_data.remap_to_log_returns(train_stocks_dataset_df, start_indices_cumulative)
+    #get eval stock
+    eval_stocks_dataset_df, start_indices_cumulative, stock_tickers = load_data.import_dataset(stocks.get_eval_stocks(), run, experiment_name)
+    eval_log_rebased_df = pipeline_data.remap_to_log_returns(eval_stocks_dataset_df, start_indices_cumulative)
+
+    #merge train and eval
+    merged_df = pd.DataFrame({
+        'Train_Close': train_log_rebased_df['Close'],
+        'Eval_Close': eval_log_rebased_df['Close']
+    })
+
+    fig = plt.figure(figsize=(10, 6))
+    plt.plot(merged_df.index, merged_df['Train_Close'], label='Train Close')
+    plt.plot(merged_df.index, merged_df['Eval_Close'], label='Eval Close', linestyle='--')
+
+    plt.xlabel('Row')
+    plt.ylabel('Rebased Close Prices')
+    plt.title('Train and Eval Log Rebased Stock Price Comparison')
+    
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    
+    helper_functions.write_and_log_plt(fig, None,
+                                        f"price_train_eval_comp_{[col for col in merged_df.columns if col != 'Date']}",
+                                        f"price_train_eval_comp_{[col for col in merged_df.columns if col != 'Date']}",experiment_name, getattr(run, 'info', None).run_id if run else None)
+
+def plot_price_comparison_stocks(merged_df, experiment_name, run):
+
+    fig = plt.figure(figsize=(10, 6))
+    plt.xlabel('Date')
+    plt.ylabel('Rebased Price')
+    plt.title('Stock Price Comparison')
+    
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    
+    for column in merged_df.columns:
+        if column != 'Date':
+            plt.plot(merged_df['Date'], merged_df[column], label=column)
+
+    plt.legend()
+    plt.tight_layout()
+    
+    helper_functions.write_and_log_plt(fig, None,
+                                        f"price_comp_{[col for col in merged_df.columns if col != 'Date']}",
+                                        f"price_comp_{[col for col in merged_df.columns if col != 'Date']}",experiment_name, getattr(run, 'info', None).run_id if run else None)
+
+# def plot_concat_price_stocks(stocks_dataset_df):
+#     stocks_dataset_df = stocks_dataset_df.reset_index(drop=True)
+#     stocks_dataset_df['Date'] = range(len(stocks_dataset_df))
+#     fig = plot_price_comparison_stocks(stocks_dataset_df)
+#     helper_functions.write_and_log_plt(fig, None,
+#                                         f"price_comp_concat_{stock_tickers}",
+#                                         f"price_comp_concat_{stock_tickers}",experiment_name, getattr(run, 'info', None).run_id if run else None)
+
+# def compare_concat_stocks(stock_ticker, stock_dataset):
+
+#     stock_data = stock_dataset.dropna()
+
+#     #rebase
+#     stock_rebased = stock_data# / stock_data.iloc[0] * 100
+
+#     fig, axs = plt.subplots(2, 2, figsize=(Parameters.plt_image_size[0], Parameters.plt_image_size[1]))
+
+#     axs[0, 0].plot(stock_rebased.index, stock_rebased['Open'], label=f'{stock_ticker} Open Price', color='g')
+#     axs[0, 0].plot(stock_rebased.index, stock_rebased['Close'], label=f'{stock_ticker} Close Price', color='m')
+#     axs[0, 0].set_title('Open and Close Prices')
+#     axs[0, 0].legend()
+#     axs[0, 0].grid(True)
+
+#     axs[0, 1].plot(stock_rebased.index, stock_rebased['Close'], label=f'{stock_ticker} Close Price', color='m')
+#     axs[0, 1].plot(stock_rebased.index, stock_rebased['High'], label=f'{stock_ticker} High Price', color='b')
+#     axs[0, 1].set_title('Close and High Prices')
+#     axs[0, 1].legend()
+#     axs[0, 1].grid(True)
+
+#     axs[1, 0].plot(stock_rebased.index, stock_rebased['Close'], label=f'{stock_ticker} Close Price', color='m')
+#     axs[1, 0].plot(stock_rebased.index, stock_rebased['Low'], label=f'{stock_ticker} Low Price', color='r')
+#     axs[1, 0].set_title('Close and Low Prices')
+#     axs[1, 0].legend()
+#     axs[1, 0].grid(True)
+
+#     axs[1, 1].plot(stock_rebased.index, stock_rebased['High'], label=f'{stock_ticker} High Price', color='b')
+#     axs[1, 1].plot(stock_rebased.index, stock_rebased['Low'], label=f'{stock_ticker} Low Price', color='r')
+#     axs[1, 1].set_title('High and Low Prices')
+#     axs[1, 1].legend()
+#     axs[1, 1].grid(True)
+
+#     plt.tight_layout()
+#     #plt.show()
+
+#     return fig
+
+# def plot_concat_price_comparison_stocks(train_stock_tickers, stock_dataset_df):
+#     fig = compare_concat_stocks(train_stock_tickers,stock_dataset_df)
+    
+#     return fig
+
 # def plot_train_eval_cross_correl_price_series(stocks, run, experiment_name):
 #     data_close = {}
 
@@ -428,25 +451,55 @@ def plot_all_cross_correl_price_series(stocks, run, experiment_name):
 #     if Parameters.enable_mlflow:
 #         plot_train_series_correl(cross_corr_matrix, experiment_name, run.info.run_id)
 
-def dtw_map_all(stocks, run, experiment_name):
-    
-    data_close, merged_df = process_price_series.log_rebase_dataset(stocks)
-
-    print("DTW for tickers ",data_close.keys())
-    stock_tickers = stocks.get_all_tickers()
-    
-    distance_matrix = pd.DataFrame(index=stock_tickers, columns=stock_tickers)
-    for i, stock_ticker in enumerate(stock_tickers):
-        if stock_ticker in data_close:
-            for j, compare_ticker in enumerate(stock_tickers):
-                if compare_ticker in data_close:
-                    distance, path = fastdtw(data_close[stock_ticker], data_close[compare_ticker])
-                    distance_matrix.iloc[i, j] = distance
-                    #print(f"**distance {stock_ticker} vs {compare_ticker}: {distance}, path: {path}")
-                    # if Parameters.enable_mlflow:
-                    #     mlflow.log_param(f"dwt_path_train_{stock_ticker}_eval_{eval_ticker}",path)
-
-    plot_dtw_matrix(distance_matrix,stock_tickers,experiment_name,run.info.run_id)
 
 
+# def compare_stocks(index_ticker, stock_ticker, stock_dataset, stocks):
 
+#     start_date, end_date = stocks.get_dates_by_ticker(stock_ticker)
+
+#     index_data = yf.download(index_ticker, start=start_date, end=end_date, interval='1d')
+
+#     stock_data = stock_dataset.dropna()
+#     index_data = index_data.dropna()
+
+#     stock_data = stock_data[stock_data.index <= end_date]
+#     index_data = index_data[index_data.index <= end_date]
+
+#     #rebase
+#     stock_rebased = stock_data / stock_data.iloc[0] * 100
+#     index_rebased = index_data / index_data.iloc[0] * 100
+
+#     fig, axs = plt.subplots(2, 2, figsize=(Parameters.plt_image_size[0], Parameters.plt_image_size[1]))
+
+#     axs[0, 0].plot(stock_rebased.index, stock_rebased['Open'], label=f'{stock_ticker} Open Price', color='g')
+#     axs[0, 0].plot(stock_rebased.index, stock_rebased['Close'], label=f'{stock_ticker} Close Price', color='m')
+#     axs[0, 0].plot(index_rebased.index, index_rebased['Close'], label=f'{index_ticker} Close Price', color='m', linestyle='--')
+#     axs[0, 0].set_title('Open and Close Prices')
+#     axs[0, 0].legend()
+#     axs[0, 0].grid(True)
+
+#     axs[0, 1].plot(stock_rebased.index, stock_rebased['Close'], label=f'{stock_ticker} Close Price', color='m')
+#     axs[0, 1].plot(stock_rebased.index, stock_rebased['High'], label=f'{stock_ticker} High Price', color='b')
+#     axs[0, 1].plot(index_rebased.index, index_rebased['Close'], label=f'{index_ticker} Close Price', color='m', linestyle='--')
+#     axs[0, 1].set_title('Close and High Prices')
+#     axs[0, 1].legend()
+#     axs[0, 1].grid(True)
+
+#     axs[1, 0].plot(stock_rebased.index, stock_rebased['Close'], label=f'{stock_ticker} Close Price', color='m')
+#     axs[1, 0].plot(stock_rebased.index, stock_rebased['Low'], label=f'{stock_ticker} Low Price', color='r')
+#     axs[1, 0].plot(index_rebased.index, index_rebased['Close'], label=f'{index_ticker} Close Price', color='m', linestyle='--')
+#     axs[1, 0].set_title('Close and Low Prices')
+#     axs[1, 0].legend()
+#     axs[1, 0].grid(True)
+
+#     axs[1, 1].plot(stock_rebased.index, stock_rebased['High'], label=f'{stock_ticker} High Price', color='b')
+#     axs[1, 1].plot(stock_rebased.index, stock_rebased['Low'], label=f'{stock_ticker} Low Price', color='r')
+#     axs[1, 1].plot(index_rebased.index, index_rebased['High'], label=f'{index_ticker} High Price', color='b', linestyle='--')
+#     axs[1, 1].set_title('High and Low Prices')
+#     axs[1, 1].legend()
+#     axs[1, 1].grid(True)
+
+#     plt.tight_layout()
+#     #plt.show()
+
+#     return fig
