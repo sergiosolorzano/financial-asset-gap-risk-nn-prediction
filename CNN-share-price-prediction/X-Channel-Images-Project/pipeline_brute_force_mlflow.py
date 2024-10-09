@@ -32,17 +32,33 @@ from torchinfo import summary
 def create_comparison_stocks_obj():
     stock_params = StockParams()
 
-    stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
-    stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
-    stock_params.add_train_stock('ALLY', '2021-12-05', '2023-01-25')
-    stock_params.add_train_stock('CMA', '2021-12-05', '2023-01-25')
-    stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
-    stock_params.add_train_stock('JPM', '2021-12-05', '2023-01-25')
-    stock_params.add_train_stock('CROX', '2021-12-05', '2023-01-25')
+    # stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
+    # stock_params.add_train_stock('ALLY', '2021-12-05', '2023-01-25')
+    # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
+    # stock_params.add_train_stock('CUBI', '2021-12-05', '2023-01-25')
+    
+    stock_params.add_train_stock('SIVBQ', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('SICP', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('ALLY', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('CMA', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('WAL', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('PWBK', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('ZION', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('KEY', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('CUBI', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('OZK', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('CFG', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('RF', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('FITB', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('HBAN', '2021-12-06', '2023-01-25')
+    
+    # stock_params.add_train_stock('FRC', '2021-12-05', '2023-01-25')
+    # stock_params.add_train_stock('SBNY', '2021-12-05', '2023-01-25')
+    #stock_params.add_train_stock('JPM', '2021-12-05', '2023-01-25')
 
     stock_params.set_param_strings()
-    Parameters.train_tickers = stock_params.train_stock_tickers
-    Parameters.eval_tickers = stock_params.eval_stock_tickers
+    # Parameters.train_tickers = stock_params.train_stock_tickers
+    # Parameters.eval_tickers = stock_params.eval_stock_tickers
 
     return stock_params
 
@@ -50,14 +66,18 @@ def create_train_eval_stocks_obj():
     stock_params = StockParams()
 
     # run concat
-    stock_params.add_train_stock('SIVBQ', '2021-12-05', '2023-01-25')
-    #stock_params.add_train_stock('SICP', '2021-12-05', '2023-01-25')
-    stock_params.add_train_stock('ALLY', '2021-12-05', '2023-01-25')
+    stock_params.add_train_stock('SIVBQ', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('SICP', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('ALLY', '2021-12-06', '2023-01-25')
     # stock_params.add_train_stock('CMA', '2021-12-05', '2023-01-25')
     # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
     
     #scenarios
-    stock_params.add_eval_stock('SICP', '2021-12-05', '2023-01-25')
+    stock_params.add_eval_stock('CUBI', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
+    #stock_params.add_eval_stock('WAL', '2021-12-06', '2023-01-25') #loss 0.10, acc 34%, r^2 -0.15
+    #stock_params.add_train_stock('SICP', '2021-12-06', '2023-01-25')
+
+    #stock_params.add_eval_stock('SICP', '2021-12-06', '2023-01-25')
     #high correl
     #stock_params.add_eval_stock('CMA', '2021-12-05', '2023-01-25')
     #medium correl
@@ -92,7 +112,7 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_param
         "iteration": curr_datetime,
         "train_stock_ticker": stock_params.train_stock_tickers,
         "eval_stock_ticker": stock_params.eval_stock_tickers,
-        "index_ticker": Parameters.index_ticker,
+        # "index_ticker": Parameters.index_ticker,
         # "start_date": stock_params.start_date,
         # "end_date": stock_params.end_date,
         # "daycount": end_date_obj-start_date_obj,
