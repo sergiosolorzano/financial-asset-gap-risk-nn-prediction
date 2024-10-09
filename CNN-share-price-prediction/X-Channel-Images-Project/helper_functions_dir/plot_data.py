@@ -262,15 +262,17 @@ def plot_merged_log_series(merged_df, experiment_name, run_id):
 
 def plot_dtw_matrix(distance_matrix, stock_tickers, experiment_name, run_id):
     print("AT plot_dtw_matrix",distance_matrix)
-    fig = plt.figure(figsize=(10, 6))
+    fig = plt.figure(figsize=(16, 8))
     sns.heatmap(distance_matrix.astype(float), annot=True, cmap='coolwarm', fmt='.2f', xticklabels=stock_tickers, yticklabels=stock_tickers)
     plt.title('DTW Distance Heatmap')
     plt.xlabel('Stock Tickers')
     plt.ylabel('Stock Tickers')
     print("Call Image DTW Map")
-    helper_functions.write_and_log_plt(fig, None,
-                                       f"DTW Distance Heatmap",
-                                       f"DTW Distance Heatmap", experiment_name, run_id)
+
+    if Parameters.enable_mlflow:
+        helper_functions.write_and_log_plt(fig, None,
+                                        f"DTW Distance Heatmap",
+                                        f"DTW Distance Heatmap", experiment_name, run_id)
 
     #plt.show()
     plt.close(fig)
@@ -315,7 +317,10 @@ def dtw_map_all(stocks, run, experiment_name):
                     # if Parameters.enable_mlflow:
                     #     mlflow.log_param(f"dwt_path_train_{stock_ticker}_eval_{eval_ticker}",path)
 
-    plot_dtw_matrix(distance_matrix,stock_tickers,experiment_name,run.info.run_id)
+    if Parameters.enable_mlflow:
+        plot_dtw_matrix(distance_matrix,stock_tickers,experiment_name,run.info.run_id)
+    else:
+        plot_dtw_matrix(distance_matrix,stock_tickers,experiment_name,None)
 
 def plot_train_and_eval_df(stocks, experiment_name,run):
     #concat train stocks if more than 1 to train
@@ -332,8 +337,8 @@ def plot_train_and_eval_df(stocks, experiment_name,run):
     })
 
     fig = plt.figure(figsize=(10, 6))
-    plt.plot(merged_df.index, merged_df['Train_Close'], label='Train Close')
-    plt.plot(merged_df.index, merged_df['Eval_Close'], label='Eval Close', linestyle='--')
+    plt.plot(merged_df.index, merged_df['Train_Close'], label=f'Train {stocks.train_stock_tickers} Close')
+    plt.plot(merged_df.index, merged_df['Eval_Close'], label=f'Eval {stocks.eval_stock_tickers} Close', linestyle='--')
 
     plt.xlabel('Row')
     plt.ylabel('Rebased Close Prices')

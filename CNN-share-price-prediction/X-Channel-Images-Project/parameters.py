@@ -85,9 +85,9 @@ class Parameters:
     classification_class_price_down=0
     classification_class_price_up=1
 
-    log_returns = False #1=log return rebased price series else price series
+    log_returns = True #1=log return rebased price series else price series
 
-    enable_mlflow=True
+    enable_mlflow=False
     mlflow_experiment_name = 'gaprisk-concatstocks-2'
     mlflow_experiment_description = "Concat stocks to train v2"
     
@@ -116,7 +116,7 @@ class Parameters:
     # Stock tickers
     train_tickers = ""
     eval_tickers = ""
-    index_ticker = '^SP500-40'
+    #index_ticker = '^SP500-40'
     # start_date = ''
     # end_date = ''
 
