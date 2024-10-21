@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import os
 import sys
+import time
 
 import numpy as np
 import pandas as pd
@@ -18,6 +19,7 @@ from parameters import Parameters
 import load_data
 
 import mlflow
+import ssim_correl_stock_pairs_graph as ssim_correl_stock_pairs_graph
 
 #import scripts
 import importlib as importlib
@@ -171,17 +173,18 @@ def plot_confusion_matrix(conf_matrix, stock_ticker, normalize, experiment_name,
 
 def quick_view_images(images_array, cols_used_count, cols_used, experiment_name, run_id):
     
+    print("cols",cols_used, cols_used_count)
     # Plot the first image of each column
     fig, axes = plt.subplots(nrows=1, ncols=cols_used_count, figsize=(20, 6))
-    for ax in axes:
-        ax.set_aspect('equal')
+    if cols_used_count == 1:
+        axes = [axes]  # Wrap in a list if it's a single Axes object
 
-    #print("shape images array",images_array.shape,"shape image",images_array[0][0][0][0].shape)
+    # Plot the images
     for i in range(cols_used_count):
         axes[i].imshow(images_array[0][0][i][0], cmap='hot')
         axes[i].set_title(f"Column {cols_used[i]} ")
 
-    #average first image of all features
+    # Average the first image of all features
     average_images = []
     for i in range(cols_used_count):
         average_images.append(images_array[0][0][i][0])
@@ -205,6 +208,24 @@ def quick_view_images(images_array, cols_used_count, cols_used, experiment_name,
     #plt.show()
     plt.close(fig)
 
+def plot_table_multiple_image_dtw_distance(image_series_dtw_distance_df, experiment_name, run_id):
+    
+    image_series_dtw_distance_df['Distance'] = image_series_dtw_distance_df['Distance'].apply(lambda x: f'{x:,.1f}')
+    fig, ax = plt.subplots(figsize=(10, 6))  # Set figure size
+    ax.axis('tight')
+    ax.axis('off')
+    table = ax.table(cellText=image_series_dtw_distance_df.values, colLabels=image_series_dtw_distance_df.columns, cellLoc='center', loc='center')
+
+    # Display the table
+    plt.tight_layout()
+    #plt.show()
+
+    if Parameters.enable_mlflow:
+        helper_functions.write_and_log_plt(fig, None, 'DTW_Distance_Stocks', 'DTW_Distance_Stocks', experiment_name, run_id)
+    
+    plt.close(fig)
+
+
 def plot_evaluation_test_graphs(params, train_stack_input, evaluation_test_stack_input,
                               image_series_correlations, image_series_mean_correlation,
                               experiment_name, run_id):
@@ -212,29 +233,45 @@ def plot_evaluation_test_graphs(params, train_stack_input, evaluation_test_stack
     #scatter actual vs predicted
     scatter_diagram_twovar_plot_mean(params.eval_tickers,params.train_tickers,evaluation_test_stack_input, train_stack_input, experiment_name, run_id)
 
-    #plot trained versus test stocks image series mean correlations
-    print("len train_stack_input",len(train_stack_input),"len evaluation_test_stack_input",len(evaluation_test_stack_input))
-    if len(train_stack_input) == len(evaluation_test_stack_input):
-        plot_image_correlations(image_series_correlations, image_series_mean_correlation, experiment_name, run_id)
-        print("trained versus test stocks image series mean correlation",image_series_mean_correlation)
-    else:
-        print(f"Skip Plot Cross-Image Correlations because of size mismatch: Train size {len(train_stack_input)} Eval size {len(evaluation_test_stack_input)}")
+    #plot trained versus test stocks image series mean correlations and cosine similarities
+    #print("len train_stack_input",len(train_stack_input),"len evaluation_test_stack_input",len(evaluation_test_stack_input))
+    # if len(train_stack_input) == len(evaluation_test_stack_input):
+    #     plot_image_correlations(image_series_correlations, image_series_mean_correlation, experiment_name, run_id)
+    #     print("trained versus test stocks image series mean correlation",image_series_mean_correlation)
+    # else:
+    #     print(f"Skip Plot Cross-Image Correlations because of size mismatch: Train size {len(train_stack_input)} Eval size {len(evaluation_test_stack_input)}")
 
-def plot_image_correlations(series_correlations, mean_correlation, experiment_name, run_id):
-    # Plot the correlations
-    fig = plt.figure(figsize=(10, 6))
-    sns.histplot(series_correlations, kde=True, bins=30)
-    plt.axvline(mean_correlation, color='red', linestyle='--', linewidth=2, label=f'Mean: {mean_correlation:.2f}')
-    plt.title('Distribution of Trained vs Test Stocks Input Image Series Correlations')
-    plt.xlabel('Image Correlation Coefficient')
-    plt.ylabel('Frequency')
+# def plot_image_cosine_similarity(series_similarities, mean_similarity, experiment_name, run_id):
+#     # Plot the cos similarity
+#     fig = plt.figure(figsize=(10, 6))
+#     sns.histplot(series_similarities, kde=True, bins=30)
+#     plt.axvline(mean_similarity, color='red', linestyle='--', linewidth=2, label=f'Mean: {mean_similarity:.2f}')
+#     plt.title('Distribution of Trained vs Test Stocks Encoded Image Series Cosine Similarities')
+#     plt.xlabel('Encoded Image Cosine Similarity')
+#     plt.ylabel('Frequency')
 
-    helper_functions.write_and_log_plt(fig, None,
-                                       f"Correlation_Trained_vs_Test_Stocks_Input_Image_Series",
-                                       f"Correlation_Trained_vs_Test_Stocks_Input_Image_Series", experiment_name, run_id)
+#     helper_functions.write_and_log_plt(fig, None,
+#                                        f"Correlation_Trained_vs_Test_Stocks_Encoded_Images_Cosine_Similarity",
+#                                        f"Correlation_Trained_vs_Test_Stocks_Encoded_Images_Cosine_Similarity", experiment_name, run_id)
 
-    #plt.show()
-    plt.close(fig)
+#     #plt.show()
+#     plt.close(fig)
+
+# def plot_image_correlations(series_correlations, mean_correlation, experiment_name, run_id):
+#     # Plot the correlations
+#     fig = plt.figure(figsize=(10, 6))
+#     sns.histplot(series_correlations, kde=True, bins=30)
+#     plt.axvline(mean_correlation, color='red', linestyle='--', linewidth=2, label=f'Mean: {mean_correlation:.2f}')
+#     plt.title('Distribution of Trained vs Test Stocks Encoded Image Series Correlations')
+#     plt.xlabel('Encoded Image Correlation Coefficient')
+#     plt.ylabel('Frequency')
+
+#     helper_functions.write_and_log_plt(fig, None,
+#                                        f"Correlation_Trained_vs_Test_Stocks_Encoded_Images_Correlation",
+#                                        f"Correlation_Trained_vs_Test_Stocks_Encoded_Images_Correlation", experiment_name, run_id)
+
+#     #plt.show()
+#     plt.close(fig)
 
 def plot_merged_log_series(merged_df, experiment_name, run_id):
     fig = plt.figure(figsize=(10, 6))
@@ -260,50 +297,101 @@ def plot_merged_log_series(merged_df, experiment_name, run_id):
     #plt.show()
     plt.close(fig)
 
-def plot_dtw_matrix(distance_matrix, stock_tickers, experiment_name, run_id):
-    print("AT plot_dtw_matrix",distance_matrix)
+def plot_dtw_matrix(distance_matrix, stock_tickers, experiment_name, run_id, title, fname):
     fig = plt.figure(figsize=(16, 8))
-    sns.heatmap(distance_matrix.astype(float), annot=True, cmap='coolwarm', fmt='.2f', xticklabels=stock_tickers, yticklabels=stock_tickers)
-    plt.title('DTW Distance Heatmap')
+    annotations = np.array([[f'{val:,.1f}' for val in row] for row in distance_matrix.values])
+    sns.heatmap(
+        distance_matrix.astype(float), 
+        annot=annotations,  # Use the formatted annotations
+        cmap='coolwarm', 
+        fmt='',  # No formatting here, handled in the annotations
+        xticklabels=stock_tickers, 
+        yticklabels=stock_tickers,
+        annot_kws={"size": 10}
+    )
+    plt.title(title)
     plt.xlabel('Stock Tickers')
     plt.ylabel('Stock Tickers')
-    print("Call Image DTW Map")
 
     if Parameters.enable_mlflow:
         helper_functions.write_and_log_plt(fig, None,
-                                        f"DTW Distance Heatmap",
-                                        f"DTW Distance Heatmap", experiment_name, run_id)
+                                        fname,
+                                        fname, experiment_name, run_id)
 
     #plt.show()
     plt.close(fig)
-    
+
 def plot_train_series_correl(cross_corr_matrix, experiment_name, run_id):
     fig = plt.figure(figsize=(10, 6))
     sns.heatmap(cross_corr_matrix, annot=True, cmap='coolwarm', fmt='.2f')
-    plt.title('Cross-Correlation Matrix Time Series')
+    plt.title('Rebased_Log_Price_Cross-Correlation_Matrix_Time_Series')
 
     helper_functions.write_and_log_plt(fig, None,
-                                       f"Cross_Correlation_Matrix_Time_Series",
-                                       f"Cross_Correlation_Matrix_Close_Time_Series", experiment_name, run_id)
+                                       f"_Rebased_Log_Price_Cross-Correlation_Matrix_Time_Series",
+                                       f"_Rebased_Log_Price_Cross-Correlation_Matrix_Close_Time_Series", experiment_name, run_id)
 
     #plt.show()
     plt.close(fig)
     
 def plot_all_cross_correl_price_series(stocks, run, experiment_name):
-    
     data_close, merged_df = process_price_series.log_rebase_dataset(stocks)
     
     df_close = pd.DataFrame(data_close)
     cross_corr_matrix = df_close.corr(method='spearman')
+
+    # print("logpricecorrel",cross_corr_matrix)
+
+    #extract_correl_matrix_as_df(cross_corr_matrix)
     
     if Parameters.enable_mlflow:
         plot_train_series_correl(cross_corr_matrix, experiment_name, run.info.run_id)
 
-def dtw_map_all(stocks, run, experiment_name):
+def extract_correl_matrix_as_df(cross_corr_matrix):
+    stock_pairs = []
+    
+    for stock_a in cross_corr_matrix.columns:
+        for stock_b in cross_corr_matrix.index:
+            if stock_a != stock_b:  # Optional: If you don't want self-correlations
+                stock_pairs.append([stock_a, stock_b, cross_corr_matrix.loc[stock_a, stock_b]])
+    
+    correl_df = pd.DataFrame(stock_pairs, columns=['Stock_A', 'Stock_B', 'Correlation'])
+    cross_correl_dict = create_correl_dict(correl_df)
+    ssim_correl_stock_pairs_graph.plot_metric_stock_pairs(cross_correl_dict, None, None)
+    #print("crosscorreldict",cross_corr_matrix)
+
+def create_correl_dict(correl_df):
+    correl_dict = {}
+    
+    for index, row in correl_df.iterrows():
+        key = f"Train:{row['Stock_A']}_Eval:{row['Stock_B']}"
+        value = row['Correlation']
+        correl_dict[key] = value
+    
+    return correl_dict
+
+def calc_pair_dtw_distance(stocks, experiment_name,run):
     
     data_close, merged_df = process_price_series.log_rebase_dataset(stocks)
 
-    print("DTW for tickers ",data_close.keys())
+    stock_tickers = stocks.get_all_tickers()
+    
+    for i, stock_ticker in enumerate(stock_tickers):
+        if stock_ticker in data_close:
+            for j, compare_ticker in enumerate(stock_tickers):
+                if compare_ticker in data_close and compare_ticker!=stock_ticker:
+                    distance, path = fastdtw(data_close[stock_ticker], data_close[compare_ticker])
+                    print("ticker1",stock_ticker,"ticker2",compare_ticker,"distance",distance)
+    
+    distance_dict = {"Log_Prices_DTW_Distance":distance}
+    if Parameters.enable_mlflow:
+        mlflow.log_metrics(distance_dict)
+    
+    return distance
+
+def dtw_matrix_logprices(stocks, run, experiment_name):
+    
+    data_close, merged_df = process_price_series.log_rebase_dataset(stocks)
+
     stock_tickers = stocks.get_all_tickers()
     
     distance_matrix = pd.DataFrame(index=stock_tickers, columns=stock_tickers)
@@ -312,15 +400,81 @@ def dtw_map_all(stocks, run, experiment_name):
             for j, compare_ticker in enumerate(stock_tickers):
                 if compare_ticker in data_close:
                     distance, path = fastdtw(data_close[stock_ticker], data_close[compare_ticker])
+                    
                     distance_matrix.iloc[i, j] = distance
                     #print(f"**distance {stock_ticker} vs {compare_ticker}: {distance}, path: {path}")
                     # if Parameters.enable_mlflow:
                     #     mlflow.log_param(f"dwt_path_train_{stock_ticker}_eval_{eval_ticker}",path)
+    #print("****logprice distance matrix",distance_matrix)
+    print("dataclose",data_close.keys())
+    
+    title = 'Rebased Log Price DTW Distance Heatmap (All Same Time Period)'
+    fname = f"Rebased_Log_Price_DTW_Distance_Heatmap_All_Same_Time_Period)"
+
+    #extract_correl_matrix_as_df(distance_matrix)
 
     if Parameters.enable_mlflow:
-        plot_dtw_matrix(distance_matrix,stock_tickers,experiment_name,run.info.run_id)
+        plot_dtw_matrix(distance_matrix,stock_tickers,experiment_name,run.info.run_id, title, fname)
     else:
-        plot_dtw_matrix(distance_matrix,stock_tickers,experiment_name,None)
+        plot_dtw_matrix(distance_matrix,stock_tickers,experiment_name,None, title, fname)
+                                    
+# def dtw_matrix_encoded_images(stock_images_df, stocks, run_id, experiment_name):
+    
+#     print("DTW Correlation Images DF Cols ",stock_images_df.columns,"imagedata",stock_images_df)
+#     stock_tickers = stocks.get_all_tickers()
+#     print("DTW Encoded Images - Stocks",stock_tickers)
+    
+#     distance_matrix = pd.DataFrame(index=stock_tickers, columns=stock_tickers)
+    
+#     for _, row in stock_images_df.iterrows():
+#         train_ticker = row['Train_Ticker']
+#         eval_ticker = row['Eval_Ticker']
+#         distance = row['Distance']
+        
+#         distance_matrix.loc[train_ticker, eval_ticker] = distance
+#         distance_matrix.loc[eval_ticker, train_ticker] = distance  # Mirror the value for symmetric matrix
+    
+#     #populate diagonal
+#     for ticker in stock_tickers:
+#         distance_matrix.loc[ticker, ticker] = 0
+    
+#     print("Distance Matrix:\n", distance_matrix)
+
+#     title = 'Encoded Image DTW Distance Heatmap (All Same Time Period)'
+#     fname = f"Encoded_Image_DTW_Distance_Heatmap_All_Same_Time_Period"
+
+#     if Parameters.enable_mlflow:
+#         plot_dtw_matrix(distance_matrix,stock_tickers,experiment_name,run_id, title, fname)
+#     else:
+#         plot_dtw_matrix(distance_matrix,stock_tickers,experiment_name,None, title, fname)
+
+# def plot_encoded_image_correl_matrix(correl_df, experiment_name, run_id):
+#     stocks = sorted(set(correl_df['Train_Stock']).union(set(correl_df['Eval_Stock'])))
+#     correl_matrix = pd.DataFrame(index=stocks, columns=stocks)
+
+#     # Populate the correlation matrix with Image_Correl values
+#     for _, row in correl_df.iterrows():
+#         train_stock, eval_stock, correl = row['Train_Stock'], row['Eval_Stock'], row['Image_Correl']
+#         correl_matrix.at[train_stock, eval_stock] = correl
+#         correl_matrix.at[eval_stock, train_stock] = correl
+
+#     # Fill diagonal with 1 (self-correlation)
+#     for stock in stocks:
+#         correl_matrix.at[stock, stock] = 1
+
+#     # Convert the correlation matrix to float type and fill missing values with NaN or zeros if needed
+#     correl_matrix = correl_matrix.astype(float).fillna(0)
+
+#     # Plot the heatmap
+#     fig = plt.figure(figsize=(16, 8))
+#     sns.heatmap(correl_matrix, annot=True, cmap='coolwarm', linewidths=0.5)
+#     plt.title('Encoded Images Correlation Matrix For Train - Eval Stocks')
+#     plt.savefig('encoded_img_correl_matrix.png', dpi=300)
+    
+#     helper_functions.write_and_log_plt(fig, None,
+#                                        f"Rebased_Log_Price_Encoded_Images_Cross-Correlation_Matrix_Time_Series",
+#                                        f"Rebased_Log_Price_Encoded_Images_Cross-Correlation_Matrix_Close_Time_Series", experiment_name, run_id)
+#     #plt.show()
 
 def plot_train_and_eval_df(stocks, experiment_name,run):
     #concat train stocks if more than 1 to train

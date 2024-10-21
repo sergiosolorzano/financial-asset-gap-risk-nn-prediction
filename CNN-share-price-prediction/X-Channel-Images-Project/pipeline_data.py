@@ -49,22 +49,6 @@ def generate_dataset_to_images_process(stocksobj, stocks, params, test_size, col
 
     stocks_dataset_df, start_indices_cumulative, stock_tickers = load_data.import_dataset(stocks, run, experiment_name)
     
-    #plot_data.plot_concat_price_stocks()
-    # plot price comparison stock vs index when we don't concat stocks
-    # if len(stock_tickers.split(',')) == 1:
-    #     fig = plot_data.plot_price_comparison_stocks(params.index_ticker, stock_tickers, stocks_dataset_df, stocksobj)
-    #     helper_functions.write_and_log_plt(fig, None,
-    #                                     f"price_comp_{params.index_ticker}_vs_{stock_tickers}",
-    #                                     f"price_comp_{params.index_ticker}_vs_{stock_tickers}",experiment_name, getattr(run, 'info', None).run_id if run else None)
-    # else:
-    #     dataset_df_copy = stocks_dataset_df.copy()
-    #     dataset_df_copy = dataset_df_copy.reset_index(drop=True)
-    #     dataset_df_copy['Date'] = range(len(dataset_df_copy))
-    #     fig = plot_data.plot_price_comparison_stocks(dataset_df_copy)
-    #     helper_functions.write_and_log_plt(fig, None,
-    #                                         f"concat_price_comp_{stock_tickers}",
-    #                                         f"concat_price_comp_{stock_tickers}",experiment_name, getattr(run, 'info', None).run_id if run else None)
-    
     if params.log_returns:
         #print("Raw Dataset",stocks_dataset_df)
         log_rebased_df = remap_to_log_returns(stocks_dataset_df, start_indices_cumulative)
@@ -79,6 +63,8 @@ def generate_dataset_to_images_process(stocksobj, stocks, params, test_size, col
         cols_used,
         params.transform_algo, 
         params.transformed_img_sz, 
+        params.window_overlap,
+        params.window_method,
         params.gaf_method, 
         params.gaf_sample_range)
 
@@ -105,4 +91,4 @@ def generate_dataset_to_images_process(stocksobj, stocks, params, test_size, col
                                                 params.batch_size,
                                                 train_shuffle=False)
     
-    return train_loader, test_loader, stocks_dataset_df
+    return train_loader, test_loader, stocks_dataset_df, feature_image_dataset_list_f32

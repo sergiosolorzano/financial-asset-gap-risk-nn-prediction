@@ -46,7 +46,7 @@ from torch.profiler import profile, ProfilerActivity
 # torch.cuda.memory_allocated()
 #track cached mem used by tensors
 #torch.cuda.memory_cached()
-
+  
 class Net(nn.Module):
     def __init__(self, params, device):
         super(Net, self).__init__()
@@ -62,13 +62,15 @@ class Net(nn.Module):
         #num channels input, num channels output, filter size
         self.conv1 = nn.Conv2d(1, params.output_conv_1, params.filter_size_1, params.stride_1)
         self.bn1 = nn.BatchNorm2d(params.output_conv_1)
-        self.relu1 = nn.ReLU() 
+        self.regularization_activation_function_1 = Parameters.regularization_function
+        #self.relu1 = nn.ReLU() 
         #filtersize,stride.
         #maxpool acts the same way in each channel, so doesn't need to be fed the num channels of the input
         self.pool = nn.MaxPool2d(kernel_size=params.filter_size_2, stride = params.stride_2)
         self.conv2 = nn.Conv2d(params.output_conv_1, params.output_conv_2, params.filter_size_3,params.stride_1)
         self.bn2 = nn.BatchNorm2d(params.output_conv_2)
-        self.relu2 = nn.ReLU() 
+        self.regularization_activation_function_2 = Parameters.regularization_function
+        #self.relu2 = nn.ReLU() 
 
         H_out_1, W_out_1 = image_transform.conv_output_shape_dynamic((params.image_resolution_y, params.image_resolution_x), kernel_size=params.filter_size_1,stride=params.stride_1)
         H_out_2, W_out_2 = image_transform.conv_output_shape_dynamic((H_out_1, W_out_1), kernel_size=params.filter_size_2,stride=params.stride_2)
@@ -85,10 +87,12 @@ class Net(nn.Module):
 
         self.fc1 = nn.Linear(params.output_conv_2 * self.conv_output_size, params.output_FC_1)
         self.bn_fc1 = nn.BatchNorm1d(params.output_FC_1)
-        self.relu_fc1 = nn.ReLU()  
+        self.regularization_activation_function_fc1 = Parameters.regularization_function
+        #self.relu_fc1 = nn.ReLU()  
         self.fc2 = nn.Linear(params.output_FC_1, params.output_FC_2)
         self.bn_fc2 = nn.BatchNorm1d(params.output_FC_2)
-        self.relu_fc2 = nn.ReLU()
+        self.regularization_activation_function_fc2 = Parameters.regularization_function
+        #self.relu_fc2 = nn.ReLU()
         self.fc3 = nn.Linear(params.output_FC_2, params.final_FCLayer_outputs)
         
         self.dropout1 = nn.Dropout(params.dropout_probab)
@@ -103,23 +107,27 @@ class Net(nn.Module):
         #BatchNorm after Conv and before Pooling
         x = self.conv1(x)
         x = self.bn1(x)
-        x = self.relu1(x)
+        x = self.regularization_activation_function_1(x)
+        #x = self.relu1(x)
         x = self.pool(x)
         #BatchNorm after Conv and before Pooling
         x = self.conv2(x)
         x = self.bn2(x)
-        x = self.relu2(x)
+        x = self.regularization_activation_function_2(x)
+        #x = self.relu2(x)
         x = self.pool(x)
         x = x.view(-1, self.output_conv_2 * self.conv_output_size)
         #BatchNorm after FC and before Dropout
         x = self.fc1(x)
         x = self.bn_fc1(x)
-        x = self.relu_fc1(x) 
+        x = self.regularization_activation_function_fc1(x)
+        #x = self.relu_fc1(x) 
         if self.dropout_probab>0: x = self.dropout1(x)
         #BatchNorm after FC and before Dropout
         x = self.fc2(x)
         x = self.bn_fc2(x)
-        x = self.relu_fc2(x)
+        x = self.regularization_activation_function_fc2(x)
+        #x = self.relu_fc2(x)
         if self.dropout_probab>0: x = self.dropout2(x)
         x = self.fc3(x)
         
@@ -147,9 +155,7 @@ def print_layer_weights(model):
             print(f"{name}: {param.numel()} weights")
 
 def instantiate_net(params, device):
-    
     net = Net(params, device)
-    
     net.to(device)
     net.parameters()
     # print("Model on CUDA",next(net.parameters()).is_cuda)
@@ -194,7 +200,8 @@ def Report_profiler(prof, profiler_key_averages, epoch):
         print(f"GPU {gpu.id}: {gpu.load * 100}% utilized")
         mlflow.log_param("gpu_utilization", gpu.load * 100)
 
-def Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name):
+def Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name,
+                   net):
     #end of training    
     print_mssg = f"End of Training: Cum Loss: {epoch_cum_loss} at {epoch}.<p>"
     print(print_mssg)
@@ -214,10 +221,27 @@ def Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, tr
         mlflow.log_metric("epoch_cum_loss",epoch_cum_loss,step=epoch)
         mlflow.log_param(f"last_epoch", epoch)
         mlflow.log_param(f"best_final_cum_loss", best_cum_loss)
+                                            
+    helper_functions.save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, epoch_cum_loss, net, run_id, experiment_name)
 
-    helper_functions.save_checkpoint_model(best_cum_loss_epoch, run_id, experiment_name)
+def instantiate_optimizer_and_scheduler(net, params):
+    if Parameters.run_adamw:
+        Parameters.optimizer = optimizer = adamw.AdamW(net.parameters(), lr=params.learning_rate, weight_decay=Parameters.adamw_weight_decay)
+        scheduler = cyclic_scheduler.CyclicLRWithRestarts(optimizer, Parameters.batch_size, params.num_epochs_input, restart_period=Parameters.adamw_scheduler_restart_period, t_mult=Parameters.adamw_scheduler_t_mult, policy=Parameters.adamw_scheduler_cyclic_policy)
+    else:
+        if Parameters.optimizer_type == "Adam":
+            Parameters.optimizer = optimizer = optim.Adam(net.parameters(), lr=params.learning_rate)
+        elif Parameters.optimizer_type == "SGD":
+            Parameters.optimizer = optimizer = optim.SGD(net.parameters(), lr=params.learning_rate, momentum=params.momentum)
+    
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode=params.lr_scheduler_mode, patience=params.lr_scheduler_patience)
+    
+    return optimizer, scheduler
 
 def Train(params, train_loader, net, run_id, experiment_name, device):
+
+    #enable grad
+    torch.set_grad_enabled(True)
 
     inputs_list = []
 
@@ -241,17 +265,19 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
     #criterion = nn.CrossEntropyLoss()
     criterion = Parameters.function_loss
 
-    if Parameters.run_adamw:
-        optimizer = adamw.AdamW(net.parameters(), lr=params.learning_rate, weight_decay=Parameters.adamw_weight_decay)
-        scheduler = cyclic_scheduler.CyclicLRWithRestarts(optimizer, Parameters.batch_size, params.num_epochs_input, restart_period=Parameters.adamw_scheduler_restart_period, t_mult=Parameters.adamw_scheduler_t_mult, policy=Parameters.adamw_scheduler_cyclic_policy)
-    else:
-        if Parameters.optimizer == "Adam":
-            optimizer = optim.Adam(net.parameters(), lr=params.learning_rate)
-        elif Parameters.optimizer == "SGD":
-            optimizer = optim.SGD(net.parameters(), lr=params.learning_rate, momentum=params.momentum)
+    # if Parameters.run_adamw:
+    #     Parameters.optimizer = optimizer = adamw.AdamW(net.parameters(), lr=params.learning_rate, weight_decay=Parameters.adamw_weight_decay)
+    #     scheduler = cyclic_scheduler.CyclicLRWithRestarts(optimizer, Parameters.batch_size, params.num_epochs_input, restart_period=Parameters.adamw_scheduler_restart_period, t_mult=Parameters.adamw_scheduler_t_mult, policy=Parameters.adamw_scheduler_cyclic_policy)
+    # else:
+    #     if Parameters.optimizer_type == "Adam":
+    #         Parameters.optimizer = optimizer = optim.Adam(net.parameters(), lr=params.learning_rate)
+    #     elif Parameters.optimizer_type == "SGD":
+    #         Parameters.optimizer = optimizer = optim.SGD(net.parameters(), lr=params.learning_rate, momentum=params.momentum)
     
-        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode=params.lr_scheduler_mode, patience=params.lr_scheduler_patience)
+    #     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode=params.lr_scheduler_mode, patience=params.lr_scheduler_patience)
     
+    optimizer, scheduler = instantiate_optimizer_and_scheduler(net, params)
+
     # profiler = torch.profiler.profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True)
     # profiler.start()
     
@@ -273,6 +299,8 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
 
             #non_blocking combined with dataloader pin_memory for simultaneous transfer&computation
             inputs, labels = data[0].to(device, non_blocking=True), data[1].to(device, non_blocking=True)
+            #print(f"Inputs shape: {inputs.shape}")
+            #print(f"Labels shape: {labels.shape}")
 
             if Parameters.nn_predict_price==False:
                 labels = labels.flatten().long()
@@ -358,7 +386,10 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
             best_checkpoint_cum_loss = epoch_cum_loss
             best_cum_loss_epoch = epoch
             best_cum_loss = epoch_cum_loss
-            helper_functions.update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net.state_dict(), optimizer.state_dict(), epoch_cum_loss)
+            helper_functions.update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), epoch_cum_loss)
+
+        if epoch != 0 and epoch % Parameters.save_model_at_epoch_multiple == 0:
+            helper_functions.save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, epoch_cum_loss, net, run_id, experiment_name)
         
         #exit if below loss threshold
         #print(f"Comparing Stop - Cum Loss {epoch_cum_loss} Vs {params.loss_stop_threshold}")
@@ -369,7 +400,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
             
             #profiler.stop()
 
-            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name)
+            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name, net)
 
             #return net, model_signature, stack_input
             return net, model_signature if 'model_signature' in locals() else None or None, stack_input
@@ -382,14 +413,14 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
             
             #profiler.stop()
             
-            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name)
+            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name, net)
 
             return net, model_signature if 'model_signature' in locals() else None, stack_input
         
         if Parameters.run_adamw:
             scheduler_param_group= scheduler.batch_step()
-            print("Getting Learning Rate ", scheduler_param_group['lr'])
-            print("Getting weight decay", scheduler_param_group['weight_decay'])
+            print("AdamW - Getting Learning Rate ", scheduler_param_group['lr'])
+            print("AdamW - Getting weight decay", scheduler_param_group['weight_decay'])
             epoch_metrics = {f"epoch_cum_loss": epoch_cum_loss.item(),
                         f"last_lr": scheduler_param_group['lr']}
         else:
@@ -416,7 +447,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
     #end training without reaching loss_threshold
     #profiler.stop()
 
-    Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name)
+    Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name, net)
     
     torch.set_printoptions()
 
@@ -524,11 +555,11 @@ def Test(test_loader, net, stock_ticker, device, experiment_name, run):
     # log metrics
     if Parameters.enable_mlflow:
         if Parameters.nn_predict_price:
-            accuracy_metrics = {f"{stock_ticker}_accuracy_2dp_score": correct_2dp_score.double().item(),
-                    f"{stock_ticker}_accuracy_1dp_score": correct_1dp_score.double().item(),
-                    f"{stock_ticker}_error_pct_outside_iqr": error_pct_outside_iqr}
+            accuracy_metrics = {f"accuracy_2dp_score": correct_2dp_score.double().item(),
+                    f"accuracy_1dp_score": correct_1dp_score.double().item(),
+                    f"error_pct_outside_iqr": error_pct_outside_iqr}
         else:
-            accuracy_metrics = {f"{stock_ticker}_accuracy_classification_score": correct_classification_score.double().item()}
+            accuracy_metrics = {f"accuracy_classification_score": correct_classification_score.double().item()}
         
         mlflow.log_metrics(accuracy_metrics)
     

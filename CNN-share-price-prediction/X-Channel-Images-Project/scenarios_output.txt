@@ -54103,3 +54103,461 @@ Accuracy 1dp: 44.642860412597656%
 ('Accuracy 2dp: 1.7578125%\nAccuracy 1dp: 16.796875%\n', 'Classification Accuracy: 0%\n')
 
 ('Accuracy 2dp: 2.455357313156128%\nAccuracy 1dp: 24.330358505249023%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.25%\nAccuracy 1dp: 12.5%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 25.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.25%\nAccuracy 1dp: 11.25%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 12.5%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.25%\nAccuracy 1dp: 12.5%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 3.125%\nAccuracy 1dp: 25.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 37.5%\nAccuracy 1dp: 100.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 37.5%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 43.75%\nAccuracy 1dp: 100.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 12.5%\nAccuracy 1dp: 43.75%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 6.25%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 12.5%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 25.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 12.5%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 6.25%\nAccuracy 1dp: 18.75%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 6.25%\nAccuracy 1dp: 25.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 15.625%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 15.625%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 3.125%\nAccuracy 1dp: 18.75%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 25.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 9.375%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 9.375%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 9.375%\nAccuracy 1dp: 25.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 9.375%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 3.125%\nAccuracy 1dp: 12.5%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 9.375%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 0.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.0161290168762207%\nAccuracy 1dp: 17.137096405029297%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.2096773386001587%\nAccuracy 1dp: 16.935482025146484%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.4112902879714966%\nAccuracy 1dp: 17.338708877563477%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.8064515590667725%\nAccuracy 1dp: 12.096774101257324%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.4112902879714966%\nAccuracy 1dp: 19.15322494506836%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.0161290168762207%\nAccuracy 1dp: 13.911290168762207%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.6209676265716553%\nAccuracy 1dp: 18.145160675048828%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.4193546772003174%\nAccuracy 1dp: 18.54838752746582%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.332089424133301%\nAccuracy 1dp: 19.96268653869629%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.8145160675048828%\nAccuracy 1dp: 17.137096405029297%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.8145160675048828%\nAccuracy 1dp: 17.338708877563477%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.4112902879714966%\nAccuracy 1dp: 13.709676742553711%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.2177419662475586%\nAccuracy 1dp: 28.629032135009766%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.4193546772003174%\nAccuracy 1dp: 23.387094497680664%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.9166669845581055%\nAccuracy 1dp: 26.666667938232422%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.0833334922790527%\nAccuracy 1dp: 32.083335876464844%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.2500001192092896%\nAccuracy 1dp: 32.91666793823242%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.2500001192092896%\nAccuracy 1dp: 15.833334922790527%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 3.750000238418579%\nAccuracy 1dp: 18.750001907348633%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 3.750000238418579%\nAccuracy 1dp: 21.25%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.0833334922790527%\nAccuracy 1dp: 14.166667938232422%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.2500001192092896%\nAccuracy 1dp: 13.75%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.6666667461395264%\nAccuracy 1dp: 23.333335876464844%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.3392858505249023%\nAccuracy 1dp: 19.196430206298828%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.232142925262451%\nAccuracy 1dp: 17.410715103149414%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 11.160715103149414%\nAccuracy 1dp: 70.98214721679688%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 3.5714287757873535%\nAccuracy 1dp: 38.83928680419922%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 8.928571701049805%\nAccuracy 1dp: 78.5714340209961%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.357143402099609%\nAccuracy 1dp: 37.500003814697266%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 3.125%\nAccuracy 1dp: 18.750001907348633%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 3.125%\nAccuracy 1dp: 22.321430206298828%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.8928571939468384%\nAccuracy 1dp: 20.08928680419922%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.8928571939468384%\nAccuracy 1dp: 14.73214340209961%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 3.5714287757873535%\nAccuracy 1dp: 24.553573608398438%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.3392858505249023%\nAccuracy 1dp: 20.08928680419922%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.4464285969734192%\nAccuracy 1dp: 11.60714340209961%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.232142925262451%\nAccuracy 1dp: 10.714286804199219%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.8928571939468384%\nAccuracy 1dp: 9.821429252624512%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 7.142857551574707%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.3392858505249023%\nAccuracy 1dp: 9.821429252624512%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.7857143878936768%\nAccuracy 1dp: 12.946430206298828%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.4464285969734192%\nAccuracy 1dp: 9.375000953674316%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.3392858505249023%\nAccuracy 1dp: 12.5%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.4166666865348816%\nAccuracy 1dp: 11.25%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.2500001192092896%\nAccuracy 1dp: 10.833333969116211%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.761904716491699%\nAccuracy 1dp: 52.38095474243164%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.761904716491699%\nAccuracy 1dp: 33.333335876464844%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.761904716491699%\nAccuracy 1dp: 61.904762268066406%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 14.285715103149414%\nAccuracy 1dp: 33.333335876464844%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 28.571430206298828%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 14.285715103149414%\nAccuracy 1dp: 19.047618865966797%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.761904716491699%\nAccuracy 1dp: 14.285715103149414%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.761904716491699%\nAccuracy 1dp: 9.523809432983398%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 9.523809432983398%\nAccuracy 1dp: 52.38095474243164%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.761904716491699%\nAccuracy 1dp: 19.047618865966797%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 23.809524536132812%\nAccuracy 1dp: 100.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.761904716491699%\nAccuracy 1dp: 28.571430206298828%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 33.333335876464844%\nAccuracy 1dp: 100.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 19.047618865966797%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 6.6666669845581055%\nAccuracy 1dp: 64.44444274902344%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 19.047618865966797%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 6.6666669845581055%\nAccuracy 1dp: 55.55555725097656%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.761904716491699%\nAccuracy 1dp: 19.047618865966797%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 28.571430206298828%\nAccuracy 1dp: 100.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 19.047618865966797%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.357143402099609%\nAccuracy 1dp: 63.83928680419922%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 3.125%\nAccuracy 1dp: 20.535715103149414%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 8.035715103149414%\nAccuracy 1dp: 67.85714721679688%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.232142925262451%\nAccuracy 1dp: 15.178571701049805%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 11.60714340209961%\nAccuracy 1dp: 71.87500762939453%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 3.5714287757873535%\nAccuracy 1dp: 40.625003814697266%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 14.285715103149414%\nAccuracy 1dp: 100.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.761904716491699%\nAccuracy 1dp: 23.809524536132812%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 14.285715103149414%\nAccuracy 1dp: 100.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 28.571430206298828%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 19.047618865966797%\nAccuracy 1dp: 100.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 23.809524536132812%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 14.285715103149414%\nAccuracy 1dp: 90.47618865966797%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 9.523809432983398%\nAccuracy 1dp: 28.571430206298828%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 14.285715103149414%\nAccuracy 1dp: 76.19047546386719%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 14.285715103149414%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 23.809524536132812%\nAccuracy 1dp: 100.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.761904716491699%\nAccuracy 1dp: 19.047618865966797%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 19.047618865966797%\nAccuracy 1dp: 100.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 19.047618865966797%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 14.285715103149414%\nAccuracy 1dp: 75.4464340209961%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.357143402099609%\nAccuracy 1dp: 29.46428680419922%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 14.73214340209961%\nAccuracy 1dp: 71.42857360839844%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.232142925262451%\nAccuracy 1dp: 29.017860412597656%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 15.0390625%\nAccuracy 1dp: 88.4765625%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.3392858505249023%\nAccuracy 1dp: 21.428573608398438%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 14.453125%\nAccuracy 1dp: 91.015625%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.7857143878936768%\nAccuracy 1dp: 27.678573608398438%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 11.25%\nAccuracy 1dp: 71.625%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.232142925262451%\nAccuracy 1dp: 38.392860412597656%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 8.25%\nAccuracy 1dp: 67.875%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.017857551574707%\nAccuracy 1dp: 33.48214340209961%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 6.624999523162842%\nAccuracy 1dp: 52.875%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.8928571939468384%\nAccuracy 1dp: 24.10714340209961%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 6.25%\nAccuracy 1dp: 48.75%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 1.3392858505249023%\nAccuracy 1dp: 26.33928680419922%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 26.086956024169922%\nAccuracy 1dp: 100.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 42.85714340209961%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 13.043478012084961%\nAccuracy 1dp: 30.434783935546875%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.761904716491699%\nAccuracy 1dp: 33.333335876464844%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 27.536231994628906%\nAccuracy 1dp: 97.10144805908203%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 9.523809432983398%\nAccuracy 1dp: 33.333335876464844%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 11.594202995300293%\nAccuracy 1dp: 82.60870361328125%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.761904716491699%\nAccuracy 1dp: 23.809524536132812%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.25%\nAccuracy 1dp: 43.75%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.017857551574707%\nAccuracy 1dp: 24.553573608398438%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 28.947368621826172%\nAccuracy 1dp: 100.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 33.333335876464844%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 38.70967483520508%\nAccuracy 1dp: 96.7741928100586%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 10.0%\nAccuracy 1dp: 20.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 11.016949653625488%\nAccuracy 1dp: 83.89830780029297%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 36.11111068725586%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.75%\nAccuracy 1dp: 61.25%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.232142925262451%\nAccuracy 1dp: 28.125%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 11.016949653625488%\nAccuracy 1dp: 74.5762710571289%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 25.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 8.474576950073242%\nAccuracy 1dp: 82.20338439941406%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 25.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.93220329284668%\nAccuracy 1dp: 78.81356048583984%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 27.77777862548828%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 6.779661178588867%\nAccuracy 1dp: 73.72881317138672%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 8.333333969116211%\nAccuracy 1dp: 30.55555534362793%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 11.016949653625488%\nAccuracy 1dp: 73.72881317138672%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 38.88888931274414%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.93220329284668%\nAccuracy 1dp: 84.74576568603516%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 30.55555534362793%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.084745407104492%\nAccuracy 1dp: 66.94915008544922%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 25.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 8.474576950073242%\nAccuracy 1dp: 70.33898162841797%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 30.55555534362793%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 10.169490814208984%\nAccuracy 1dp: 62.71186447143555%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 30.55555534362793%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 12.711864471435547%\nAccuracy 1dp: 69.49152374267578%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 36.11111068725586%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 8.474576950073242%\nAccuracy 1dp: 76.27118682861328%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 16.666667938232422%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 11.016949653625488%\nAccuracy 1dp: 78.81356048583984%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 25.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.93220329284668%\nAccuracy 1dp: 66.94915008544922%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 25.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.93220329284668%\nAccuracy 1dp: 58.47457504272461%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 45.76271057128906%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.555555820465088%\nAccuracy 1dp: 25.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.084745407104492%\nAccuracy 1dp: 56.779659271240234%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.237288475036621%\nAccuracy 1dp: 50.84745788574219%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 4.237288475036621%\nAccuracy 1dp: 52.5423698425293%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 8.474576950073242%\nAccuracy 1dp: 60.16949462890625%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.93220329284668%\nAccuracy 1dp: 60.16949462890625%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.93220329284668%\nAccuracy 1dp: 45.76271057128906%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.084745407104492%\nAccuracy 1dp: 52.5423698425293%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.93220329284668%\nAccuracy 1dp: 59.32203674316406%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 27.77777862548828%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.542372703552246%\nAccuracy 1dp: 50.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 25.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 10.169490814208984%\nAccuracy 1dp: 55.93220520019531%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 33.333335876464844%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.084745407104492%\nAccuracy 1dp: 46.610172271728516%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 3.3898305892944336%\nAccuracy 1dp: 58.47457504272461%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 3.3898305892944336%\nAccuracy 1dp: 47.45762634277344%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.93220329284668%\nAccuracy 1dp: 54.23728942871094%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 10.169490814208984%\nAccuracy 1dp: 61.86440658569336%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 6.49350643157959%\nAccuracy 1dp: 71.42857360839844%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 8.333333969116211%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 16.666667938232422%\nAccuracy 1dp: 75.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 22.22222328186035%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 8.333333969116211%\nAccuracy 1dp: 61.11111068725586%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 36.11111068725586%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 72.22222137451172%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 13.88888931274414%\nAccuracy 1dp: 66.66667175292969%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.555555820465088%\nAccuracy 1dp: 77.77777862548828%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 11.111111640930176%\nAccuracy 1dp: 77.77777862548828%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.555555820465088%\nAccuracy 1dp: 75.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.555555820465088%\nAccuracy 1dp: 75.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 33.333335876464844%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 11.111111640930176%\nAccuracy 1dp: 72.22222137451172%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 8.333333969116211%\nAccuracy 1dp: 83.33332824707031%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 13.88888931274414%\nAccuracy 1dp: 77.77777862548828%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 13.88888931274414%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 2.777777910232544%\nAccuracy 1dp: 22.22222328186035%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 5.555555820465088%\nAccuracy 1dp: 16.666667938232422%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 11.111111640930176%\nAccuracy 1dp: 25.0%\n', 'Classification Accuracy: 0%\n')
+
+('Accuracy 2dp: 0.0%\nAccuracy 1dp: 13.88888931274414%\n', 'Classification Accuracy: 0%\n')
