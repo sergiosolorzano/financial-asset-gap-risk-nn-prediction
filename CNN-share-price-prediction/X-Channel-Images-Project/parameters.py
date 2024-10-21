@@ -31,8 +31,8 @@ class StockParams:
         self.eval_stocks = []
         self.train_stock_tickers = ""
         self.eval_stock_tickers = ""
-        # self.start_date = ''
-        # self.end_date = ''
+        self.train_count = 0
+        self.eval_count = 0
 
     def add_train_stock(self, ticker, start_date, end_date):
         stock_info = {
@@ -41,6 +41,7 @@ class StockParams:
             'end_date': end_date
         }
         self.train_stocks.append(stock_info)
+        self.train_count +=1
 
     def add_eval_stock(self, ticker, start_date, end_date):
         stock_info = {
@@ -49,6 +50,7 @@ class StockParams:
             'end_date': end_date
         }
         self.eval_stocks.append(stock_info)
+        self.eval_count +=1
 
     def get_train_stocks(self):
         return self.train_stocks
@@ -80,6 +82,11 @@ class StockParams:
 #init parameters
 class Parameters:
     matplotlib_use = "Agg"
+    run_iter = False
+
+    train = True
+    load_checkpoint_for_eval = True
+
     scenario = 0 #local txt logging param
     nn_predict_price = 1 #0=classification;1=regression
     classification_class_price_down=0
@@ -87,9 +94,10 @@ class Parameters:
 
     log_returns = True #1=log return rebased price series else price series
 
-    enable_mlflow=False
-    mlflow_experiment_name = 'gaprisk-concatstocks-2'
-    mlflow_experiment_description = "Concat stocks to train v2"
+    enable_mlflow=True
+    mlflow_experiment_name = 'gaprisk-compare-dtw-ssmi-pred'
+    mlflow_experiment_description = "Comparison DTW Distances, Structural Similarities, Network Prediction"
+    run_id = None
     
     brute_force_filename = 'brute_force_results.md'
     mlflow_credentials_fname = 'mlflow-creds.json'
@@ -113,16 +121,13 @@ class Parameters:
     full_model_dir = 'models/full_models'
     model_arch_dir = 'models/architecture_models'
 
-    # Stock tickers
+    # ticker lists
     train_tickers = ""
     eval_tickers = ""
-    #index_ticker = '^SP500-40'
-    # start_date = ''
-    # end_date = ''
 
-    #cols used
-    training_cols_used = ["Open", "High", "Low", "Close"]
-    evaluation_test_cols_used = ["Open", "High"]
+    #price data cols used
+    training_cols_used = ["Close"] #, open, high, "Low", "Close"
+    evaluation_test_cols_used = ["Close"] #, open, "High"
 
     # Time series to image transformation algorithm: GRAMIAN 1; MARKOV 2
     transform_algo_type = 1
@@ -134,23 +139,25 @@ class Parameters:
     gaf_method = "summation"
     transformed_img_sz = 32
     gaf_sample_range = (-1, 0.5)
+    window_method = 2 # 1=overlapping , 2=myoverlap, 3 use full windowing
+    window_overlap = 25 #overlapping datapoints at the beginning of window between windows 
     
     # label scaler applied to labels only for both GRAMIAN/MARKOV
     scaler = StandardScaler()
     min_max_scaler_feature_range = (-1, 0) #for MinMaxScaler()
 
     # Training's test size
-    training_test_size = 0.5 #50% to capture two full features
-    evaluation_test_size = 1
+    training_test_size = 0 #50% of first feature/s, 50% of the next
+    evaluation_test_size = 1 #100% of the feature
 
     model_name ='LeNet-5 Based Net'
     # Default hyperparameters
-    filter_size_1 = (2, 3)
-    filter_size_2 = (2, 2)
-    filter_size_3 = (2, 3)
+    filter_size_1 = (1, 1)#(2, 3)
+    filter_size_2 = (2, 2)#(2,2)
+    filter_size_3 = (2,3)#(2, 3)
 
     stride_1 = 1
-    stride_2 = 2
+    stride_2 = 1#2
 
     output_conv_1 = 40
     output_conv_2 = 12
@@ -170,17 +177,20 @@ class Parameters:
     dropout_probab = 0
 
     batch_size = 16
+    batch_train_drop_last = False
+    batch_eval_drop_last = False
     num_workers = 0
 
-    num_epochs_input = 20000
+    num_epochs_input = 10000
 
-    best_checkpoint_cum_loss = 0.002
+    best_checkpoint_cum_loss = 0.2
     min_best_cum_loss = torch.tensor(2.5, device=device, dtype=torch.float64)
+    save_model_at_epoch_multiple = 50000
 
-    loss_stop_threshold = 0.000001
+    loss_stop_threshold = 0.000001#0.00005
 
     #adamw optimizer and cyclic scheduler
-    run_adamw = False
+    run_adamw = True
     adamw_weight_decay = 0.00001
     adamw_scheduler_cyclic_policy = "cosine" #["cosine", "arccosine", "triangular", "triangular2", "exp_range"]
     adamw_scheduler_restart_period = 5 #epoch count in the first restart period
@@ -210,8 +220,18 @@ class Parameters:
             }
     
     if nn_predict_price:
-        function_loss = nn.MSELoss()
+        #function_loss = nn.MSELoss()
+        function_loss = nn.L1Loss()
     else:
         function_loss = nn.CrossEntropyLoss()
 
-    optimizer = "SGD" #SGD or Adam if adamw=False, else adamw
+    optimizer_type = "Adam" #SGD or Adam if adamw=False, else adamw
+    optimizer = None
+
+    #regularization activation funcs
+    use_relu = False
+    regularization_function = nn.ReLU()
+    if use_relu:
+        regularization_function = nn.ReLU()
+    else:
+        regularization_function = nn.SiLU()

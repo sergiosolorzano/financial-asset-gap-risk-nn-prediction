@@ -104,11 +104,11 @@ class DataPrep(Dataset):
         test_sampler = SequentialSampler(test_subset)
 
         if(self.num_workers>0):
-            train_loader = DataLoader(dataset, batch_size=batch_size, sampler=train_sampler,shuffle=train_shuffle, pin_memory=True, num_workers=self.num_workers,prefetch_factor=int(self.num_workers/2),persistent_workers=True)#
-            test_loader = DataLoader(dataset, batch_size=batch_size, sampler=test_sampler, pin_memory=True, num_workers=self.num_workers,prefetch_factor=int(self.num_workers/2),persistent_workers=True)#,prefetch_factor=4,persistent_workers=True
+            train_loader = DataLoader(dataset, batch_size=batch_size, sampler=train_sampler,shuffle=train_shuffle, pin_memory=True, num_workers=self.num_workers,prefetch_factor=int(self.num_workers/2),persistent_workers=True, drop_last = Parameters.batch_train_drop_last)
+            test_loader = DataLoader(dataset, batch_size=batch_size, sampler=test_sampler, pin_memory=True, num_workers=self.num_workers,prefetch_factor=int(self.num_workers/2),persistent_workers=True, drop_last = Parameters.batch_eval_drop_last)#,prefetch_factor=4,persistent_workers=True
         else:
-            train_loader = DataLoader(dataset, batch_size=batch_size, sampler=train_sampler,shuffle=train_shuffle, pin_memory=True, num_workers=0)
-            test_loader = DataLoader(dataset, batch_size=batch_size, sampler=test_sampler, pin_memory=True, num_workers=0)#,prefetch_factor=4,persistent_workers=True
+            train_loader = DataLoader(dataset, batch_size=batch_size, sampler=train_sampler,shuffle=train_shuffle, pin_memory=True, num_workers=0, drop_last = Parameters.batch_train_drop_last)
+            test_loader = DataLoader(dataset, batch_size=batch_size, sampler=test_sampler, pin_memory=True, num_workers=0, drop_last = Parameters.batch_eval_drop_last)#,prefetch_factor=4,persistent_workers=True
         #for e in train_loader:
             #print("train loader ele",e)
 

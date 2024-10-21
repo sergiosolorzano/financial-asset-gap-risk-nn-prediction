@@ -26,6 +26,7 @@ import importlib as importlib
 import plot_data as plot_data
 
 from parameters import Parameters
+import neural_network as neural_network
 
 matplotlib.use(Parameters.matplotlib_use)
 
@@ -70,7 +71,8 @@ def Save_Model_Arch(net, run_id, input_shape, input_type, mode, experiment_name)
         mlflow.log_artifact(local_path="./" + model_arch_fname_with_dir, run_id=run_id, artifact_path=Parameters.model_arch_dir)
 
 def update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net_state_dict, opti_state_dict, epoch_loss):
-    print("***update_best_checkpoint_dict epoch",best_cum_loss_epoch, "epoch loss", epoch_loss)
+    print("Update checkpoint_dict epoch",best_cum_loss_epoch, "epoch loss", epoch_loss.item())
+    #print("opti_state_dict",opti_state_dict)
     Parameters.checkpt_dict = {
             'run_id': run_id,
             'epoch': best_cum_loss_epoch,
@@ -79,8 +81,12 @@ def update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net_state_dict, opt
             'loss': epoch_loss,
             }
 
-def save_checkpoint_model(best_cum_loss_epoch, run_id, experiment_name):
+def save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, curr_epoch_cum_loss, net, run_id, experiment_name):
+    print("Saving model best loss", best_cum_loss.item(), "at Epoch ", best_cum_loss_epoch)
     model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}.pth'
+    if Parameters.checkpt_dict['optimizer_state_dict'] == None:
+        print("***Updating checkpoint dict cos it's NONE", Parameters.checkpt_dict['optimizer_state_dict'])
+        update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), curr_epoch_cum_loss)
     torch.save(Parameters.checkpt_dict, "./" + model_checkpoint_fname_with_dir)
     
     if Parameters.enable_mlflow:
@@ -104,6 +110,26 @@ def save_full_model(run_id, net, model_signature, experiment_name):
         signature=model_signature)
         #mlflow.pytorch.log_model(net, blob_with_dirs,pip_requirements=pip_requirements, signature=model_signature)
 
+def load_checkpoint_model(net, device):
+    #load checkpoint
+    model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}.pth'
+    checkpoint = torch.load(model_checkpoint_fname_with_dir, map_location=device)
+    #load state dict and optimizer
+    #print("***At Load checkpoing",checkpoint['model_state_dict'])
+    net.load_state_dict(checkpoint['model_state_dict'])
+    #instantiate optimizer used to train the model (ensure opt is correct in params)
+    neural_network.instantiate_optimizer_and_scheduler(net, Parameters)
+    #load weights
+    Parameters.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+
+    #if further training required
+    epoch = checkpoint['epoch']
+    loss = checkpoint['loss']
+    
+    print(f"Loaded checkpoint from {model_checkpoint_fname_with_dir}, epoch: {epoch}, loss: {loss}")
+    
+    return net, epoch, loss
+
 # def Load_State_Model(net, PATH):
 #     print("Loading State Model")
 #     net.load_state_dict(torch.load(PATH))
@@ -124,7 +150,7 @@ def save_full_model(run_id, net, model_signature, experiment_name):
 #         file.write('')
 
 def Scenario_Log(output_string):
-    with open(f'scenarios_output.txt', 'a') as file:
+    with open(f'dtw_distances.txt', 'a') as file:
         file.write('\n\n' + output_string)
 
 def Load_BayesOpt_Model(scenario, net):
@@ -187,6 +213,7 @@ def write_and_log_plt(fig, epoch, name, md_name, experiment_name, run_id):
         #mlflow.log_figure(fig, f"{Parameters.brute_force_image_mlflow_dir}/image_{name}.png")
     if Parameters.enable_mlflow:
         blob_with_dirs = f"images/image_{name}_{experiment_name}.png"
+        #print("MLFLOW Image ",blob_with_dirs)
         mlflow.log_figure(fig, blob_with_dirs)
     # else:    
     #     #blob_with_dirs = _credentials.blob_directory + "/" + experiment_name + "/" + run_id + "/" + "images" + "/" + f"image_{name}_epoch_{epoch}.png"

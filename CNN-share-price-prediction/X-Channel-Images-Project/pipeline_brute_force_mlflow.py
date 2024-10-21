@@ -6,6 +6,14 @@ import mlflow.azure
 from sklearn.preprocessing import StandardScaler,MinMaxScaler
 from datetime import datetime
 import torch
+#import numpy as np
+import itertools
+import pandas as pd
+import numpy as np
+
+from fastdtw import fastdtw
+from torchmetrics.functional import structural_similarity_index_measure as ssim
+import torch.nn.functional as F
 
 #import scripts
 import importlib as importlib
@@ -15,6 +23,7 @@ import helper_functions_dir.plot_data as plot_data
 import helper_functions_dir.helper_functions as helper_functions
 import helper_functions_dir.process_price_series as process_price_series
 import helper_functions_dir.credentials as credentials
+import helper_functions_dir.compute_stats as compute_stats
 
 from parameters import Parameters
 from parameters import StockParams
@@ -23,11 +32,13 @@ import pipeline_train as pipeline_train
 import pipeline_test as pipeline_test
 import evaluation_test_pipeline as evaluation_test_pipeline
 
-
 import mlflow
 #context execution for mlflow with statement
 import contextlib
 from torchinfo import summary
+
+ssim_list = {}
+mse_list = {}
 
 def create_comparison_stocks_obj():
     stock_params = StockParams()
@@ -66,16 +77,27 @@ def create_train_eval_stocks_obj():
     stock_params = StockParams()
 
     # run concat
-    stock_params.add_train_stock('SIVBQ', '2021-12-06', '2023-01-25')
-    stock_params.add_train_stock('SICP', '2021-12-06', '2023-01-25')
-    #stock_params.add_train_stock('ALLY', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('CFG', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('PWBK', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('KEY', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('FITB', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('SIVBQ', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('SIVBQ', '2021-12-06', '2023-01-25')
+    # stock_params.add_train_stock('SICP', '2021-12-06', '2023-01-25')
+    # stock_params.add_train_stock('ALLY', '2021-12-06', '2023-01-25')
     # stock_params.add_train_stock('CMA', '2021-12-05', '2023-01-25')
     # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
     
     #scenarios
-    stock_params.add_eval_stock('CUBI', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
+    stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('OZK', '2021-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
+    #stock_params.add_eval_stock('CUBI', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
     #stock_params.add_eval_stock('WAL', '2021-12-06', '2023-01-25') #loss 0.10, acc 34%, r^2 -0.15
-    #stock_params.add_train_stock('SICP', '2021-12-06', '2023-01-25')
+    #stock_params.add_eval_stock('SICP', '2021-12-06', '2023-01-25')
+    #stock_params.add_eval_stock('SIVBQ', '2021-12-06', '2023-01-25')
+    #stock_params.add_eval_stock('ALLY', '2021-12-06', '2023-01-25')
+    #stock_params.add_eval_stock('PWBK', '2021-12-06', '2023-01-25')
 
     #stock_params.add_eval_stock('SICP', '2021-12-06', '2023-01-25')
     #high correl
@@ -93,9 +115,42 @@ def create_train_eval_stocks_obj():
 
     return stock_params
 
-def calc_dwt_and_correl(stocks,run):
+def calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32):
+    train_feature_image_dataset_list_f32_tensor = torch.from_numpy(train_feature_image_dataset_list_f32).unsqueeze(1)
+    #train_feature_image_dataset_list_f32_tensor = train_feature_image_dataset_list_f32_tensor
+    #print("shape tensor unsqueze train",train_feature_image_dataset_list_f32_tensor.shape)
+    test_feature_image_dataset_list_f32_tensor = torch.from_numpy(test_feature_image_dataset_list_f32).unsqueeze(1)
+    #test_feature_image_dataset_list_f32_tensor = test_feature_image_dataset_list_f32_tensor
+    #train_max = torch.max(torch.abs(train_feature_image_dataset_list_f32_tensor)).item()
+    #eval_max = torch.max(torch.abs(test_feature_image_dataset_list_f32_tensor)).item()
+    #data_range=max(train_max, eval_max)
+    data_range = max(torch.max(torch.abs(train_feature_image_dataset_list_f32_tensor)).item(),torch.max(torch.abs(test_feature_image_dataset_list_f32_tensor)).item())
+    ssim_score = ssim(train_feature_image_dataset_list_f32_tensor, test_feature_image_dataset_list_f32_tensor, data_range=data_range)
+    print("ssim_score",ssim_score)
+
+    image_similarity = {"SSIM":ssim_score.item()}
     
-    plot_data.dtw_map_all(stocks, run, Parameters.mlflow_experiment_name)
+    if Parameters.enable_mlflow:
+        mlflow.log_metrics(image_similarity)
+
+    return ssim_score.item()
+
+# def dtw_images(train_images, test_images, train_tickers, eval_tickers):
+
+#     results = []
+    
+#     distance, path = fastdtw(train_images, test_images)
+#     #print("Comparing",stock_ticker,compare_ticker,"data",data_close[stock_ticker][:10],"VS",data_close[compare_ticker][:10])
+#     results.append((train_tickers, eval_tickers, distance))
+    
+#     # Create DataFrame from the results
+#     dtw_image_df = pd.DataFrame(results, columns=['Train_Ticker', 'Eval_Ticker', 'Distance'])
+#     print("****", dtw_image_df)
+#     return dtw_image_df
+
+def calc_dtw_and_correl_logprices(stocks,run):
+    
+    plot_data.dtw_matrix_logprices(stocks, run, Parameters.mlflow_experiment_name)
     
     plot_data.plot_all_cross_correl_price_series(stocks, run, Parameters.mlflow_experiment_name)
 
@@ -151,7 +206,7 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_param
         "epoch_running_loss_check": Parameters.epoch_running_loss_check,
         "epoch_running_gradients_check": Parameters.epoch_running_gradients_check,
         "loss_function": Parameters.function_loss,
-        "optimizer": Parameters.optimizer,
+        "optimizer": Parameters.optimizer_type,
         "lr_scheduler_patience": Parameters.lr_scheduler_patience,
         "log_returns": Parameters.log_returns
         }
@@ -225,7 +280,7 @@ def brute_force_function(credentials, device, stock_params):
     #gaf_sample_ranges = [(-1, 0.5), (-1, 0), (-0.5, 0.5)]
     gaf_sample_ranges = [(-1, 0.5)]
     #dropout_probabs = [0.25, 0.5]
-    dropout_probabs = [0.25]
+    dropout_probabs = [0]
     #gaf_sample_ranges = [(-1, 0.5)]
     batch_size_list=[16]#[16,32,64,128,256,512]
     num_workers = [0]#0,4,8,12,16
@@ -244,12 +299,12 @@ def brute_force_function(credentials, device, stock_params):
                                         curr_datetime = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
                                         
                                         with (mlflow.start_run(run_name=f"run_{curr_datetime}") if Parameters.enable_mlflow else contextlib.nullcontext()) as run:
-   
+                                               
                                             #sys logs
                                             if Parameters.enable_mlflow:
                                                 print(mlflow.MlflowClient().get_run(run.info.run_id).data)
                                             
-                                                run_id = run.info.run_id
+                                                Parameters.run_id = run_id = run.info.run_id
                                                 print("runid",run_id)
                                             else:
                                                 run_id=None
@@ -267,8 +322,11 @@ def brute_force_function(credentials, device, stock_params):
                                             plot_data.plot_train_and_eval_df(stock_params,experiment_name,run)
 
                                             #calc and plot dwt and correl
-                                            calc_dwt_and_correl(stock_comp_params,run)
+                                            calc_dtw_and_correl_logprices(stock_comp_params,run)
 
+                                            #calc this pair dtw logprices
+                                            plot_data.calc_pair_dtw_distance(stock_params,experiment_name,run)
+                                            
                                             Parameters.num_workers = w
                                             Parameters.batch_size = b
                                             Parameters.transform_algo_type = t
@@ -291,24 +349,24 @@ def brute_force_function(credentials, device, stock_params):
                                             #################################
 
                                             #generate training images
-                                            train_loader, test_loader, evaluation_test_stock_dataset_df = pipeline_data.generate_dataset_to_images_process(stock_params, stock_params.get_train_stocks(), 
-                                                                                                        Parameters, 
-                                                                                                        Parameters.training_test_size, 
-                                                                                                        Parameters.training_cols_used,
-                                                                                                        run, experiment_name)
+                                            train_loader, test_loader, evaluation_test_stock_dataset_df, train_feature_image_dataset_list_f32 = pipeline_data.generate_dataset_to_images_process(stock_params, stock_params.get_train_stocks(), 
+                                                                                                                                                        Parameters, 
+                                                                                                                                                        Parameters.training_test_size, 
+                                                                                                                                                        Parameters.training_cols_used,
+                                                                                                                                                        run, experiment_name)
                                         
-                                            net, train_stack_input = pipeline_train.train_process(train_loader, Parameters, run_id, experiment_name, device)
+                                            if Parameters.train:
+                                                net, train_stack_input = pipeline_train.train_process(train_loader, Parameters, run_id, experiment_name, device)
+                                                
+                                                #test
+                                                # set model to eval
+                                                net  = neural_network.set_model_for_eval(net)
 
-                                            #continue
-                                            
-                                            #test
-                                            # set model to eval
-                                            net  = neural_network.set_model_for_eval(net)
-
-                                            test_stack_input, test_stack_actual, test_stack_predicted = pipeline_test.test_process(net, test_loader, 
-                                                                                                                    Parameters, 
-                                                                                                                    Parameters.train_tickers, run,
-                                                                                                                    experiment_name, device)
+                                                if Parameters.training_test_size > 0:
+                                                    test_stack_input, test_stack_actual, test_stack_predicted = pipeline_test.test_process(net, test_loader, 
+                                                                                                                        Parameters, 
+                                                                                                                        Parameters.train_tickers, run,
+                                                                                                                        experiment_name, device)
 
                                             #################################
                                             #       Evaluation Test         #
@@ -317,17 +375,56 @@ def brute_force_function(credentials, device, stock_params):
                                             print("\n\n",text_mssg)
                                             if Parameters.save_runs_to_md:
                                                 helper_functions.write_to_md(text_mssg,None)
-                                            #load model
-                                            #PATH = f'./model_scen_{0}_full.pth'
-                                            #net = helper_functions.Load_Full_Model(PATH)
+
+                                            #load best checkpoint
+                                            if Parameters.load_checkpoint_for_eval:
+                                                net  = neural_network.instantiate_net(Parameters, device)
+                                                net, epoch, loss = helper_functions.load_checkpoint_model(net, device)
+                                                net  = neural_network.set_model_for_eval(net)
+                                                torch.set_grad_enabled(False)
+
+                                                #load model
+                                                #PATH = f'./model_scen_{0}_full.pth'
+                                                #net = helper_functions.Load_Full_Model(PATH)
 
                                             #external test image generation
-                                            train_loader, test_loader, evaluation_test_stock_dataset_df = pipeline_data.generate_dataset_to_images_process(stock_params, stock_params.get_eval_stocks(), 
-                                                                                                        Parameters, 
-                                                                                                        Parameters.evaluation_test_size, 
-                                                                                                        Parameters.evaluation_test_cols_used,
-                                                                                                        run, experiment_name)
+                                            train_loader, test_loader, evaluation_test_stock_dataset_df, test_feature_image_dataset_list_f32 = pipeline_data.generate_dataset_to_images_process(stock_params, stock_params.get_eval_stocks(), 
+                                                                                                                                            Parameters, 
+                                                                                                                                            Parameters.evaluation_test_size, 
+                                                                                                                                            Parameters.evaluation_test_cols_used,
+                                                                                                                                            run, experiment_name)
 
+                                            #dtw images DIFF
+                                            # print("Train shape:", train_feature_image_dataset_list_f32.shape)
+                                            # print("Test shape:", test_feature_image_dataset_list_f32.shape)
+                                            # train_feature_image_dataset_list_f32=train_feature_image_dataset_list_f32.flatten() 
+                                            # test_feature_image_dataset_list_f32 = test_feature_image_dataset_list_f32.flatten()
+                                            # #train_feature_image_dataset_list_f32 = train_feature_image_dataset_list_f32[:len(test_feature_image_dataset_list_f32)]
+                                            # print("Train size:", len(train_feature_image_dataset_list_f32))
+                                            # print("Test size:", len(test_feature_image_dataset_list_f32))
+                                            # diff = train_feature_image_dataset_list_f32 - test_feature_image_dataset_list_f32
+                                            # print("DIFF:", diff)
+                                            # # Optionally, compute the sum of differences
+                                            # sum_diff = sum(diff)
+                                            # print("Sum of differences:", sum_diff)
+                                            
+                                            #Calculate DTW for Images
+                                            #dtw_image_df = dtw_images(train_feature_image_dataset_list_f32.flatten(), test_feature_image_dataset_list_f32.flatten(), stock_params.train_stock_tickers, stock_params.eval_stock_tickers)
+                                            # print("TO CONCAT",dtw_image_df)
+                                            # plot_data.dtw_matrix_encoded_images(dtw_image_df, stock_params, Parameters.run_id, Parameters.mlflow_experiment_name)
+                                            # image_series_dtw_distance_df = pd.concat([image_series_dtw_distance_df, pd.DataFrame(dtw_image_df)], ignore_index=True)
+                                            # print("AFTER CONCAT",image_series_dtw_distance_df)
+                                            
+                                            #calculate structural similarity index measure for images
+                                            ssim_list[f"Train:{stock_params.train_stock_tickers}_Eval:{stock_params.eval_stock_tickers}"]=(calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32))
+                                            #print("train_feature_image_dataset_list_f32 [:2]",train_feature_image_dataset_list_f32[:2],"type",train_feature_image_dataset_list_f32.dtype,"shape",train_feature_image_dataset_list_f32.shape,"size",train_feature_image_dataset_list_f32.size)
+                                            #print("type",train_feature_image_dataset_list_f32.dtype,"shape",train_feature_image_dataset_list_f32.shape,"size",train_feature_image_dataset_list_f32.size)
+                                            mse=F.mse_loss(torch.from_numpy(train_feature_image_dataset_list_f32), torch.from_numpy(test_feature_image_dataset_list_f32)).item()
+                                            mse_list[f"Train:{stock_params.train_stock_tickers}_Eval:{stock_params.eval_stock_tickers}"]=mse
+                                            mse_dict = {"Images_MSE_LOSS":mse}
+                                            if Parameters.enable_mlflow:
+                                                mlflow.log_metrics(mse_dict)
+                                            
                                             #test
                                             evaluation_test_stack_input, evaluation_test_stack_actual, evaluation_test_stack_predicted = pipeline_test.test_process(net, 
                                                                                                                                                 test_loader, 
@@ -336,15 +433,32 @@ def brute_force_function(credentials, device, stock_params):
                                                                                                                                                 experiment_name, device)
 
                                             #report stats
-                                            image_series_correlations, image_series_mean_correlation = evaluation_test_pipeline.report_evaluation_test_stats(
-                                                                                                stock_params.get_eval_stocks(), Parameters, evaluation_test_stock_dataset_df, 
-                                                                                                train_stack_input, evaluation_test_stack_input,
-                                                                                                run, experiment_name)
+                                            if Parameters.train:
 
-                                            plot_data.plot_evaluation_test_graphs(Parameters, train_stack_input, evaluation_test_stack_input,
-                                                                        image_series_correlations, image_series_mean_correlation,
-                                                                        experiment_name, run_id)
-                                        
+                                                image_series_correlations, image_series_mean_correlation = evaluation_test_pipeline.report_evaluation_test_stats(
+                                                                                                    stock_params.get_eval_stocks(), Parameters, evaluation_test_stock_dataset_df, 
+                                                                                                    train_stack_input, evaluation_test_stack_input,
+                                                                                                    run, experiment_name)
+
+                                                plot_data.plot_evaluation_test_graphs(Parameters, train_stack_input, evaluation_test_stack_input,
+                                                                            image_series_correlations, image_series_mean_correlation,
+                                                                            experiment_name, run_id)
+
+                                                # #generate encoded image correlation matrix
+                                                # if stock_params.train_count == stock_params.eval_count:
+                                                #     new_data = {
+                                                #         "Train_Stock": stock_params.train_stock_tickers.split('_'),
+                                                #         "Eval_Stock": stock_params.eval_stock_tickers.split('_'),
+                                                #         "Image_Correl": image_series_mean_correlation
+                                                #     }
+                                                #     new_df = pd.DataFrame(new_data)
+                                                #     print("****CONCAT NOW")
+                                                #     image_series_mean_correl_df = pd.concat([image_series_mean_correl_df, new_df], ignore_index=True)
+                                                    
+                                                #     if not Parameters.run_iter:
+                                                #         plot_data.plot_encoded_image_correl_matrix(image_series_mean_correl_df, experiment_name, run_id)
+
+                                                #     return image_series_mean_correl_df
 if __name__ == "__main__":
 
     os.environ['OMP_NUM_THREADS'] = '16'
@@ -371,6 +485,42 @@ if __name__ == "__main__":
     _credentials = credentials.MLflow_Credentials()
     _credentials.get_credentials()
 
-    stock_params = create_train_eval_stocks_obj()
-    
-    brute_force_function(_credentials, device, stock_params)
+    #iter
+    if Parameters.run_iter:
+
+        print("****RUNNING ITERATION****")
+        tickers = [
+        'SIVBQ', 'SICP', 'ALLY', 'CMA', 'WAL', 'PWBK', 'ZION', 'KEY', 
+        'CUBI', 'OZK', 'CFG', 'RF', 'FITB', 'HBAN'
+        ]
+        # tickers = [
+        # 'SIVBQ', 'SICP', 'KEY'
+        # ]
+
+        start_date = '2021-12-06'
+        end_date = '2023-01-25'
+
+        for train_stock, eval_stock in itertools.combinations(tickers, 2):
+            
+            stock_params = StockParams()
+            stock_params.add_train_stock(train_stock, start_date, end_date)
+            stock_params.add_eval_stock(eval_stock, start_date, end_date)
+            
+            stock_params.set_param_strings()
+            Parameters.train_tickers = stock_params.train_stock_tickers
+            Parameters.eval_tickers = stock_params.eval_stock_tickers
+            
+            brute_force_function(_credentials, device, stock_params)
+    else:
+        stock_params = create_train_eval_stocks_obj()
+        brute_force_function(_credentials, device, stock_params)
+
+    #if Parameters.run_iter:
+        #print("ssim",ssim_list)
+        #print("mse",mse_list)
+
+        #hard coded dtws
+        #dtw_combos.plot_dtw_pairs(Parameters.mlflow_experiment_name, Parameters.run_id)
+        #plot_data.plot_encoded_image_correl_matrix(image_series_mean_correl_df, Parameters.mlflow_experiment_name, Parameters.run_id)
+        #plot_data.plot_table_multiple_image_dtw_distance(image_series_dtw_distance_df, Parameters.mlflow_experiment_name, Parameters.run_id)
+
