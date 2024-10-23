@@ -201,7 +201,7 @@ def Report_profiler(prof, profiler_key_averages, epoch):
         mlflow.log_param("gpu_utilization", gpu.load * 100)
 
 def Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name,
-                   net):
+                   net, stock_params):
     #end of training    
     print_mssg = f"End of Training: Cum Loss: {epoch_cum_loss} at {epoch}.<p>"
     print(print_mssg)
@@ -222,7 +222,7 @@ def Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, tr
         mlflow.log_param(f"last_epoch", epoch)
         mlflow.log_param(f"best_final_cum_loss", best_cum_loss)
                                             
-    helper_functions.save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, epoch_cum_loss, net, run_id, experiment_name)
+    helper_functions.save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, epoch_cum_loss, net, run_id, experiment_name, stock_params)
 
 def instantiate_optimizer_and_scheduler(net, params):
     if Parameters.run_adamw:
@@ -238,7 +238,7 @@ def instantiate_optimizer_and_scheduler(net, params):
     
     return optimizer, scheduler
 
-def Train(params, train_loader, net, run_id, experiment_name, device):
+def Train(params, train_loader, net, run_id, experiment_name, device, stock_params):
 
     #enable grad
     torch.set_grad_enabled(True)
@@ -389,7 +389,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
             helper_functions.update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), epoch_cum_loss)
 
         if epoch != 0 and epoch % Parameters.save_model_at_epoch_multiple == 0:
-            helper_functions.save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, epoch_cum_loss, net, run_id, experiment_name)
+            helper_functions.save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, epoch_cum_loss, net, run_id, experiment_name, stock_params)
         
         #exit if below loss threshold
         #print(f"Comparing Stop - Cum Loss {epoch_cum_loss} Vs {params.loss_stop_threshold}")
@@ -400,7 +400,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
             
             #profiler.stop()
 
-            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name, net)
+            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name, net, stock_params)
 
             #return net, model_signature, stack_input
             return net, model_signature if 'model_signature' in locals() else None or None, stack_input
@@ -413,7 +413,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
             
             #profiler.stop()
             
-            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name, net)
+            Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name, net, stock_params)
 
             return net, model_signature if 'model_signature' in locals() else None, stack_input
         
@@ -447,7 +447,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device):
     #end training without reaching loss_threshold
     #profiler.stop()
 
-    Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name, net)
+    Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name, net, stock_params)
     
     torch.set_printoptions()
 

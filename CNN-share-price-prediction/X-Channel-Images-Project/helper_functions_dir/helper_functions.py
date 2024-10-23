@@ -81,9 +81,11 @@ def update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net_state_dict, opt
             'loss': epoch_loss,
             }
 
-def save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, curr_epoch_cum_loss, net, run_id, experiment_name):
+def save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, curr_epoch_cum_loss, net, run_id, experiment_name, stock_params):
     print("Saving model best loss", best_cum_loss.item(), "at Epoch ", best_cum_loss_epoch)
-    model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}.pth'
+    train_stocks = stock_params.train_stock_tickers
+    eval_stocks = stock_params.eval_stock_tickers
+    model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}_{train_stocks}_{eval_stocks}.pth'
     if Parameters.checkpt_dict['optimizer_state_dict'] == None:
         print("***Updating checkpoint dict cos it's NONE", Parameters.checkpt_dict['optimizer_state_dict'])
         update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), curr_epoch_cum_loss)
@@ -96,8 +98,10 @@ def save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, curr_epoch_cum_los
         mlflow.log_param(f"best_checkpoint_epoch", best_cum_loss_epoch)
         #save_file_to_blob(PATH,os.path.basename(PATH), run_id, experiment_name)
 
-def save_full_model(run_id, net, model_signature, experiment_name):
-    PATH = f'./{Parameters.full_model_dir}/{Parameters.model_full_fname}.pth'
+def save_full_model(run_id, net, model_signature, experiment_name, stock_params):
+    train_stocks = stock_params.train_stock_tickers
+    eval_stocks = stock_params.eval_stock_tickers
+    PATH = f'./{Parameters.full_model_dir}/{Parameters.model_full_fname}_{train_stocks}_{eval_stocks}.pth'
     torch.save(net, PATH)
     pip_requirements = ['torch==2.3.0+cu121','torchvision==0.18.0+cu121']
     
@@ -110,9 +114,11 @@ def save_full_model(run_id, net, model_signature, experiment_name):
         signature=model_signature)
         #mlflow.pytorch.log_model(net, blob_with_dirs,pip_requirements=pip_requirements, signature=model_signature)
 
-def load_checkpoint_model(net, device):
+def load_checkpoint_model(net, device, stock_params):
+    train_stocks = stock_params.train_stock_tickers
+    eval_stocks = stock_params.eval_stock_tickers
     #load checkpoint
-    model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}.pth'
+    model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}_{train_stocks}_{eval_stocks}.pth'
     checkpoint = torch.load(model_checkpoint_fname_with_dir, map_location=device)
     #load state dict and optimizer
     #print("***At Load checkpoing",checkpoint['model_state_dict'])
@@ -173,8 +179,8 @@ def write_scenario_to_log_file(accuracy):
 
     Scenario_Log(str(output_string))
 
-def Save_Model(run_id, net, model_signature, experiment_name):
-    save_full_model(run_id,net, model_signature, experiment_name)
+def Save_Model(run_id, net, model_signature, experiment_name, stock_params):
+    save_full_model(run_id,net, model_signature, experiment_name, stock_params)
 
 def write_to_md(text, image_path):
     if text.strip():
