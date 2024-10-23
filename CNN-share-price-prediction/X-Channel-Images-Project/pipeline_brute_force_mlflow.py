@@ -78,6 +78,7 @@ def create_train_eval_stocks_obj():
 
     # run concat
     stock_params.add_train_stock('CFG', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('ZION', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('PWBK', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('KEY', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('FITB', '2021-12-06', '2023-01-25')
@@ -90,6 +91,7 @@ def create_train_eval_stocks_obj():
     
     #scenarios
     stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('OZK', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
     #stock_params.add_eval_stock('CUBI', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
@@ -356,7 +358,7 @@ def brute_force_function(credentials, device, stock_params):
                                                                                                                                                         run, experiment_name)
                                         
                                             if Parameters.train:
-                                                net, train_stack_input = pipeline_train.train_process(train_loader, Parameters, run_id, experiment_name, device)
+                                                net, train_stack_input = pipeline_train.train_process(train_loader, Parameters, run_id, experiment_name, device, stock_params)
                                                 
                                                 #test
                                                 # set model to eval
@@ -379,7 +381,7 @@ def brute_force_function(credentials, device, stock_params):
                                             #load best checkpoint
                                             if Parameters.load_checkpoint_for_eval:
                                                 net  = neural_network.instantiate_net(Parameters, device)
-                                                net, epoch, loss = helper_functions.load_checkpoint_model(net, device)
+                                                net, epoch, loss = helper_functions.load_checkpoint_model(net, device, stock_params)
                                                 net  = neural_network.set_model_for_eval(net)
                                                 torch.set_grad_enabled(False)
 

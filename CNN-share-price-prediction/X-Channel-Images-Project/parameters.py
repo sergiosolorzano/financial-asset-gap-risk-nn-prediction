@@ -94,7 +94,7 @@ class Parameters:
 
     log_returns = True #1=log return rebased price series else price series
 
-    enable_mlflow=True
+    enable_mlflow=False
     mlflow_experiment_name = 'gaprisk-compare-dtw-ssmi-pred'
     mlflow_experiment_description = "Comparison DTW Distances, Structural Similarities, Network Prediction"
     run_id = None
@@ -181,11 +181,11 @@ class Parameters:
     batch_eval_drop_last = False
     num_workers = 0
 
-    num_epochs_input = 10000
+    num_epochs_input = 100#20000
 
     best_checkpoint_cum_loss = 0.2
     min_best_cum_loss = torch.tensor(2.5, device=device, dtype=torch.float64)
-    save_model_at_epoch_multiple = 50000
+    save_model_at_epoch_multiple = 20
 
     loss_stop_threshold = 0.000001#0.00005
 
