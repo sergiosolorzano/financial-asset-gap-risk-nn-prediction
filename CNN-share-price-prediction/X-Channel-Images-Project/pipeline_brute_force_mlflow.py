@@ -18,7 +18,7 @@ import torch.nn.functional as F
 #import scripts
 import importlib as importlib
 sys.path.append(os.path.abspath('./helper_functions_dir'))
-import helper_functions_dir.neural_network as neural_network
+import helper_functions_dir.neural_network_enhanced as neural_network
 import helper_functions_dir.plot_data as plot_data
 import helper_functions_dir.helper_functions as helper_functions
 import helper_functions_dir.process_price_series as process_price_series
@@ -77,8 +77,8 @@ def create_train_eval_stocks_obj():
     stock_params = StockParams()
 
     # run concat
-    stock_params.add_train_stock('CFG', '2021-12-06', '2023-01-25')
-    #stock_params.add_train_stock('ZION', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('CFG', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('ZION', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('PWBK', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('KEY', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('FITB', '2021-12-06', '2023-01-25')
@@ -90,8 +90,8 @@ def create_train_eval_stocks_obj():
     # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
     
     #scenarios
-    stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
-    #stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
+    stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('OZK', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
     #stock_params.add_eval_stock('CUBI', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
@@ -194,6 +194,8 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_param
         "stride_2": Parameters.stride_2,
         "output_conv_1": Parameters.output_conv_1,
         "output_conv_2": Parameters.output_conv_2,
+        "output_conv_2": Parameters.output_conv_3,
+        "output_conv_2": Parameters.output_conv_4,
         "output_FC_1": Parameters.output_FC_1,
         "output_FC_2": Parameters.output_FC_2,
         "final_FCLayer_outputs": Parameters.final_FCLayer_outputs,
@@ -390,12 +392,16 @@ def brute_force_function(credentials, device, stock_params):
                                                 #net = helper_functions.Load_Full_Model(PATH)
 
                                             #external test image generation
+                                            print("NOW EVAL")
                                             train_loader, test_loader, evaluation_test_stock_dataset_df, test_feature_image_dataset_list_f32 = pipeline_data.generate_dataset_to_images_process(stock_params, stock_params.get_eval_stocks(), 
                                                                                                                                             Parameters, 
                                                                                                                                             Parameters.evaluation_test_size, 
                                                                                                                                             Parameters.evaluation_test_cols_used,
                                                                                                                                             run, experiment_name)
-
+                                            for i, data in enumerate(test_loader, 0):
+                                                inputs, labels = data[0].to(device), data[1].to(device)
+                                            actual_tensor = labels.data
+                                            print(f"Actual {i}",actual_tensor[:1])
                                             #dtw images DIFF
                                             # print("Train shape:", train_feature_image_dataset_list_f32.shape)
                                             # print("Test shape:", test_feature_image_dataset_list_f32.shape)
@@ -417,15 +423,17 @@ def brute_force_function(credentials, device, stock_params):
                                             # image_series_dtw_distance_df = pd.concat([image_series_dtw_distance_df, pd.DataFrame(dtw_image_df)], ignore_index=True)
                                             # print("AFTER CONCAT",image_series_dtw_distance_df)
                                             
-                                            #calculate structural similarity index measure for images
-                                            ssim_list[f"Train:{stock_params.train_stock_tickers}_Eval:{stock_params.eval_stock_tickers}"]=(calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32))
-                                            #print("train_feature_image_dataset_list_f32 [:2]",train_feature_image_dataset_list_f32[:2],"type",train_feature_image_dataset_list_f32.dtype,"shape",train_feature_image_dataset_list_f32.shape,"size",train_feature_image_dataset_list_f32.size)
-                                            #print("type",train_feature_image_dataset_list_f32.dtype,"shape",train_feature_image_dataset_list_f32.shape,"size",train_feature_image_dataset_list_f32.size)
-                                            mse=F.mse_loss(torch.from_numpy(train_feature_image_dataset_list_f32), torch.from_numpy(test_feature_image_dataset_list_f32)).item()
-                                            mse_list[f"Train:{stock_params.train_stock_tickers}_Eval:{stock_params.eval_stock_tickers}"]=mse
-                                            mse_dict = {"Images_MSE_LOSS":mse}
-                                            if Parameters.enable_mlflow:
-                                                mlflow.log_metrics(mse_dict)
+                                            if Parameters.train and (len(train_feature_image_dataset_list_f32) == len(test_feature_image_dataset_list_f32)):
+                                                #calculate structural similarity index measure for images
+                                                ssim_list[f"Train:{stock_params.train_stock_tickers}_Eval:{stock_params.eval_stock_tickers}"]=(calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32))
+                                                #print("train_feature_image_dataset_list_f32 [:2]",train_feature_image_dataset_list_f32[:2],"type",train_feature_image_dataset_list_f32.dtype,"shape",train_feature_image_dataset_list_f32.shape,"size",train_feature_image_dataset_list_f32.size)
+                                                #print("type",train_feature_image_dataset_list_f32.dtype,"shape",train_feature_image_dataset_list_f32.shape,"size",train_feature_image_dataset_list_f32.size)
+                                                #calculate MSE images
+                                                mse=F.mse_loss(torch.from_numpy(train_feature_image_dataset_list_f32), torch.from_numpy(test_feature_image_dataset_list_f32)).item()
+                                                mse_list[f"Train:{stock_params.train_stock_tickers}_Eval:{stock_params.eval_stock_tickers}"]=mse
+                                                mse_dict = {"Images_MSE_LOSS":mse}
+                                                if Parameters.enable_mlflow:
+                                                    mlflow.log_metrics(mse_dict)
                                             
                                             #test
                                             evaluation_test_stack_input, evaluation_test_stack_actual, evaluation_test_stack_predicted = pipeline_test.test_process(net, 
@@ -461,6 +469,16 @@ def brute_force_function(credentials, device, stock_params):
                                                 #         plot_data.plot_encoded_image_correl_matrix(image_series_mean_correl_df, experiment_name, run_id)
 
                                                 #     return image_series_mean_correl_df
+
+def on_key_press(key):
+    try:
+        if key.char == 'e':  # Detect the 'e' key
+            print("Key 'e' pressed, starting Evaluation Test...")
+            evaluation_thread = threading.Thread(target=run_evaluation_test)
+            evaluation_thread.start()
+    except AttributeError:
+        pass  # Non-character keys
+
 if __name__ == "__main__":
 
     os.environ['OMP_NUM_THREADS'] = '16'

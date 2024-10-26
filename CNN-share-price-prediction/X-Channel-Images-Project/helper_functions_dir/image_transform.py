@@ -17,7 +17,6 @@ def generate_features_lists(stock_dataset_df, cols_used, transform_algo, transfo
     #Generate images from dataset
     cols_used_count = sum(column_name in cols_used for column_name in stock_dataset_df.columns)
     #print("size df",len(stock_dataset_df))
-    #print(f"Generate Images From Dataset cols used {cols_used}:",stock_dataset_df)
     
     if window_method==1:
         feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list = generate_images.generate_multiple_feature_images_overlap(stock_dataset_df, cols_used, transform_algo, image_size=transformed_img_sz, overlap=overlap,method=gaf_method, gaf_sample_range=gaf_sample_range)
@@ -29,7 +28,6 @@ def generate_features_lists(stock_dataset_df, cols_used, transform_algo, transfo
         print("Window Method Unkown")
     #print("image data",feature_image_dataset_list,"labels",feature_label_dataset_list)
     print("shape [0] set",np.array(feature_image_dataset_list[0]).shape)
-
     #np.set_printoptions()
 
     return feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list, cols_used_count

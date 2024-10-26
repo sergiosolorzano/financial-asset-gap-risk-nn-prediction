@@ -26,7 +26,7 @@ import importlib as importlib
 import plot_data as plot_data
 
 from parameters import Parameters
-import neural_network as neural_network
+import neural_network_enhanced as neural_network
 
 matplotlib.use(Parameters.matplotlib_use)
 
@@ -81,7 +81,7 @@ def update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net_state_dict, opt
             'loss': epoch_loss,
             }
 
-def save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, curr_epoch_cum_loss, net, run_id, experiment_name, stock_params):
+def save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, curr_epoch_cum_loss, net, run_id, experiment_name, stock_params, epoch):
     print("Saving model best loss", best_cum_loss.item(), "at Epoch ", best_cum_loss_epoch)
     train_stocks = stock_params.train_stock_tickers
     eval_stocks = stock_params.eval_stock_tickers
@@ -95,7 +95,7 @@ def save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, curr_epoch_cum_los
         #blob_with_dirs = "models" + "/" + f'{Parameters.model_checkpoint_fname}.pth'
         blob_with_dirs = Path("models", f'{Parameters.model_checkpoint_fname}.pth')
         mlflow.log_artifact(local_path="./" + model_checkpoint_fname_with_dir, run_id=run_id, artifact_path=Parameters.checkpoint_dir)
-        mlflow.log_param(f"best_checkpoint_epoch", best_cum_loss_epoch)
+        mlflow.set_tag(f"best_checkpoint_epoch", best_cum_loss_epoch)
         #save_file_to_blob(PATH,os.path.basename(PATH), run_id, experiment_name)
 
 def save_full_model(run_id, net, model_signature, experiment_name, stock_params):
