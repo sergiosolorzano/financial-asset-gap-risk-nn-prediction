@@ -4,7 +4,7 @@ import sys
 #import scripts
 import importlib as importlib
 sys.path.append(os.path.abspath('./helper_functions_dir'))
-import helper_functions_dir.neural_network as neural_network
+import helper_functions_dir.neural_network_enhanced as neural_network
 import helper_functions_dir.helper_functions as helper_functions
 
 def train_process(train_loader, params, run_id, experiment_name, device, stock_params):

@@ -58,6 +58,7 @@ def generate_dataset_to_images_process(stocksobj, stocks, params, test_size, col
 
     # Generate images
     #print("generate_dataset_to_images_process algo",params.transform_algo)
+    
     feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list, cols_used_count = image_transform.generate_features_lists(
         stocks_dataset_df, 
         cols_used,
@@ -68,8 +69,10 @@ def generate_dataset_to_images_process(stocksobj, stocks, params, test_size, col
         params.gaf_method, 
         params.gaf_sample_range)
 
+    #print("LABEL LIST",feature_label_dataset_list)
     images_array, labels_array = image_transform.create_images_array(feature_image_dataset_list, feature_label_dataset_list)
     print("***image shape",images_array.shape)
+    
     #Quick Sample Image Visualization
     #Visualize Closing Price for one image in GAF or Markov:
     # A darker patch indicates lower correlation between the different elements of the price time series, 

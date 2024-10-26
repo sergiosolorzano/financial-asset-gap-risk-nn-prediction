@@ -357,7 +357,8 @@ def generate_multiple_feature_images_overlap(dataset, cols_used, transformed_alg
     return feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list
 
 def Generate_feature_image_dataset_list_f32(labels_array, images_array, image_size, scaler):
-    #print("Scaler received",scaler)
+    # print("Scaler received",scaler)
+    # print("labels_array",labels_array[:1])
     feature_image_dataset_list_f32 = np.array(images_array).astype(np.float32)
     feature_image_dataset_list_f32 = feature_image_dataset_list_f32.reshape(-1, image_size, image_size)
     #images_array = np.transpose(feature_image_dataset_list, (1, 0, 2, 3))
@@ -368,15 +369,15 @@ def Generate_feature_image_dataset_list_f32(labels_array, images_array, image_si
     #print("reshaped labels array",reshaped_labels_array)
     
     #scale labels if regression prediction
-    if Parameters.nn_predict_price:
+    if Parameters.nn_predict_price==1:
         labels_scaled_list_f32 = scaler.fit_transform(reshaped_labels_array).reshape(-1,).astype(np.float32)
     else:
-       labels_scaled_list_f32 = reshaped_labels_array.reshape(-1,).astype(np.float32)
-       
+        labels_scaled_list_f32 = reshaped_labels_array.reshape(-1,).astype(np.float32)
     #print("scaled labels",labels_scaled_list_f32)
     print("4D image array shape",images_array.shape)
     print("3D reshaped image array ",feature_image_dataset_list_f32.shape)
     print("labels shape",reshaped_labels_array.shape)
+    #print("Print Labels",labels_scaled_list_f32[:1])
     
     return feature_image_dataset_list_f32, labels_scaled_list_f32
 

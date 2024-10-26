@@ -7,7 +7,7 @@ import numpy as np
 #import scripts
 import importlib as importlib
 sys.path.append(os.path.abspath('./helper_functions_dir'))
-import helper_functions_dir.neural_network as neural_network
+import helper_functions_dir.neural_network_enhanced as neural_network
 import helper_functions_dir.plot_data as plot_data
 import helper_functions_dir.compute_stats as compute_stats
 import helper_functions_dir.helper_functions as helper_functions
@@ -15,6 +15,11 @@ from parameters import Parameters
 
 def test_process(net, test_loader, params, stock_ticker, run, experiment_name, device):
     
+    for i, data in enumerate(test_loader, 0):
+        inputs, labels = data[0].to(device), data[1].to(device)
+
+    actual_tensor = labels.data
+    print(f"Actual {i}",actual_tensor[:1])
     # test
     stack_input, predicted_list, actual_list, accuracy, stack_actual, stack_predicted  = neural_network.Test(test_loader,net, stock_ticker, device, experiment_name, run)
 

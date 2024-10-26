@@ -84,6 +84,7 @@ class Parameters:
     matplotlib_use = "Agg"
     run_iter = False
 
+    run_enhanced_model = 0 #1=4 Conv2d layers; 0=2 Conv2d layers
     train = True
     load_checkpoint_for_eval = True
 
@@ -143,27 +144,47 @@ class Parameters:
     window_overlap = 25 #overlapping datapoints at the beginning of window between windows 
     
     # label scaler applied to labels only for both GRAMIAN/MARKOV
-    scaler = StandardScaler()
     min_max_scaler_feature_range = (-1, 0) #for MinMaxScaler()
+    scaler = MinMaxScaler(min_max_scaler_feature_range)#StandardScaler()
 
     # Training's test size
-    training_test_size = 0 #50% of first feature/s, 50% of the next
+    training_test_size = 0 #size of the test dataset when training: 50% of first feature/s, 50% of the next
     evaluation_test_size = 1 #100% of the feature
 
     model_name ='LeNet-5 Based Net'
     # Default hyperparameters
-    filter_size_1 = (1, 1)#(2, 3)
-    filter_size_2 = (2, 2)#(2,2)
-    filter_size_3 = (2,3)#(2, 3)
+    # filter_size_1 = (3, 3)#(2, 3)
+    # filter_size_2 = (2, 2)#(2,2)
+    # filter_size_3 = (1,1)#(2, 3)
 
     stride_1 = 1
-    stride_2 = 1#2
+    stride_2 = 2#2
 
-    output_conv_1 = 40
-    output_conv_2 = 12
-    output_FC_1 = 100
-    output_FC_2 = 70
+    # output_conv_1 = 40
+    # output_conv_2 = 12
+    if run_enhanced_model:
+        filter_size_1 = (3, 3)#(2, 3)
+        filter_size_2 = (2, 2)#(2,2)
+        filter_size_3 = (1,1)#(2, 3)
 
+        output_conv_1 = 64
+        output_conv_2 = 128
+        output_conv_3 = 256
+        output_conv_4 = 512
+        output_FC_1 = 100
+        output_FC_2 = 0
+    else:
+        filter_size_1 = (2, 3)
+        filter_size_2 = (2,2)
+        filter_size_3 = (2, 3)
+
+        output_conv_1 = 40
+        output_conv_2 = 12
+        output_conv_3 = 0
+        output_conv_4 = 0
+        output_FC_1 = 100
+        output_FC_2 = 70
+        
     if nn_predict_price:
         #next day price
         final_FCLayer_outputs = 1
@@ -181,11 +202,11 @@ class Parameters:
     batch_eval_drop_last = False
     num_workers = 0
 
-    num_epochs_input = 100#20000
+    num_epochs_input = 10000#20000
 
     best_checkpoint_cum_loss = 0.2
     min_best_cum_loss = torch.tensor(2.5, device=device, dtype=torch.float64)
-    save_model_at_epoch_multiple = 20
+    save_model_at_epoch_multiple = 4000
 
     loss_stop_threshold = 0.000001#0.00005
 
@@ -230,7 +251,6 @@ class Parameters:
 
     #regularization activation funcs
     use_relu = False
-    regularization_function = nn.ReLU()
     if use_relu:
         regularization_function = nn.ReLU()
     else:
