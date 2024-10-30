@@ -78,11 +78,10 @@ def create_train_eval_stocks_obj():
 
     # run concat
     #stock_params.add_train_stock('CFG', '2021-12-06', '2023-01-25')
-    stock_params.add_train_stock('ZION', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('ZION', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('PWBK', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('KEY', '2021-12-06', '2023-01-25')
-    #stock_params.add_train_stock('FITB', '2021-12-06', '2023-01-25')
-    #stock_params.add_train_stock('SIVBQ', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('FITB', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('SIVBQ', '2021-12-06', '2023-01-25')
     # stock_params.add_train_stock('SICP', '2021-12-06', '2023-01-25')
     # stock_params.add_train_stock('ALLY', '2021-12-06', '2023-01-25')
@@ -91,9 +90,9 @@ def create_train_eval_stocks_obj():
     
     #scenarios
     #stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
-    stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('OZK', '2021-12-06', '2023-01-25') 
-    #stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
+    stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
     #stock_params.add_eval_stock('CUBI', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
     #stock_params.add_eval_stock('WAL', '2021-12-06', '2023-01-25') #loss 0.10, acc 34%, r^2 -0.15
     #stock_params.add_eval_stock('SICP', '2021-12-06', '2023-01-25')
@@ -119,8 +118,6 @@ def create_train_eval_stocks_obj():
 
 def calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32):
     train_feature_image_dataset_list_f32_tensor = torch.from_numpy(train_feature_image_dataset_list_f32).unsqueeze(1)
-    #train_feature_image_dataset_list_f32_tensor = train_feature_image_dataset_list_f32_tensor
-    #print("shape tensor unsqueze train",train_feature_image_dataset_list_f32_tensor.shape)
     test_feature_image_dataset_list_f32_tensor = torch.from_numpy(test_feature_image_dataset_list_f32).unsqueeze(1)
     #test_feature_image_dataset_list_f32_tensor = test_feature_image_dataset_list_f32_tensor
     #train_max = torch.max(torch.abs(train_feature_image_dataset_list_f32_tensor)).item()
@@ -382,7 +379,7 @@ def brute_force_function(credentials, device, stock_params):
 
                                             #load best checkpoint
                                             if Parameters.load_checkpoint_for_eval:
-                                                net  = neural_network.instantiate_net(Parameters, device)
+                                                net = neural_network.instantiate_net(Parameters, device)
                                                 net, epoch, loss = helper_functions.load_checkpoint_model(net, device, stock_params)
                                                 net  = neural_network.set_model_for_eval(net)
                                                 torch.set_grad_enabled(False)

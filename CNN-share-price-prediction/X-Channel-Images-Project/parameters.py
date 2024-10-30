@@ -6,6 +6,7 @@ import pandas as pd
 from datetime import datetime
 import torch.nn as nn
 import torch
+import uuid
 
 #import scripts
 import importlib as importlib
@@ -84,11 +85,11 @@ class Parameters:
     matplotlib_use = "Agg"
     run_iter = False
 
-    run_enhanced_model = 0 #1=4 Conv2d layers; 0=2 Conv2d layers
+    run_enhanced_model = 0 #1= 4 Conv2d layers; 0= 2 Conv2d layers
+    capture_cnn_feature_maps = 1 #1=last cnn; 0=last fully connected
     train = True
     load_checkpoint_for_eval = True
 
-    scenario = 0 #local txt logging param
     nn_predict_price = 1 #0=classification;1=regression
     classification_class_price_down=0
     classification_class_price_up=1
@@ -163,9 +164,9 @@ class Parameters:
     # output_conv_1 = 40
     # output_conv_2 = 12
     if run_enhanced_model:
-        filter_size_1 = (3, 3)#(2, 3)
-        filter_size_2 = (2, 2)#(2,2)
-        filter_size_3 = (1,1)#(2, 3)
+        filter_size_1 = (3, 3)
+        filter_size_2 = (2, 2)
+        filter_size_3 = (1,1)
 
         output_conv_1 = 64
         output_conv_2 = 128
@@ -202,11 +203,12 @@ class Parameters:
     batch_eval_drop_last = False
     num_workers = 0
 
-    num_epochs_input = 10000#20000
+    num_epochs_input = 20000
 
     best_checkpoint_cum_loss = 0.2
     min_best_cum_loss = torch.tensor(2.5, device=device, dtype=torch.float64)
-    save_model_at_epoch_multiple = 4000
+    save_model_at_epoch_multiple = 2500
+    model_uuid = 1#str(uuid.uuid4())
 
     loss_stop_threshold = 0.000001#0.00005
 
@@ -230,7 +232,7 @@ class Parameters:
 
     epoch_running_loss_check = 2500
     
-    epoch_running_gradients_check = 4500
+    epoch_running_gradients_check = 6000
 
     checkpt_dict = {
             'run_id': None,

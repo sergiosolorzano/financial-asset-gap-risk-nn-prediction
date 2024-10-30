@@ -8,6 +8,7 @@ import json
 import mlflow.data.dataset_source_registry
 import numpy as np
 from pathlib import Path
+import uuid
 
 import time
 import matplotlib
@@ -85,7 +86,7 @@ def save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, curr_epoch_cum_los
     print("Saving model best loss", best_cum_loss.item(), "at Epoch ", best_cum_loss_epoch)
     train_stocks = stock_params.train_stock_tickers
     eval_stocks = stock_params.eval_stock_tickers
-    model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}_{train_stocks}_{eval_stocks}.pth'
+    model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}_{train_stocks}_{eval_stocks}_{Parameters.model_uuid}.pth'
     if Parameters.checkpt_dict['optimizer_state_dict'] == None:
         print("***Updating checkpoint dict cos it's NONE", Parameters.checkpt_dict['optimizer_state_dict'])
         update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), curr_epoch_cum_loss)
@@ -118,7 +119,7 @@ def load_checkpoint_model(net, device, stock_params):
     train_stocks = stock_params.train_stock_tickers
     eval_stocks = stock_params.eval_stock_tickers
     #load checkpoint
-    model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}_{train_stocks}_{eval_stocks}.pth'
+    model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}_{train_stocks}_{eval_stocks}_{Parameters.model_uuid}.pth'
     checkpoint = torch.load(model_checkpoint_fname_with_dir, map_location=device)
     #load state dict and optimizer
     #print("***At Load checkpoing",checkpoint['model_state_dict'])

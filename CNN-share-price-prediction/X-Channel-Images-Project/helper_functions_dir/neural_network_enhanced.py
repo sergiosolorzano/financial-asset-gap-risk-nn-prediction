@@ -197,11 +197,17 @@ class Net(nn.Module):
             x = self.bn4(x)
             x = self.regularization_activation_function_4(x)
             x = self.pool4(x)
+
+            #capture feature maps
+            feature_maps_cnn = x
             
             x = x.view(-1, self.output_conv_4 * self.conv_output_size)
         else:
+            #capture feature maps
+            feature_maps_cnn = x
+
             x = x.view(-1, self.output_conv_2 * self.conv_output_size)
-        
+                
         #Fully Connected Layers
         x = self.fc1(x)
         x = self.bn_fc1(x)
@@ -215,8 +221,10 @@ class Net(nn.Module):
             if self.dropout_probab>0: x = self.dropout2(x)
         
         x = self.fc3(x)
+        feature_maps_fc = x
+        #print("FC Feature Maps Shape ", feature_maps.shape)
         
-        return x
+        return x, feature_maps_cnn, feature_maps_fc
 
 def weights_init_he(m):
     if isinstance(m, nn.Conv2d):
@@ -404,7 +412,8 @@ def Train(params, train_loader, net, run_id, experiment_name, device, stock_para
                     #print("epoch",epoch,"data i",i,"label",labels,"labels shape",labels.shape, labels)
                     input_np = inputs.detach().cpu().numpy()
                     if Parameters.enable_mlflow:
-                        model_signature = mlflow.models.infer_signature(input_np,net(inputs).detach().cpu().numpy())
+                        ouput, feature_maps_cnn = net(inputs)
+                        model_signature = mlflow.models.infer_signature(input_np,ouput.detach().cpu().numpy())
 
                 if Parameters.save_arch_bool:
                     helper_functions.Save_Model_Arch(net, run_id, inputs.shape, [inputs.dtype], "train", experiment_name)
@@ -413,11 +422,11 @@ def Train(params, train_loader, net, run_id, experiment_name, device, stock_para
                 # zero the parameter gradients
                 optimizer.zero_grad()
                 # forward + backward + optimize
-                outputs = net(inputs)
+                outputs, feature_maps_cnn, feature_maps_fc = net(inputs)
                 #print("outputs shape",outputs.shape,outputs)
                 #print("outputs",outputs,"labels",labels)
                 loss = criterion(outputs, labels)
-            
+
             if loss is not None:
                 loss.backward()
                 optimizer.step()
@@ -506,7 +515,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device, stock_para
         if Parameters.run_adamw:
             scheduler_param_group= scheduler.batch_step()
             print("AdamW - Getting Learning Rate ", scheduler_param_group['lr'])
-            print("AdamW - Getting weight decay", scheduler_param_group['weight_decay'])
+            #print("AdamW - Getting weight decay", scheduler_param_group['weight_decay'])
             epoch_metrics = {f"epoch_cum_loss": epoch_cum_loss.item(),
                         f"last_lr": scheduler_param_group['lr']}
         else:
@@ -563,7 +572,7 @@ def Test(test_loader, net, stock_ticker, device, experiment_name, run):
         inputs, labels = data[0].to(device), data[1].to(device)
 
         with torch.no_grad():
-            outputs = net(inputs)
+            outputs, feature_maps_cnn, feature_maps_fc = net(inputs)
             #print("outputs",outputs)
         
         input_tensor = inputs.data
