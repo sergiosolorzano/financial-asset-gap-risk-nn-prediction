@@ -77,7 +77,7 @@ def generate_dataset_to_images_process(stocksobj, stocks, params, test_size, col
     #Visualize Closing Price for one image in GAF or Markov:
     # A darker patch indicates lower correlation between the different elements of the price time series, 
     # possibly due to higher volatility or noise. The opposite is true for the lighter patches.
-    if params.scenario == 0: plot_data.quick_view_images(images_array, cols_used_count, cols_used, experiment_name, getattr(run, 'info', None).run_id if run else None)
+    plot_data.quick_view_images(images_array, cols_used_count, cols_used, experiment_name, getattr(run, 'info', None).run_id if run else None)
 
     #Prepare and Load Data
     images_array, labels_array = image_transform.squeeze_array(images_array, labels_array)

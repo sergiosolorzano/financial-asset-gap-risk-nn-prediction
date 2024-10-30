@@ -87,7 +87,6 @@ class Parameters:
     train = True
     load_checkpoint_for_eval = True
 
-    scenario = 0 #local txt logging param
     nn_predict_price = 1 #0=classification;1=regression
     classification_class_price_down=0
     classification_class_price_up=1
