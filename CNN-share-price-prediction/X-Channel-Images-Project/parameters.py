@@ -86,7 +86,6 @@ class Parameters:
     run_iter = False
 
     run_enhanced_model = 0 #1= 4 Conv2d layers; 0= 2 Conv2d layers
-    capture_cnn_feature_maps = 1 #1=last cnn; 0=last fully connected
     train = True
     load_checkpoint_for_eval = True
 
@@ -203,7 +202,7 @@ class Parameters:
     batch_eval_drop_last = False
     num_workers = 0
 
-    num_epochs_input = 20000
+    num_epochs_input = 1000
 
     best_checkpoint_cum_loss = 0.2
     min_best_cum_loss = torch.tensor(2.5, device=device, dtype=torch.float64)
@@ -214,7 +213,7 @@ class Parameters:
 
     #adamw optimizer and cyclic scheduler
     run_adamw = True
-    adamw_weight_decay = 0.00001
+    adamw_weight_decay = 0.00001#0.001
     adamw_scheduler_cyclic_policy = "cosine" #["cosine", "arccosine", "triangular", "triangular2", "exp_range"]
     adamw_scheduler_restart_period = 5 #epoch count in the first restart period
     adamw_scheduler_t_mult = 1.2 #multiplication factor by which the next restart period will expand/shrink
@@ -257,3 +256,7 @@ class Parameters:
         regularization_function = nn.ReLU()
     else:
         regularization_function = nn.SiLU()
+
+    #training net peer
+    save_params_at_epoch_multiple = 100
+    training_analytics_params_log_fname = 'nn_peer_stats.txt'

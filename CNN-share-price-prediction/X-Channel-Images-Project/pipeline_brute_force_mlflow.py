@@ -2,6 +2,7 @@
 
 import os
 import sys
+import math
 import mlflow.azure
 from sklearn.preprocessing import StandardScaler,MinMaxScaler
 from datetime import datetime
@@ -77,11 +78,11 @@ def create_train_eval_stocks_obj():
     stock_params = StockParams()
 
     # run concat
-    #stock_params.add_train_stock('CFG', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('CFG', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('ZION', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('PWBK', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('KEY', '2021-12-06', '2023-01-25')
-    stock_params.add_train_stock('FITB', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('FITB', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('SIVBQ', '2021-12-06', '2023-01-25')
     # stock_params.add_train_stock('SICP', '2021-12-06', '2023-01-25')
     # stock_params.add_train_stock('ALLY', '2021-12-06', '2023-01-25')
@@ -89,10 +90,10 @@ def create_train_eval_stocks_obj():
     # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
     
     #scenarios
-    #stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
+    stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('OZK', '2021-12-06', '2023-01-25') 
-    stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
+    #stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
     #stock_params.add_eval_stock('CUBI', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
     #stock_params.add_eval_stock('WAL', '2021-12-06', '2023-01-25') #loss 0.10, acc 34%, r^2 -0.15
     #stock_params.add_eval_stock('SICP', '2021-12-06', '2023-01-25')
@@ -116,19 +117,57 @@ def create_train_eval_stocks_obj():
 
     return stock_params
 
-def calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32):
-    train_feature_image_dataset_list_f32_tensor = torch.from_numpy(train_feature_image_dataset_list_f32).unsqueeze(1)
-    test_feature_image_dataset_list_f32_tensor = torch.from_numpy(test_feature_image_dataset_list_f32).unsqueeze(1)
+def calculate_ssim_train_eval(train_feature_maps_cnn_list, train_feature_maps_fc_list, eval_feature_maps_cnn_list, eval_feature_maps_fc_list):
+    #CNN
+    train_feature_maps_cnn_np = torch.cat(train_feature_maps_cnn_list, dim=0)
+    eval_feature_maps_cnn_np = torch.cat(eval_feature_maps_cnn_list, dim=0)
+    # train_feature_maps_np = train_feature_maps_np.unsqueeze(1).unsqueeze(1)
+    # eval_feature_maps_np = eval_feature_maps_np.unsqueeze(1).unsqueeze(1)
+    calculate_images_ssim(train_feature_maps_cnn_np, eval_feature_maps_cnn_np, "CNN")
+    
+    #FC
+    train_feature_maps_fc_np = torch.cat(train_feature_maps_fc_list, dim=0)
+    eval_feature_maps_fc_np = torch.cat(eval_feature_maps_fc_list, dim=0)
+    #print("AT MAIN len FC feature maps",len(eval_feature_maps_fc_np),"shape",eval_feature_maps_fc_np.shape)
+    
+    total_elements = train_feature_maps_fc_np.numel()
+    width = int(math.sqrt(total_elements))
+    height = total_elements // width
+
+    while total_elements % width != 0:
+        width -= 1
+        height = total_elements // width
+    train_feature_maps_fc_np = train_feature_maps_fc_np.view(width, height).unsqueeze(0).unsqueeze(0)
+    eval_feature_maps_fc_np = eval_feature_maps_fc_np.view(width, height).unsqueeze(0).unsqueeze(0)
+    calculate_images_ssim(train_feature_maps_fc_np, eval_feature_maps_fc_np, "FC")
+
+def calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32, layer_type):
+    
+    print("train_feature_image_dataset_list_f32",train_feature_image_dataset_list_f32.dtype, train_feature_image_dataset_list_f32.shape)
+    print("test_feature_image_dataset_list_f32",test_feature_image_dataset_list_f32.dtype, test_feature_image_dataset_list_f32.shape)
+    if isinstance(train_feature_image_dataset_list_f32, np.ndarray):
+        train_feature_image_dataset_list_f32_tensor = torch.from_numpy(train_feature_image_dataset_list_f32).unsqueeze(1)
+    else:
+        train_feature_image_dataset_list_f32_tensor = train_feature_image_dataset_list_f32
+
+    if isinstance(test_feature_image_dataset_list_f32, np.ndarray):
+        test_feature_image_dataset_list_f32_tensor = torch.from_numpy(test_feature_image_dataset_list_f32).unsqueeze(1)
+    else:
+        test_feature_image_dataset_list_f32_tensor = test_feature_image_dataset_list_f32
     #test_feature_image_dataset_list_f32_tensor = test_feature_image_dataset_list_f32_tensor
     #train_max = torch.max(torch.abs(train_feature_image_dataset_list_f32_tensor)).item()
     #eval_max = torch.max(torch.abs(test_feature_image_dataset_list_f32_tensor)).item()
     #data_range=max(train_max, eval_max)
     data_range = max(torch.max(torch.abs(train_feature_image_dataset_list_f32_tensor)).item(),torch.max(torch.abs(test_feature_image_dataset_list_f32_tensor)).item())
     ssim_score = ssim(train_feature_image_dataset_list_f32_tensor, test_feature_image_dataset_list_f32_tensor, data_range=data_range)
-    print("ssim_score",ssim_score)
-
-    image_similarity = {"SSIM":ssim_score.item()}
     
+    if layer_type is not None:
+        print(f"ssim_score {layer_type}: ",ssim_score)
+        image_similarity = {f"SSIM_{layer_type}":ssim_score.item()}
+    else:
+        print(f"ssim_score Input Images: ",ssim_score)
+        image_similarity = {"SSIM_Input_Images":ssim_score.item()}
+
     if Parameters.enable_mlflow:
         mlflow.log_metrics(image_similarity)
 
@@ -357,14 +396,14 @@ def brute_force_function(credentials, device, stock_params):
                                                                                                                                                         run, experiment_name)
                                         
                                             if Parameters.train:
-                                                net, train_stack_input = pipeline_train.train_process(train_loader, Parameters, run_id, experiment_name, device, stock_params)
+                                                net, train_stack_input, train_feature_maps_cnn_list, train_feature_maps_fc_list = pipeline_train.train_process(train_loader, Parameters, run_id, experiment_name, device, stock_params)
                                                 
                                                 #test
                                                 # set model to eval
                                                 net  = neural_network.set_model_for_eval(net)
 
                                                 if Parameters.training_test_size > 0:
-                                                    test_stack_input, test_stack_actual, test_stack_predicted = pipeline_test.test_process(net, test_loader, 
+                                                    test_stack_input, test_stack_actual, test_stack_predicted, test_feature_maps_cnn_list, test_feature_maps_fc_list = pipeline_test.test_process(net, test_loader, 
                                                                                                                         Parameters, 
                                                                                                                         Parameters.train_tickers, run,
                                                                                                                         experiment_name, device)
@@ -380,9 +419,10 @@ def brute_force_function(credentials, device, stock_params):
                                             #load best checkpoint
                                             if Parameters.load_checkpoint_for_eval:
                                                 net = neural_network.instantiate_net(Parameters, device)
-                                                net, epoch, loss = helper_functions.load_checkpoint_model(net, device, stock_params)
+                                                net, epoch, loss, checkpoint = helper_functions.load_checkpoint_model(net, device, stock_params)
                                                 net  = neural_network.set_model_for_eval(net)
                                                 torch.set_grad_enabled(False)
+                                                #print("Parameters.checkpt_dict",Parameters.checkpt_dict['model_state_dict']['conv2.weight'])
 
                                                 #load model
                                                 #PATH = f'./model_scen_{0}_full.pth'
@@ -422,7 +462,7 @@ def brute_force_function(credentials, device, stock_params):
                                             
                                             if Parameters.train and (len(train_feature_image_dataset_list_f32) == len(test_feature_image_dataset_list_f32)):
                                                 #calculate structural similarity index measure for images
-                                                ssim_list[f"Train:{stock_params.train_stock_tickers}_Eval:{stock_params.eval_stock_tickers}"]=(calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32))
+                                                ssim_list[f"Train:{stock_params.train_stock_tickers}_Eval:{stock_params.eval_stock_tickers}"]=(calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32, None))
                                                 #print("train_feature_image_dataset_list_f32 [:2]",train_feature_image_dataset_list_f32[:2],"type",train_feature_image_dataset_list_f32.dtype,"shape",train_feature_image_dataset_list_f32.shape,"size",train_feature_image_dataset_list_f32.size)
                                                 #print("type",train_feature_image_dataset_list_f32.dtype,"shape",train_feature_image_dataset_list_f32.shape,"size",train_feature_image_dataset_list_f32.size)
                                                 #calculate MSE images
@@ -433,7 +473,7 @@ def brute_force_function(credentials, device, stock_params):
                                                     mlflow.log_metrics(mse_dict)
                                             
                                             #test
-                                            evaluation_test_stack_input, evaluation_test_stack_actual, evaluation_test_stack_predicted = pipeline_test.test_process(net, 
+                                            evaluation_test_stack_input, evaluation_test_stack_actual, evaluation_test_stack_predicted, eval_feature_maps_cnn_list, eval_feature_maps_fc_list = pipeline_test.test_process(net, 
                                                                                                                                                 test_loader, 
                                                                                                                                                 Parameters,
                                                                                                                                                 Parameters.eval_tickers, run,
@@ -441,6 +481,8 @@ def brute_force_function(credentials, device, stock_params):
 
                                             #report stats
                                             if Parameters.train:
+
+                                                calculate_ssim_train_eval(train_feature_maps_cnn_list, train_feature_maps_fc_list, eval_feature_maps_cnn_list, eval_feature_maps_fc_list)
 
                                                 image_series_correlations, image_series_mean_correlation = evaluation_test_pipeline.report_evaluation_test_stats(
                                                                                                     stock_params.get_eval_stocks(), Parameters, evaluation_test_stock_dataset_df, 
@@ -502,6 +544,9 @@ if __name__ == "__main__":
     _credentials = credentials.MLflow_Credentials()
     _credentials.get_credentials()
 
+    #clean nn peer file
+    with open(Parameters.training_analytics_params_log_fname, 'w') as file:
+        file.write("")
     #iter
     if Parameters.run_iter:
 
