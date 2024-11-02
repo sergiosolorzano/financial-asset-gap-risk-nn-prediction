@@ -81,6 +81,7 @@ def update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net_state_dict, opt
             'optimizer_state_dict': opti_state_dict,
             'loss': epoch_loss,
             }
+    #print("Parameters.checkpt_dict",Parameters.checkpt_dict['model_state_dict']['conv2.weight'])
 
 def save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, curr_epoch_cum_loss, net, run_id, experiment_name, stock_params, epoch):
     print("Saving model best loss", best_cum_loss.item(), "at Epoch ", best_cum_loss_epoch)
@@ -88,8 +89,9 @@ def save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, curr_epoch_cum_los
     eval_stocks = stock_params.eval_stock_tickers
     model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}_{train_stocks}_{eval_stocks}_{Parameters.model_uuid}.pth'
     if Parameters.checkpt_dict['optimizer_state_dict'] == None:
-        print("***Updating checkpoint dict cos it's NONE", Parameters.checkpt_dict['optimizer_state_dict'])
+        #print("***Updating checkpoint dict cos it's NONE", Parameters.checkpt_dict['optimizer_state_dict'])
         update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), curr_epoch_cum_loss)
+    #print("SAVING:Parameters.checkpt_dict",Parameters.checkpt_dict['model_state_dict']['conv2.weight'])
     torch.save(Parameters.checkpt_dict, "./" + model_checkpoint_fname_with_dir)
     
     if Parameters.enable_mlflow:
@@ -124,6 +126,7 @@ def load_checkpoint_model(net, device, stock_params):
     #load state dict and optimizer
     #print("***At Load checkpoing",checkpoint['model_state_dict'])
     net.load_state_dict(checkpoint['model_state_dict'])
+    
     #instantiate optimizer used to train the model (ensure opt is correct in params)
     neural_network.instantiate_optimizer_and_scheduler(net, Parameters)
     #load weights
@@ -135,7 +138,7 @@ def load_checkpoint_model(net, device, stock_params):
     
     print(f"Loaded checkpoint from {model_checkpoint_fname_with_dir}, epoch: {epoch}, loss: {loss}")
     
-    return net, epoch, loss
+    return net, epoch, loss, checkpoint
 
 # def Load_State_Model(net, PATH):
 #     print("Loading State Model")
@@ -157,7 +160,7 @@ def load_checkpoint_model(net, device, stock_params):
 #         file.write('')
 
 def Scenario_Log(output_string):
-    with open(f'dtw_distances.txt', 'a') as file:
+    with open(Parameters.training_analytics_params_log_fname, 'a') as file:
         file.write('\n\n' + output_string)
 
 def Load_BayesOpt_Model(scenario, net):
@@ -172,13 +175,13 @@ def data_to_array(input_list):
 
     return output_array
 
-def write_scenario_to_log_file(accuracy):
+def write_scenario_to_log_file(training_stats):
     #write to file
-    output_string = (f"Accuracy 2dp: {accuracy[0]}%\n"
-                    f"Accuracy 1dp: {accuracy[1]}%\n",
-                    f"Classification Accuracy: {accuracy[2]}%\n")
+    # output_string = (f"Accuracy 2dp: {accuracy[0]}%\n"
+    #                 f"Accuracy 1dp: {accuracy[1]}%\n",
+    #                 f"Classification Accuracy: {accuracy[2]}%\n")
 
-    Scenario_Log(str(output_string))
+    Scenario_Log(str(training_stats))
 
 def Save_Model(run_id, net, model_signature, experiment_name, stock_params):
     save_full_model(run_id,net, model_signature, experiment_name, stock_params)

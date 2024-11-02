@@ -43,11 +43,11 @@ def create_train_eval_stocks_obj():
     stock_params = StockParams()
 
     # run concat
-    #stock_params.add_train_stock('CFG', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('CFG', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('ZION', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('PWBK', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('KEY', '2021-12-06', '2023-01-25')
-    stock_params.add_train_stock('FITB', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('FITB', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('SIVBQ', '2021-12-06', '2023-01-25')
     # stock_params.add_train_stock('SICP', '2021-12-06', '2023-01-25')
     # stock_params.add_train_stock('ALLY', '2021-12-06', '2023-01-25')
@@ -55,10 +55,10 @@ def create_train_eval_stocks_obj():
     # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
     
     #scenarios
-    #stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
+    stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('OZK', '2021-12-06', '2023-01-25') 
-    stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('CUBI', '2021-12-06', '2023-01-25')
     #stock_params.add_eval_stock('WAL', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('ZION', '2021-12-06', '2023-01-25')
@@ -166,9 +166,12 @@ def train(device) :
                                                                                                                                                         None, None)
     if Parameters.load_checkpoint_for_eval:
         net = neural_network.instantiate_net(Parameters, device)
-        net, epoch, loss = helper_functions.load_checkpoint_model(net, device, stock_params)
+        net, epoch, loss, checkpoint = helper_functions.load_checkpoint_model(net, device, stock_params)
+        print("Epoch:", checkpoint['epoch'])
+        print("Loss:", checkpoint['loss'])
         net  = neural_network.set_model_for_eval(net)
         torch.set_grad_enabled(False)
+        print("TRAIN Parameters.checkpt_dict",checkpoint['model_state_dict']['conv2.weight'])
 
     for i, data in enumerate(train_loader, 0):
         inputs, labels = data[0].to(device), data[1].to(device)
@@ -181,10 +184,7 @@ def train(device) :
     return feature_maps_cnn_list, feature_maps_fc_list
 
 def eval(device):
-    #################################
-    #       Evaluation Test         #
-    #################################
-
+    
     feature_maps_cnn_list = []
     feature_maps_fc_list = []
 
@@ -193,9 +193,12 @@ def eval(device):
     #load best checkpoint
     if Parameters.load_checkpoint_for_eval:
         net  = neural_network.instantiate_net(Parameters, device)
-        net, epoch, loss = helper_functions.load_checkpoint_model(net, device, stock_params)
+        net, epoch, loss, checkpoint = helper_functions.load_checkpoint_model(net, device, stock_params)
+        print("Epoch:", checkpoint['epoch'])
+        print("Loss:", checkpoint['loss'])
         net  = neural_network.set_model_for_eval(net)
         torch.set_grad_enabled(False)
+        print("EVAL Parameters.checkpt_dict",checkpoint['model_state_dict']['conv2.weight'])
 
     #external test image generation
     train_loader, test_loader, evaluation_test_stock_dataset_df, test_feature_image_dataset_list_f32 = pipeline_data.generate_dataset_to_images_process(stock_params, stock_params.get_eval_stocks(), 
@@ -213,7 +216,7 @@ def eval(device):
             feature_maps_fc_list.append(feature_map_fc)
 
     #eval
-    evaluation_test_stack_input, evaluation_test_stack_actual, evaluation_test_stack_predicted = pipeline_test.test_process(net, 
+    evaluation_test_stack_input, evaluation_test_stack_actual, evaluation_test_stack_predicted, eval_feature_maps_cnn_list, eval_feature_maps_fc_list = pipeline_test.test_process(net, 
                                                                                                         test_loader, 
                                                                                                         Parameters,
                                                                                                         Parameters.eval_tickers, None,

@@ -14,6 +14,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import torch.backends.cudnn
+from torchmetrics import R2Score, Accuracy
 
 import numpy as np
 from sklearn.metrics import confusion_matrix
@@ -50,6 +51,8 @@ class Net(nn.Module):
         self.dropout_probab = params.dropout_probab
         #print();print("Convos & dropoutP:", params.output_conv_1, params.output_conv_2, params.dropout_probab)
         
+        print("###params.dropout_probab",params.dropout_probab)
+
         #num channels input, num channels output, filter size
         self.conv1 = nn.Conv2d(1, self.output_conv_1, params.filter_size_1, params.stride_1)
         self.bn1 = nn.BatchNorm2d(self.output_conv_1)
@@ -332,6 +335,33 @@ def instantiate_optimizer_and_scheduler(net, params):
     
     return optimizer, scheduler
 
+def summarize_epoch_statistics(net, epoch_loss, epoch_accuracy, epoch_r2):
+    if Parameters.nn_predict_price:
+        summary_stats = {'epoch_loss': epoch_loss, 'epoch_r2': epoch_r2}
+    else:
+        summary_stats = {'epoch_loss': epoch_loss, 'epoch_accuracy': epoch_accuracy}
+    
+    # Iterate through model layers to collect weight and gradient statistics
+    for name, param in net.named_parameters():
+        if param.requires_grad:
+            # Collect weight statistics
+            #print("###weights",param.data.mean().item())
+            summary_stats[f"{name}_weight_mean"] = param.data.mean().item()
+            summary_stats[f"{name}_weight_std"] = param.data.std().item() if param.data.numel() > 1 else 0.0
+            summary_stats[f"{name}_weight_min"] = param.data.min().item()
+            summary_stats[f"{name}_weight_max"] = param.data.max().item()
+            
+            # Collect gradient statistics
+            if param.grad is not None:
+                #print(f"###grad {name}",param.grad.mean().item())
+                summary_stats[f"{name}_grad_mean"] = param.grad.mean().item() if param.grad is not None else 0.0
+                summary_stats[f"{name}_grad_std"] = param.grad.std().item() if param.grad.numel() > 1 else 0.0
+                summary_stats[f"{name}_grad_min"] = param.grad.min().item() if param.grad is not None else 0.0
+                summary_stats[f"{name}_grad_max"] = param.grad.max().item() if param.grad is not None else 0.0
+
+    #print("SUMMARY STATS",summary_stats)
+    return summary_stats
+
 def Train(params, train_loader, net, run_id, experiment_name, device, stock_params):
 
     #enable grad
@@ -343,6 +373,16 @@ def Train(params, train_loader, net, run_id, experiment_name, device, stock_para
     best_cum_loss_epoch = torch.tensor(0.0, device=device, dtype=torch.int16)
     best_cum_loss = params.min_best_cum_loss
     best_checkpoint_cum_loss = params.best_checkpoint_cum_loss
+
+    #analysis init
+    num_classes = 2 if Parameters.nn_predict_price == 0 else None
+    task_type = "binary" if Parameters.nn_predict_price == 0 and num_classes == 2 else "multiclass"
+    if Parameters.nn_predict_price == 0: # Classification
+        acc_metric = Accuracy(task=task_type, num_classes=num_classes).to(device)
+        r2_metric = None
+    else: # Regression
+        r2_metric = R2Score().to(device)
+        acc_metric = None
 
     #torch.set_printoptions(threshold=torch.inf)
 
@@ -376,6 +416,15 @@ def Train(params, train_loader, net, run_id, experiment_name, device, stock_para
     # profiler.start()
     
     for epoch in range(params.num_epochs_input):
+
+        #get only the last epochs for analysis
+        feature_maps_cnn_list =[]
+        feature_maps_fc_list =[]
+        epoch_accuracy = 0.0
+        epoch_r2 = 0.0
+        total_samples = 0
+        #weights/grad analysis
+        #epoch_gradients = {name: [] for name, param in net.named_parameters() if param.requires_grad}
 
         if Parameters.run_adamw:
             scheduler.step()
@@ -412,7 +461,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device, stock_para
                     #print("epoch",epoch,"data i",i,"label",labels,"labels shape",labels.shape, labels)
                     input_np = inputs.detach().cpu().numpy()
                     if Parameters.enable_mlflow:
-                        ouput, feature_maps_cnn = net(inputs)
+                        ouput, feature_maps_cnn, feature_maps_fc = net(inputs)
                         model_signature = mlflow.models.infer_signature(input_np,ouput.detach().cpu().numpy())
 
                 if Parameters.save_arch_bool:
@@ -423,12 +472,28 @@ def Train(params, train_loader, net, run_id, experiment_name, device, stock_para
                 optimizer.zero_grad()
                 # forward + backward + optimize
                 outputs, feature_maps_cnn, feature_maps_fc = net(inputs)
+                feature_maps_cnn_list.append(feature_maps_cnn)
+                feature_maps_fc_list.append(feature_maps_fc)
+                
+                # For classification accuracy (uncomment if applicable)
+                if (epoch + 1) % Parameters.save_params_at_epoch_multiple == 0:
+                    if Parameters.nn_predict_price == 0:
+                        batch_accuracy = acc_metric(outputs, labels)
+                        epoch_accuracy += batch_accuracy * inputs.size(0)
+                    else:
+                        batch_r2 = r2_metric(outputs, labels)
+                        epoch_r2 += batch_r2 * inputs.size(0)
+                    
+                    total_samples += inputs.size(0)
+
                 #print("outputs shape",outputs.shape,outputs)
                 #print("outputs",outputs,"labels",labels)
                 loss = criterion(outputs, labels)
 
             if loss is not None:
                 loss.backward()
+                # print(f"###Epoch {epoch} Batch {i} -> net.fc3.bias",net.fc3.bias)
+                # print(f"###Epoch {epoch} Batch {i} -> net.fc3.bias.grad",net.fc3.bias.grad)
                 optimizer.step()
 
                 # Print optimizer's state_dict
@@ -486,6 +551,22 @@ def Train(params, train_loader, net, run_id, experiment_name, device, stock_para
         if epoch != 0 and epoch % Parameters.save_model_at_epoch_multiple == 0:
             helper_functions.save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, epoch_cum_loss, net, run_id, experiment_name, stock_params, epoch)
         
+        #report for during training analytics on this epoch
+        if (epoch + 1) % Parameters.save_params_at_epoch_multiple == 0:
+            #calc accur/r^2
+            epoch_accuracy = epoch_accuracy / total_samples
+            epoch_r2 = epoch_r2 / total_samples if Parameters.nn_predict_price else None
+
+            #print nn peer analytics
+            if Parameters.nn_predict_price:
+                mssg = f"Epoch [{epoch + 1}/{params.num_epochs_input}], R^2: {epoch_r2:.4f}"
+            else:
+                mssg=f"Epoch [{epoch + 1}/{params.num_epochs_input}], Accuracy: {epoch_accuracy:.4f}"
+            print(mssg)
+            helper_functions.write_scenario_to_log_file(mssg)
+            epoch_stats = summarize_epoch_statistics(net, epoch_cum_loss,epoch_accuracy,epoch_r2)
+            helper_functions.write_scenario_to_log_file(epoch_stats)
+
         #exit if below loss threshold
         #print(f"Comparing Stop - Cum Loss {epoch_cum_loss} Vs {params.loss_stop_threshold}")
         if epoch_cum_loss < params.loss_stop_threshold:
@@ -498,7 +579,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device, stock_para
             Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name, net, stock_params)
 
             #return net, model_signature, stack_input
-            return net, model_signature if 'model_signature' in locals() else None or None, stack_input
+            return net, model_signature if 'model_signature' in locals() else None or None, stack_input, feature_maps_cnn_list, feature_maps_fc_list
         
         #exit if there's no improvement for x-epochs and LR Reset not enabled
         if not params.enable_lr_reset and ((best_cum_loss_epoch + params.max_stale_loss_epochs) < epoch):
@@ -510,7 +591,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device, stock_para
             
             Train_tail_end(epoch_cum_loss, epoch, best_cum_loss_epoch, best_cum_loss, train_loader, start_time, run_id, experiment_name, net, stock_params)
 
-            return net, model_signature if 'model_signature' in locals() else None, stack_input
+            return net, model_signature if 'model_signature' in locals() else None, stack_input, feature_maps_cnn_list, feature_maps_fc_list
         
         if Parameters.run_adamw:
             scheduler_param_group= scheduler.batch_step()
@@ -546,7 +627,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device, stock_para
     
     torch.set_printoptions()
 
-    return net, model_signature if 'model_signature' in locals() else None, stack_input
+    return net, model_signature if 'model_signature' in locals() else None, stack_input, feature_maps_cnn_list, feature_maps_fc_list
 
 def Test(test_loader, net, stock_ticker, device, experiment_name, run):
     inputs_list = []
@@ -566,6 +647,9 @@ def Test(test_loader, net, stock_ticker, device, experiment_name, run):
     stack_predicted=None
     batch_abs_percentage_diff = torch.tensor(0.0, device=device, dtype=torch.float32)
 
+    feature_maps_cnn_list =[]
+    feature_maps_fc_list = []
+
     torch.set_printoptions(threshold=torch.inf)
 
     for i, data in enumerate(test_loader, 0):
@@ -573,6 +657,8 @@ def Test(test_loader, net, stock_ticker, device, experiment_name, run):
 
         with torch.no_grad():
             outputs, feature_maps_cnn, feature_maps_fc = net(inputs)
+            feature_maps_cnn_list.append(feature_maps_cnn)
+            feature_maps_fc_list.append(feature_maps_fc)
             #print("outputs",outputs)
         
         input_tensor = inputs.data
@@ -656,20 +742,8 @@ def Test(test_loader, net, stock_ticker, device, experiment_name, run):
             accuracy_metrics = {f"accuracy_classification_score": correct_classification_score.double().item()}
         
         mlflow.log_metrics(accuracy_metrics)
-    
-    # accuracyby_element_metrics = {}
-    # pred_element_value = {}
-    # for idx, sc in enumerate(torch.stack(correct_2dp_list, dim=0).flatten()):
-    #     accuracyby_element_metrics[f'{stock_ticker}_accuracy_2dp_score_ele_{idx}'] = sc.double().item()
-    #     accuracyby_element_metrics[f'{stock_ticker}_accuracy_1dp_score_ele_{idx}'] = sc.double().item()
-    # for idx, pred in enumerate(torch.stack(predicted_list, dim=0).flatten()):
-    #     pred_element_value[f'{stock_ticker}_pred_value_ele_{idx}'] = pred.double().item()
-    # mlflow.log_metrics(accuracyby_element_metrics)
-    # mlflow.log_metrics(pred_element_value)
 
-    #print("abs_percentage_diffs",abs_percentage_diffs_np)
-
-    return stack_input, predicted_list, actual_list, accuracy, stack_actual, stack_predicted
+    return stack_input, predicted_list, actual_list, accuracy, stack_actual, stack_predicted, feature_maps_cnn_list, feature_maps_fc_list
 
 def confusion_mtx(true_labels, predicted_labels, stock_ticker, experiment_name, run_id):
     flattened_true_labels = flatten_labels(true_labels)

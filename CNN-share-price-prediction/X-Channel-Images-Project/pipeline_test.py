@@ -21,7 +21,7 @@ def test_process(net, test_loader, params, stock_ticker, run, experiment_name, d
     actual_tensor = labels.data
     print(f"Actual {i}",actual_tensor[:1])
     # test
-    stack_input, predicted_list, actual_list, accuracy, stack_actual, stack_predicted  = neural_network.Test(test_loader,net, stock_ticker, device, experiment_name, run)
+    stack_input, predicted_list, actual_list, accuracy, stack_actual, stack_predicted, feature_maps_cnn_list, feature_maps_fc_list  = neural_network.Test(test_loader,net, stock_ticker, device, experiment_name, run)
 
     #store and to mlflow these input and predicted stacks
     if Parameters.enable_mlflow:
@@ -46,6 +46,6 @@ def test_process(net, test_loader, params, stock_ticker, run, experiment_name, d
     compute_stats.compute_and_report_error_stats(stack_actual, stack_predicted, stock_ticker, device)
 
     #write to file
-    helper_functions.write_scenario_to_log_file(accuracy)
+    #helper_functions.write_scenario_to_log_file(accuracy)
 
-    return stack_input, stack_actual, stack_predicted
+    return stack_input, stack_actual, stack_predicted, feature_maps_cnn_list, feature_maps_fc_list
