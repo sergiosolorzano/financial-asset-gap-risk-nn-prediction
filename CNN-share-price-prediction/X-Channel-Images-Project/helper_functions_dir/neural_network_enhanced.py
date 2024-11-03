@@ -335,31 +335,34 @@ def instantiate_optimizer_and_scheduler(net, params):
     
     return optimizer, scheduler
 
-def summarize_epoch_statistics(net, epoch_loss, epoch_accuracy, epoch_r2):
+def summarize_epoch_statistics(net, epoch, epoch_loss, epoch_accuracy, epoch_r2):
     if Parameters.nn_predict_price:
-        summary_stats = {'epoch_loss': epoch_loss, 'epoch_r2': epoch_r2}
+        summary_stats = {'epoch_loss': float(epoch_loss), 'epoch_r2': float(epoch_r2)}
     else:
-        summary_stats = {'epoch_loss': epoch_loss, 'epoch_accuracy': epoch_accuracy}
+        summary_stats = {'epoch_loss': float(epoch_loss), 'epoch_accuracy': float(epoch_accuracy)}
     
     # Iterate through model layers to collect weight and gradient statistics
     for name, param in net.named_parameters():
         if param.requires_grad:
             # Collect weight statistics
             #print("###weights",param.data.mean().item())
-            summary_stats[f"{name}_weight_mean"] = param.data.mean().item()
-            summary_stats[f"{name}_weight_std"] = param.data.std().item() if param.data.numel() > 1 else 0.0
-            summary_stats[f"{name}_weight_min"] = param.data.min().item()
-            summary_stats[f"{name}_weight_max"] = param.data.max().item()
+            summary_stats[f"{name}_weight_mean"] = float(param.data.mean().item())
+            summary_stats[f"{name}_weight_std"] = float(param.data.std().item()) if param.data.numel() > 1 else 0.0
+            summary_stats[f"{name}_weight_min"] = float(param.data.min().item())
+            summary_stats[f"{name}_weight_max"] = float(param.data.max().item())
             
             # Collect gradient statistics
             if param.grad is not None:
                 #print(f"###grad {name}",param.grad.mean().item())
-                summary_stats[f"{name}_grad_mean"] = param.grad.mean().item() if param.grad is not None else 0.0
-                summary_stats[f"{name}_grad_std"] = param.grad.std().item() if param.grad.numel() > 1 else 0.0
-                summary_stats[f"{name}_grad_min"] = param.grad.min().item() if param.grad is not None else 0.0
-                summary_stats[f"{name}_grad_max"] = param.grad.max().item() if param.grad is not None else 0.0
+                summary_stats[f"{name}_grad_mean"] = float(param.grad.mean().item()) if param.grad is not None else 0.0
+                summary_stats[f"{name}_grad_std"] = float(param.grad.std().item()) if param.grad.numel() > 1 else 0.0
+                summary_stats[f"{name}_grad_min"] = float(param.grad.min().item()) if param.grad is not None else 0.0
+                summary_stats[f"{name}_grad_max"] = float(param.grad.max().item()) if param.grad is not None else 0.0
 
     #print("SUMMARY STATS",summary_stats)
+    if Parameters.enable_mlflow:
+        mlflow.log_metrics(summary_stats,step=epoch)
+
     return summary_stats
 
 def Train(params, train_loader, net, run_id, experiment_name, device, stock_params):
@@ -564,7 +567,7 @@ def Train(params, train_loader, net, run_id, experiment_name, device, stock_para
                 mssg=f"Epoch [{epoch + 1}/{params.num_epochs_input}], Accuracy: {epoch_accuracy:.4f}"
             print(mssg)
             helper_functions.write_scenario_to_log_file(mssg)
-            epoch_stats = summarize_epoch_statistics(net, epoch_cum_loss,epoch_accuracy,epoch_r2)
+            epoch_stats = summarize_epoch_statistics(net, epoch, epoch_cum_loss,epoch_accuracy,epoch_r2)
             helper_functions.write_scenario_to_log_file(epoch_stats)
 
         #exit if below loss threshold

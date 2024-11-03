@@ -95,7 +95,7 @@ class Parameters:
 
     log_returns = True #1=log return rebased price series else price series
 
-    enable_mlflow=False
+    enable_mlflow=True
     mlflow_experiment_name = 'gaprisk-compare-dtw-ssmi-pred'
     mlflow_experiment_description = "Comparison DTW Distances, Structural Similarities, Network Prediction"
     run_id = None
@@ -202,7 +202,7 @@ class Parameters:
     batch_eval_drop_last = False
     num_workers = 0
 
-    num_epochs_input = 1000
+    num_epochs_input = 5000
 
     best_checkpoint_cum_loss = 0.2
     min_best_cum_loss = torch.tensor(2.5, device=device, dtype=torch.float64)
@@ -213,9 +213,9 @@ class Parameters:
 
     #adamw optimizer and cyclic scheduler
     run_adamw = True
-    adamw_weight_decay = 0.00001#0.001
+    adamw_weight_decay = 0.01#0.00001
     adamw_scheduler_cyclic_policy = "cosine" #["cosine", "arccosine", "triangular", "triangular2", "exp_range"]
-    adamw_scheduler_restart_period = 5 #epoch count in the first restart period
+    adamw_scheduler_restart_period = 10 #epoch count in the first restart period
     adamw_scheduler_t_mult = 1.2 #multiplication factor by which the next restart period will expand/shrink
     
     #pytorch LR scheduler
@@ -258,5 +258,5 @@ class Parameters:
         regularization_function = nn.SiLU()
 
     #training net peer
-    save_params_at_epoch_multiple = 100
+    save_params_at_epoch_multiple = 200
     training_analytics_params_log_fname = 'nn_peer_stats.txt'
