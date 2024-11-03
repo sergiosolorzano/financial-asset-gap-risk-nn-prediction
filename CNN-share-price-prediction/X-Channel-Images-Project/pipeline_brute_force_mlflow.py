@@ -169,7 +169,8 @@ def calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_ima
         image_similarity = {"SSIM_Input_Images":ssim_score.item()}
 
     if Parameters.enable_mlflow:
-        mlflow.log_metrics(image_similarity)
+        for key, value in image_similarity.items():
+            mlflow.log_param(key, value)
 
     return ssim_score.item()
 
@@ -247,6 +248,10 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_param
         "epoch_running_gradients_check": Parameters.epoch_running_gradients_check,
         "loss_function": Parameters.function_loss,
         "optimizer": Parameters.optimizer_type,
+        "adamw_weight_decay": Parameters.adamw_weight_decay,
+        "adamw_scheduler_restart_period": Parameters.adamw_scheduler_restart_period,
+        "adamw_scheduler_cyclic_policy": Parameters.adamw_scheduler_cyclic_policy,
+        "adamw_scheduler_t_mult": Parameters.adamw_scheduler_t_mult,
         "lr_scheduler_patience": Parameters.lr_scheduler_patience,
         "log_returns": Parameters.log_returns
         }
@@ -320,7 +325,7 @@ def brute_force_function(credentials, device, stock_params):
     #gaf_sample_ranges = [(-1, 0.5), (-1, 0), (-0.5, 0.5)]
     gaf_sample_ranges = [(-1, 0.5)]
     #dropout_probabs = [0.25, 0.5]
-    dropout_probabs = [0]
+    dropout_probabs = [0.2]
     #gaf_sample_ranges = [(-1, 0.5)]
     batch_size_list=[16]#[16,32,64,128,256,512]
     num_workers = [0]#0,4,8,12,16
@@ -470,7 +475,7 @@ def brute_force_function(credentials, device, stock_params):
                                                 mse_list[f"Train:{stock_params.train_stock_tickers}_Eval:{stock_params.eval_stock_tickers}"]=mse
                                                 mse_dict = {"Images_MSE_LOSS":mse}
                                                 if Parameters.enable_mlflow:
-                                                    mlflow.log_metrics(mse_dict)
+                                                    mlflow.log_params(mse_dict)
                                             
                                             #test
                                             evaluation_test_stack_input, evaluation_test_stack_actual, evaluation_test_stack_predicted, eval_feature_maps_cnn_list, eval_feature_maps_fc_list = pipeline_test.test_process(net, 
@@ -482,7 +487,8 @@ def brute_force_function(credentials, device, stock_params):
                                             #report stats
                                             if Parameters.train:
 
-                                                calculate_ssim_train_eval(train_feature_maps_cnn_list, train_feature_maps_fc_list, eval_feature_maps_cnn_list, eval_feature_maps_fc_list)
+                                                if (len(train_feature_image_dataset_list_f32) == len(test_feature_image_dataset_list_f32)):
+                                                    calculate_ssim_train_eval(train_feature_maps_cnn_list, train_feature_maps_fc_list, eval_feature_maps_cnn_list, eval_feature_maps_fc_list)
 
                                                 image_series_correlations, image_series_mean_correlation = evaluation_test_pipeline.report_evaluation_test_stats(
                                                                                                     stock_params.get_eval_stocks(), Parameters, evaluation_test_stock_dataset_df, 
@@ -509,14 +515,14 @@ def brute_force_function(credentials, device, stock_params):
 
                                                 #     return image_series_mean_correl_df
 
-def on_key_press(key):
-    try:
-        if key.char == 'e':  # Detect the 'e' key
-            print("Key 'e' pressed, starting Evaluation Test...")
-            evaluation_thread = threading.Thread(target=run_evaluation_test)
-            evaluation_thread.start()
-    except AttributeError:
-        pass  # Non-character keys
+# def on_key_press(key):
+#     try:
+#         if key.char == 'e':  # Detect the 'e' key
+#             print("Key 'e' pressed, starting Evaluation Test...")
+#             evaluation_thread = threading.Thread(target=run_evaluation_test)
+#             evaluation_thread.start()
+#     except AttributeError:
+#         pass  # Non-character keys
 
 if __name__ == "__main__":
 

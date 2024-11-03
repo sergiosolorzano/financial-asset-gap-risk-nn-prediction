@@ -43,8 +43,8 @@ def create_train_eval_stocks_obj():
     stock_params = StockParams()
 
     # run concat
-    stock_params.add_train_stock('CFG', '2021-12-06', '2023-01-25')
-    #stock_params.add_train_stock('ZION', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('CFG', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('ZION', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('PWBK', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('KEY', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('FITB', '2021-12-06', '2023-01-25')
@@ -55,8 +55,8 @@ def create_train_eval_stocks_obj():
     # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
     
     #scenarios
-    stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
-    #stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
+    stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('OZK', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('CUBI', '2021-12-06', '2023-01-25')
@@ -227,6 +227,8 @@ if __name__ == "__main__":
     
     device = torch.device("cpu")
     print(torch.__version__)
+
+    Parameters.enable_mlflow=False
     
     train_feature_maps_cnn_list, train_feature_maps_fc_list = train(device)
     eval_feature_maps_cnn_list, eval_feature_maps_fc_list, net = eval(device)
