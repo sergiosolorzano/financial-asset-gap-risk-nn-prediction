@@ -38,9 +38,6 @@ import mlflow
 import contextlib
 from torchinfo import summary
 
-ssim_list = {}
-mse_list = {}
-
 def create_comparison_stocks_obj():
     stock_params = StockParams()
 
@@ -117,13 +114,13 @@ def create_train_eval_stocks_obj():
 
     return stock_params
 
-def calculate_ssim_train_eval(train_feature_maps_cnn_list, train_feature_maps_fc_list, eval_feature_maps_cnn_list, eval_feature_maps_fc_list):
+def calculate_ssim_train_eval(train_feature_maps_cnn_list, train_feature_maps_fc_list, eval_feature_maps_cnn_list, eval_feature_maps_fc_list, epoch):
     #CNN
     train_feature_maps_cnn_np = torch.cat(train_feature_maps_cnn_list, dim=0)
     eval_feature_maps_cnn_np = torch.cat(eval_feature_maps_cnn_list, dim=0)
     # train_feature_maps_np = train_feature_maps_np.unsqueeze(1).unsqueeze(1)
     # eval_feature_maps_np = eval_feature_maps_np.unsqueeze(1).unsqueeze(1)
-    calculate_images_ssim(train_feature_maps_cnn_np, eval_feature_maps_cnn_np, "CNN")
+    calculate_images_ssim(train_feature_maps_cnn_np, eval_feature_maps_cnn_np, "CNN", epoch)
     
     #FC
     train_feature_maps_fc_np = torch.cat(train_feature_maps_fc_list, dim=0)
@@ -139,12 +136,13 @@ def calculate_ssim_train_eval(train_feature_maps_cnn_list, train_feature_maps_fc
         height = total_elements // width
     train_feature_maps_fc_np = train_feature_maps_fc_np.view(width, height).unsqueeze(0).unsqueeze(0)
     eval_feature_maps_fc_np = eval_feature_maps_fc_np.view(width, height).unsqueeze(0).unsqueeze(0)
-    calculate_images_ssim(train_feature_maps_fc_np, eval_feature_maps_fc_np, "FC")
+    calculate_images_ssim(train_feature_maps_fc_np, eval_feature_maps_fc_np, "FC", epoch)
 
-def calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32, layer_type):
+def calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32, layer_type, epoch):
     
     print("train_feature_image_dataset_list_f32",train_feature_image_dataset_list_f32.dtype, train_feature_image_dataset_list_f32.shape)
     print("test_feature_image_dataset_list_f32",test_feature_image_dataset_list_f32.dtype, test_feature_image_dataset_list_f32.shape)
+    #print("***",train_feature_image_dataset_list_f32.shape[2]+train_feature_image_dataset_list_f32.shape[3])
     if isinstance(train_feature_image_dataset_list_f32, np.ndarray):
         train_feature_image_dataset_list_f32_tensor = torch.from_numpy(train_feature_image_dataset_list_f32).unsqueeze(1)
     else:
@@ -154,25 +152,38 @@ def calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_ima
         test_feature_image_dataset_list_f32_tensor = torch.from_numpy(test_feature_image_dataset_list_f32).unsqueeze(1)
     else:
         test_feature_image_dataset_list_f32_tensor = test_feature_image_dataset_list_f32
+        
+    train_feature_image_dataset_list_f32_tensor = train_feature_image_dataset_list_f32_tensor.to(torch.float32)
+    test_feature_image_dataset_list_f32_tensor = test_feature_image_dataset_list_f32_tensor.to(torch.float32)
+    print("Type train",train_feature_image_dataset_list_f32_tensor.dtype,"shape",train_feature_image_dataset_list_f32_tensor.shape)
+    print("Type test",test_feature_image_dataset_list_f32_tensor.dtype,"shape",test_feature_image_dataset_list_f32_tensor.shape)
+    # train_feature_image_dataset_list_f32_tensor = train_feature_image_dataset_list_f32_tensor.cpu()
+    # test_feature_image_dataset_list_f32_tensor = test_feature_image_dataset_list_f32_tensor.cpu()
+    
     #test_feature_image_dataset_list_f32_tensor = test_feature_image_dataset_list_f32_tensor
     #train_max = torch.max(torch.abs(train_feature_image_dataset_list_f32_tensor)).item()
     #eval_max = torch.max(torch.abs(test_feature_image_dataset_list_f32_tensor)).item()
     #data_range=max(train_max, eval_max)
-    data_range = max(torch.max(torch.abs(train_feature_image_dataset_list_f32_tensor)).item(),torch.max(torch.abs(test_feature_image_dataset_list_f32_tensor)).item())
-    ssim_score = ssim(train_feature_image_dataset_list_f32_tensor, test_feature_image_dataset_list_f32_tensor, data_range=data_range)
-    
-    if layer_type is not None:
-        print(f"ssim_score {layer_type}: ",ssim_score)
-        image_similarity = {f"SSIM_{layer_type}":ssim_score.item()}
+    if((train_feature_image_dataset_list_f32_tensor.shape[2] + train_feature_image_dataset_list_f32_tensor.shape[3])>2
+       and (test_feature_image_dataset_list_f32_tensor.shape[2] + test_feature_image_dataset_list_f32_tensor.shape[3])>2):
+        data_range = max(torch.max(torch.abs(train_feature_image_dataset_list_f32_tensor)).item(),torch.max(torch.abs(test_feature_image_dataset_list_f32_tensor)).item())
+        ssim_score = ssim(train_feature_image_dataset_list_f32_tensor.cpu(), test_feature_image_dataset_list_f32_tensor.cpu(), data_range=data_range)
+        
+        if layer_type is not None:
+            print(f"\033[32mssim_score {layer_type}: {ssim_score.item()}\033[0m")
+            image_similarity = {f"SSIM_{layer_type}":ssim_score.item()}
+        else:
+            print(f"\033[32mssim_score Input Images: {ssim_score.item()}\033[0m")
+            image_similarity = {"input_imgs_SSIM":ssim_score.item()}
+
+        if Parameters.enable_mlflow:
+            for key, value in image_similarity.items():
+                mlflow.log_metric(key,value,step=epoch)
+        return ssim_score.item()
     else:
-        print(f"ssim_score Input Images: ",ssim_score)
-        image_similarity = {"SSIM_Input_Images":ssim_score.item()}
-
-    if Parameters.enable_mlflow:
-        for key, value in image_similarity.items():
-            mlflow.log_param(key, value)
-
-    return ssim_score.item()
+        mssg= f"*** Feature Maps for {layer_type} cannot be computed, map size",train_feature_image_dataset_list_f32_tensor.shape[2]+train_feature_image_dataset_list_f32_tensor.shape[3]
+        print(mssg)
+        return mssg
 
 # def dtw_images(train_images, test_images, train_tickers, eval_tickers):
 
@@ -206,10 +217,6 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_param
         "iteration": curr_datetime,
         "train_stock_ticker": stock_params.train_stock_tickers,
         "eval_stock_ticker": stock_params.eval_stock_tickers,
-        # "index_ticker": Parameters.index_ticker,
-        # "start_date": stock_params.start_date,
-        # "end_date": stock_params.end_date,
-        # "daycount": end_date_obj-start_date_obj,
         "training_testing_cols_used": Parameters.training_cols_used,
         "training_test_size": Parameters.training_test_size,
         "evaluation_test_cols_used": Parameters.evaluation_test_cols_used,
@@ -231,10 +238,7 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_param
         "stride_2": Parameters.stride_2,
         "output_conv_1": Parameters.output_conv_1,
         "output_conv_2": Parameters.output_conv_2,
-        "output_conv_2": Parameters.output_conv_3,
-        "output_conv_2": Parameters.output_conv_4,
         "output_FC_1": Parameters.output_FC_1,
-        "output_FC_2": Parameters.output_FC_2,
         "final_FCLayer_outputs": Parameters.final_FCLayer_outputs,
         "learning_rate": Parameters.learning_rate,
         "momentum": Parameters.momentum,
@@ -242,19 +246,49 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_param
         "batch_size": Parameters.batch_size,
         "num_workers": Parameters.num_workers,
         "num_epochs_input": Parameters.num_epochs_input,
-        "max_stale_loss_epochs": Parameters.max_stale_loss_epochs,
+        "max_stale_loss_epochs": Parameters.reduceLROnPlateau_max_stale_loss_epochs,
         "loss_threshold": Parameters.loss_stop_threshold,
         "epoch_running_loss_check": Parameters.epoch_running_loss_check,
         "epoch_running_gradients_check": Parameters.epoch_running_gradients_check,
         "loss_function": Parameters.function_loss,
-        "optimizer": Parameters.optimizer_type,
-        "adamw_weight_decay": Parameters.adamw_weight_decay,
-        "adamw_scheduler_restart_period": Parameters.adamw_scheduler_restart_period,
-        "adamw_scheduler_cyclic_policy": Parameters.adamw_scheduler_cyclic_policy,
-        "adamw_scheduler_t_mult": Parameters.adamw_scheduler_t_mult,
-        "lr_scheduler_patience": Parameters.lr_scheduler_patience,
+        "optimizer_type": Parameters.optimizer_type,
+        "scheduler_type": Parameters.scheduler_type,
         "log_returns": Parameters.log_returns
         }
+    
+    if Parameters.use_layer_lr:
+        params_dict["conv_learning_rate"] = Parameters.conv_lr
+    if Parameters.fc_lr:
+        params_dict["fc_learning_rate"] = Parameters.fc_lr
+    if Parameters.output_conv_3!=0:
+        params_dict["output_conv_3"] = Parameters.output_conv_3
+    if Parameters.output_conv_4!=0:
+        params_dict["output_conv_4"] = Parameters.output_conv_4
+    if Parameters.output_FC_2!=0:
+        params_dict["output_FC_2"] = Parameters.output_FC_2
+    if Parameters.optimizer_type=="Adamw":
+        params_dict["adamw_weight_decay"] = Parameters.adamw_weight_decay
+    if Parameters.optimizer_type=="Adam":
+        params_dict["adam_weight_decay"] = Parameters.adam_weight_decay
+        params_dict["adam_betas"] = Parameters.adam_betas
+    if Parameters.scheduler_type=="CyclicLRWithRestarts":
+        params_dict["cyclicLRWithRestarts_restart_period"] = Parameters.cyclicLRWithRestarts_restart_period
+        params_dict["cyclicLRWithRestarts_cyclic_policy"] = Parameters.cyclicLRWithRestarts_cyclic_policy
+        params_dict["cyclicLRWithRestarts_t_mult"] = Parameters.cyclicLRWithRestarts_t_mult
+    if Parameters.use_clip_grad_norm==True:
+        params_dict["grad_norm_clip_max"] = Parameters.grad_norm_clip_max
+    if Parameters.scheduler_type=="ReduceLROnPlateau":
+        params_dict["reduceLROnPlateau_patience"] = Parameters.reduceLROnPlateau_patience
+        params_dict["reduceLROnPlateau_mode"] = Parameters.reduceLROnPlateau_mode
+        params_dict["reduceLROnPlateau_max_stale_loss_epochs"] = Parameters.reduceLROnPlateau_max_stale_loss_epochs
+        params_dict["reduceLROnPlateau_enable_reset"] = Parameters.reduceLROnPlateau_enable_reset
+        params_dict["reduceLROnPlateau_reset_rate"] = Parameters.reduceLROnPlateau_reset_rate
+        params_dict["reduceLROnPlateau_reset_threshold"] = Parameters.reduceLROnPlateau_reset_threshold
+        params_dict["reduceLROnPlateau_factor"] = Parameters.reduceLROnPlateau_factor
+        params_dict["reduceLROnPlateau_min_lr"] = Parameters.reduceLROnPlateau_min_lr
+    if Parameters.scheduler_type=="OneCycleLR":
+        params_dict["oneCycleLR_max_lr"] = Parameters.oneCycleLR_max_lr
+        params_dict["oneCycleLR_pct_start"] = Parameters.oneCycleLR_pct_start
 
     mlflow.log_params(params_dict)
 
@@ -285,6 +319,76 @@ def set_mlflow_experiment(credentials):
         experiment_name = "Undefined"
 
     return experiment_name, experiment_id
+
+def generate_evaluation_images(stock_params, run, experiment_name, device):
+    print("Generate Eval Images")
+    train_loader, test_loader, evaluation_test_stock_dataset_df, test_feature_image_dataset_list_f32 = pipeline_data.generate_dataset_to_images_process(stock_params, stock_params.get_eval_stocks(), 
+                                                                                                    Parameters, 
+                                                                                                    Parameters.evaluation_test_size, 
+                                                                                                    Parameters.evaluation_test_cols_used,
+                                                                                                    run, experiment_name)
+    for i, data in enumerate(test_loader, 0):
+        inputs, labels = data[0].to(device), data[1].to(device)
+    actual_tensor = labels.data
+    print(f"Actual {i}",actual_tensor[:1])
+
+    return test_feature_image_dataset_list_f32, test_loader, actual_tensor
+    
+def evaluate_and_report(net, stock_params, device, test_loader, run, run_id, experiment_name, 
+                        train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32,
+                        evaluation_test_stock_dataset_df,
+                        train_feature_maps_cnn_list, train_feature_maps_fc_list, train_stack_input, 
+                        epoch):
+    #test
+    evaluation_test_stack_input, evaluation_test_stack_actual, evaluation_test_stack_predicted, eval_feature_maps_cnn_list, eval_feature_maps_fc_list, error_stats = pipeline_test.test_process(net, 
+                        test_loader, 
+                        Parameters,
+                        Parameters.eval_tickers, run,
+                        experiment_name, device, epoch)
+
+    #report stats
+    if Parameters.train:
+
+        if (len(train_feature_image_dataset_list_f32) == len(test_feature_image_dataset_list_f32)):
+            calculate_ssim_train_eval(train_feature_maps_cnn_list, train_feature_maps_fc_list, eval_feature_maps_cnn_list, eval_feature_maps_fc_list, epoch)
+
+        #TODO for during training multiple epochs recordings
+        if Parameters.extended_train_eval_reports:
+            image_series_correlations, image_series_mean_correlation = evaluation_test_pipeline.report_evaluation_test_stats(
+                                                                stock_params.get_eval_stocks(), Parameters, evaluation_test_stock_dataset_df, 
+                                                                train_stack_input, evaluation_test_stack_input,
+                                                                run, experiment_name)
+
+            plot_data.plot_evaluation_test_graphs(Parameters, train_stack_input, evaluation_test_stack_input,
+                                        image_series_correlations, image_series_mean_correlation,
+                                        experiment_name, run_id)
+            
+    return error_stats
+
+def report_image_similarities_eval(stock_params, train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32, epoch):
+    if Parameters.train and (len(train_feature_image_dataset_list_f32) == len(test_feature_image_dataset_list_f32)):
+        #calculate structural similarity index measure for images
+        calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32, None, epoch)
+
+def load_checkpoint_for_eval(device, stock_params, train_loader):
+    text_mssg= "<u><center>==========Run Evaluation Stock Tests:==========</center></u><p>"
+    print("\n\n",text_mssg)
+    if Parameters.save_runs_to_md:
+        helper_functions.write_to_md(text_mssg,None)
+
+    if Parameters.load_checkpoint_for_eval:
+        net = neural_network.instantiate_net(Parameters, device)
+        #print("Loading params",stock_params.get_train_stocks(), "eval",stock_params.get_eval_stocks())
+        net, epoch, loss, checkpoint = helper_functions.load_checkpoint_model(net, device, stock_params, train_loader)
+        net  = neural_network.set_model_for_eval(net)
+        torch.set_grad_enabled(False)
+        #print("Parameters.checkpt_dict",Parameters.checkpt_dict['model_state_dict']['conv2.weight'])
+        
+    #load model
+    #PATH = f'./model_scen_{0}_full.pth'
+    #net = helper_functions.Load_Full_Model(PATH)
+
+    return net
 
 def brute_force_function(credentials, device, stock_params):
 
@@ -325,7 +429,7 @@ def brute_force_function(credentials, device, stock_params):
     #gaf_sample_ranges = [(-1, 0.5), (-1, 0), (-0.5, 0.5)]
     gaf_sample_ranges = [(-1, 0.5)]
     #dropout_probabs = [0.25, 0.5]
-    dropout_probabs = [0.2]
+    dropout_probabs = [0]
     #gaf_sample_ranges = [(-1, 0.5)]
     batch_size_list=[16]#[16,32,64,128,256,512]
     num_workers = [0]#0,4,8,12,16
@@ -401,103 +505,37 @@ def brute_force_function(credentials, device, stock_params):
                                                                                                                                                         run, experiment_name)
                                         
                                             if Parameters.train:
-                                                net, train_stack_input, train_feature_maps_cnn_list, train_feature_maps_fc_list = pipeline_train.train_process(train_loader, Parameters, run_id, experiment_name, device, stock_params)
+                                                net, train_stack_input, train_feature_maps_cnn_list, train_feature_maps_fc_list = pipeline_train.train_process(train_loader, train_feature_image_dataset_list_f32, 
+                                                                                                                                                               evaluation_test_stock_dataset_df, 
+                                                                                                                                                               Parameters, 
+                                                                                                                                                               run, run_id, experiment_name, device, stock_params)
                                                 
                                                 #test
                                                 # set model to eval
                                                 net  = neural_network.set_model_for_eval(net)
 
                                                 if Parameters.training_test_size > 0:
-                                                    test_stack_input, test_stack_actual, test_stack_predicted, test_feature_maps_cnn_list, test_feature_maps_fc_list = pipeline_test.test_process(net, test_loader, 
+                                                    test_stack_input, test_stack_actual, test_stack_predicted, test_feature_maps_cnn_list, test_feature_maps_fc_list, error_stats = pipeline_test.test_process(net, test_loader, 
                                                                                                                         Parameters, 
                                                                                                                         Parameters.train_tickers, run,
-                                                                                                                        experiment_name, device)
+                                                                                                                        experiment_name, device, None)
 
                                             #################################
                                             #       Evaluation Test         #
                                             #################################
-                                            text_mssg= "<u><center>==========Run Evaluation Stock Tests:==========</center></u><p>"
-                                            print("\n\n",text_mssg)
-                                            if Parameters.save_runs_to_md:
-                                                helper_functions.write_to_md(text_mssg,None)
-
+                                            
                                             #load best checkpoint
-                                            if Parameters.load_checkpoint_for_eval:
-                                                net = neural_network.instantiate_net(Parameters, device)
-                                                net, epoch, loss, checkpoint = helper_functions.load_checkpoint_model(net, device, stock_params)
-                                                net  = neural_network.set_model_for_eval(net)
-                                                torch.set_grad_enabled(False)
-                                                #print("Parameters.checkpt_dict",Parameters.checkpt_dict['model_state_dict']['conv2.weight'])
+                                            # net = load_checkpoint_for_eval(device, stock_params, train_loader)
 
-                                                #load model
-                                                #PATH = f'./model_scen_{0}_full.pth'
-                                                #net = helper_functions.Load_Full_Model(PATH)
-
-                                            #external test image generation
-                                            print("NOW EVAL")
-                                            train_loader, test_loader, evaluation_test_stock_dataset_df, test_feature_image_dataset_list_f32 = pipeline_data.generate_dataset_to_images_process(stock_params, stock_params.get_eval_stocks(), 
-                                                                                                                                            Parameters, 
-                                                                                                                                            Parameters.evaluation_test_size, 
-                                                                                                                                            Parameters.evaluation_test_cols_used,
-                                                                                                                                            run, experiment_name)
-                                            for i, data in enumerate(test_loader, 0):
-                                                inputs, labels = data[0].to(device), data[1].to(device)
-                                            actual_tensor = labels.data
-                                            print(f"Actual {i}",actual_tensor[:1])
-                                            #dtw images DIFF
-                                            # print("Train shape:", train_feature_image_dataset_list_f32.shape)
-                                            # print("Test shape:", test_feature_image_dataset_list_f32.shape)
-                                            # train_feature_image_dataset_list_f32=train_feature_image_dataset_list_f32.flatten() 
-                                            # test_feature_image_dataset_list_f32 = test_feature_image_dataset_list_f32.flatten()
-                                            # #train_feature_image_dataset_list_f32 = train_feature_image_dataset_list_f32[:len(test_feature_image_dataset_list_f32)]
-                                            # print("Train size:", len(train_feature_image_dataset_list_f32))
-                                            # print("Test size:", len(test_feature_image_dataset_list_f32))
-                                            # diff = train_feature_image_dataset_list_f32 - test_feature_image_dataset_list_f32
-                                            # print("DIFF:", diff)
-                                            # # Optionally, compute the sum of differences
-                                            # sum_diff = sum(diff)
-                                            # print("Sum of differences:", sum_diff)
+                                            # #external test image generation
+                                            # test_feature_image_dataset_list_f32, test_loader, actual_tensor = generate_evaluation_images(stock_params, run, experiment_name, device)
                                             
-                                            #Calculate DTW for Images
-                                            #dtw_image_df = dtw_images(train_feature_image_dataset_list_f32.flatten(), test_feature_image_dataset_list_f32.flatten(), stock_params.train_stock_tickers, stock_params.eval_stock_tickers)
-                                            # print("TO CONCAT",dtw_image_df)
-                                            # plot_data.dtw_matrix_encoded_images(dtw_image_df, stock_params, Parameters.run_id, Parameters.mlflow_experiment_name)
-                                            # image_series_dtw_distance_df = pd.concat([image_series_dtw_distance_df, pd.DataFrame(dtw_image_df)], ignore_index=True)
-                                            # print("AFTER CONCAT",image_series_dtw_distance_df)
+                                            # report_image_similarities_eval(stock_params,train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32, epoch)
                                             
-                                            if Parameters.train and (len(train_feature_image_dataset_list_f32) == len(test_feature_image_dataset_list_f32)):
-                                                #calculate structural similarity index measure for images
-                                                ssim_list[f"Train:{stock_params.train_stock_tickers}_Eval:{stock_params.eval_stock_tickers}"]=(calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32, None))
-                                                #print("train_feature_image_dataset_list_f32 [:2]",train_feature_image_dataset_list_f32[:2],"type",train_feature_image_dataset_list_f32.dtype,"shape",train_feature_image_dataset_list_f32.shape,"size",train_feature_image_dataset_list_f32.size)
-                                                #print("type",train_feature_image_dataset_list_f32.dtype,"shape",train_feature_image_dataset_list_f32.shape,"size",train_feature_image_dataset_list_f32.size)
-                                                #calculate MSE images
-                                                mse=F.mse_loss(torch.from_numpy(train_feature_image_dataset_list_f32), torch.from_numpy(test_feature_image_dataset_list_f32)).item()
-                                                mse_list[f"Train:{stock_params.train_stock_tickers}_Eval:{stock_params.eval_stock_tickers}"]=mse
-                                                mse_dict = {"Images_MSE_LOSS":mse}
-                                                if Parameters.enable_mlflow:
-                                                    mlflow.log_params(mse_dict)
-                                            
-                                            #test
-                                            evaluation_test_stack_input, evaluation_test_stack_actual, evaluation_test_stack_predicted, eval_feature_maps_cnn_list, eval_feature_maps_fc_list = pipeline_test.test_process(net, 
-                                                                                                                                                test_loader, 
-                                                                                                                                                Parameters,
-                                                                                                                                                Parameters.eval_tickers, run,
-                                                                                                                                                experiment_name, device)
-
-                                            #report stats
-                                            if Parameters.train:
-
-                                                if (len(train_feature_image_dataset_list_f32) == len(test_feature_image_dataset_list_f32)):
-                                                    calculate_ssim_train_eval(train_feature_maps_cnn_list, train_feature_maps_fc_list, eval_feature_maps_cnn_list, eval_feature_maps_fc_list)
-
-                                                image_series_correlations, image_series_mean_correlation = evaluation_test_pipeline.report_evaluation_test_stats(
-                                                                                                    stock_params.get_eval_stocks(), Parameters, evaluation_test_stock_dataset_df, 
-                                                                                                    train_stack_input, evaluation_test_stack_input,
-                                                                                                    run, experiment_name)
-
-                                                plot_data.plot_evaluation_test_graphs(Parameters, train_stack_input, evaluation_test_stack_input,
-                                                                            image_series_correlations, image_series_mean_correlation,
-                                                                            experiment_name, run_id)
+                                            # evaluate_and_report(net, stock_params, device, test_loader, run, run_id, experiment_name, 
+                                            #                     train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32,
+                                            #                     evaluation_test_stock_dataset_df,
+                                            #                     train_feature_maps_cnn_list, train_feature_maps_fc_list, train_stack_input, None)
 
                                                 # #generate encoded image correlation matrix
                                                 # if stock_params.train_count == stock_params.eval_count:

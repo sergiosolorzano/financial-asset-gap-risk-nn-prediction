@@ -34,6 +34,12 @@ matplotlib.use(Parameters.matplotlib_use)
 import credentials
 
 import torch
+import random
+import copy
+
+torch.manual_seed(42)
+np.random.seed(42)
+random.seed(42)
 
 _credentials = credentials.MLflow_Credentials()
 _credentials.get_credentials()
@@ -71,33 +77,37 @@ def Save_Model_Arch(net, run_id, input_shape, input_type, mode, experiment_name)
     if Parameters.enable_mlflow:
         mlflow.log_artifact(local_path="./" + model_arch_fname_with_dir, run_id=run_id, artifact_path=Parameters.model_arch_dir)
 
+
 def update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net_state_dict, opti_state_dict, epoch_loss):
-    print("Update checkpoint_dict epoch",best_cum_loss_epoch, "epoch loss", epoch_loss.item())
+    #print("Update checkpoint_dict epoch", best_cum_loss_epoch, "epoch loss", epoch_loss.item())
     #print("opti_state_dict",opti_state_dict)
-    Parameters.checkpt_dict = {
+    best_checkpt_dict = {
             'run_id': run_id,
             'epoch': best_cum_loss_epoch,
-            'model_state_dict': net_state_dict,
-            'optimizer_state_dict': opti_state_dict,
+            'model_state_dict': copy.deepcopy(net_state_dict),
+            'optimizer_state_dict': copy.deepcopy(opti_state_dict),
             'loss': epoch_loss,
             }
-    #print("Parameters.checkpt_dict",Parameters.checkpt_dict['model_state_dict']['conv2.weight'])
+    print(f"Updated at epoch {best_cum_loss_epoch} checkpt {best_checkpt_dict['model_state_dict']['conv2.weight'][0][0]}")
+    
+    return best_checkpt_dict
 
-def save_checkpoint_model(best_cum_loss_epoch, best_cum_loss, curr_epoch_cum_loss, net, run_id, experiment_name, stock_params, epoch):
-    print("Saving model best loss", best_cum_loss.item(), "at Epoch ", best_cum_loss_epoch)
+def save_checkpoint_model(best_checkpoint_dict, best_cum_loss_epoch, best_cum_loss, curr_epoch_cum_loss, net, run_id, experiment_name, stock_params, epoch):
     train_stocks = stock_params.train_stock_tickers
     eval_stocks = stock_params.eval_stock_tickers
     model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}_{train_stocks}_{eval_stocks}_{Parameters.model_uuid}.pth'
-    if Parameters.checkpt_dict['optimizer_state_dict'] == None:
-        #print("***Updating checkpoint dict cos it's NONE", Parameters.checkpt_dict['optimizer_state_dict'])
-        update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), curr_epoch_cum_loss)
+    # if Parameters.checkpt_dict['optimizer_state_dict'] == None:
+    #     #print("***Updating checkpoint dict cos it's NONE", Parameters.checkpt_dict['optimizer_state_dict'])
+    #     update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), curr_epoch_cum_loss)
     #print("SAVING:Parameters.checkpt_dict",Parameters.checkpt_dict['model_state_dict']['conv2.weight'])
-    torch.save(Parameters.checkpt_dict, "./" + model_checkpoint_fname_with_dir)
+    print("Saving model best loss", best_cum_loss.item(), "at Epoch ", best_cum_loss_epoch, "name",model_checkpoint_fname_with_dir, "best_checkpoint_dict",best_checkpoint_dict['model_state_dict']['conv2.weight'][0][0])
+    torch.save(best_checkpoint_dict, "./" + model_checkpoint_fname_with_dir)
     
     if Parameters.enable_mlflow:
         #blob_with_dirs = "models" + "/" + f'{Parameters.model_checkpoint_fname}.pth'
         blob_with_dirs = Path("models", f'{Parameters.model_checkpoint_fname}.pth')
-        mlflow.log_artifact(local_path="./" + model_checkpoint_fname_with_dir, run_id=run_id, artifact_path=Parameters.checkpoint_dir)
+        if Parameters.enable_save_model:
+            mlflow.log_artifact(local_path="./" + model_checkpoint_fname_with_dir, run_id=run_id, artifact_path=Parameters.checkpoint_dir)
         mlflow.set_tag(f"best_checkpoint_epoch", best_cum_loss_epoch)
         #save_file_to_blob(PATH,os.path.basename(PATH), run_id, experiment_name)
 
@@ -117,26 +127,28 @@ def save_full_model(run_id, net, model_signature, experiment_name, stock_params)
         signature=model_signature)
         #mlflow.pytorch.log_model(net, blob_with_dirs,pip_requirements=pip_requirements, signature=model_signature)
 
-def load_checkpoint_model(net, device, stock_params):
+def load_checkpoint_model(net, device, stock_params, train_loader):
     train_stocks = stock_params.train_stock_tickers
     eval_stocks = stock_params.eval_stock_tickers
+    #instantiate optimizer used to train the model (ensure opt is correct in params)
+    neural_network.instantiate_optimizer_and_scheduler(net, Parameters, train_loader)
+
     #load checkpoint
     model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}_{train_stocks}_{eval_stocks}_{Parameters.model_uuid}.pth'
+    #print(f"Loading model {model_checkpoint_fname_with_dir}")
     checkpoint = torch.load(model_checkpoint_fname_with_dir, map_location=device)
     #load state dict and optimizer
-    #print("***At Load checkpoing",checkpoint['model_state_dict'])
     net.load_state_dict(checkpoint['model_state_dict'])
     
-    #instantiate optimizer used to train the model (ensure opt is correct in params)
-    neural_network.instantiate_optimizer_and_scheduler(net, Parameters)
     #load weights
     Parameters.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    print(f"Loaded Model checkpt {checkpoint['model_state_dict']['conv2.weight'][0][0]}")
 
     #if further training required
     epoch = checkpoint['epoch']
     loss = checkpoint['loss']
     
-    print(f"Loaded checkpoint from {model_checkpoint_fname_with_dir}, epoch: {epoch}, loss: {loss}")
+    print(f"\033[32mLoaded checkpoint from {model_checkpoint_fname_with_dir}, epoch: {epoch}, loss: {loss}\033[0m")
     
     return net, epoch, loss, checkpoint
 
