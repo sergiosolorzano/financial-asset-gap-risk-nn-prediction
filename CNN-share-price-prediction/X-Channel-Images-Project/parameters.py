@@ -85,7 +85,7 @@ class Parameters:
     matplotlib_use = "Agg"
     run_iter = False
 
-    run_enhanced_model = 0 #1= 4 Conv2d layers; 0= 2 Conv2d layers
+    model_complexity = "Simple" #Simple, Average, Complex
     train = True
     load_checkpoint_for_eval = True
 
@@ -96,8 +96,9 @@ class Parameters:
     log_returns = True #1=log return rebased price series else price series
 
     enable_mlflow=True
-    mlflow_experiment_name = 'gaprisk-compare-dtw-ssmi-pred'
-    mlflow_experiment_description = "Comparison DTW Distances, Structural Similarities, Network Prediction"
+    enable_save_model = False
+    mlflow_experiment_name = 'gaprisk-generalize-1'
+    mlflow_experiment_description = "Objective generalize results on largest DTW stock pair"
     run_id = None
     
     brute_force_filename = 'brute_force_results.md'
@@ -110,6 +111,7 @@ class Parameters:
     model_full_fname = 'full_model'
 
     save_runs_to_md = False
+    extended_train_eval_reports = False #TODO
 
     save_arch_bool = True #only once
 
@@ -158,11 +160,11 @@ class Parameters:
     # filter_size_3 = (1,1)#(2, 3)
 
     stride_1 = 1
-    stride_2 = 2#2
+    stride_2 = 1#2
 
     # output_conv_1 = 40
     # output_conv_2 = 12
-    if run_enhanced_model:
+    if model_complexity=="Complex":
         filter_size_1 = (3, 3)
         filter_size_2 = (2, 2)
         filter_size_3 = (1,1)
@@ -172,9 +174,10 @@ class Parameters:
         output_conv_3 = 256
         output_conv_4 = 512
         output_FC_1 = 100
-        output_FC_2 = 0
-    else:
-        filter_size_1 = (2, 3)
+        output_FC_2 = 100
+
+    if model_complexity == "Average":
+        filter_size_1 = (1, 1)#(2, 3)
         filter_size_2 = (2,2)
         filter_size_3 = (2, 3)
 
@@ -184,6 +187,18 @@ class Parameters:
         output_conv_4 = 0
         output_FC_1 = 100
         output_FC_2 = 70
+
+    if model_complexity == "Simple":
+        filter_size_1 = (1, 1)#(2, 3)
+        filter_size_2 = (2,2)
+        filter_size_3 = (2, 3)
+
+        output_conv_1 = 40
+        output_conv_2 = 30
+        output_conv_3 = 0
+        output_conv_4 = 0
+        output_FC_1 = 50
+        output_FC_2 = 0
         
     if nn_predict_price:
         #next day price
@@ -193,45 +208,68 @@ class Parameters:
         final_FCLayer_outputs = 2
 
     learning_rate = 0.001
+    #Optimizer Layers LR
+    use_layer_lr = False
+    conv_lr = 0.0000001
+    fc_lr = 0.1
+
     momentum = 0.9
 
-    dropout_probab = 0
+    use_clip_grad_norm = False
+    grad_norm_clip_max = 0.5
+
+    dropout_probab = 0.2
 
     batch_size = 16
     batch_train_drop_last = False
     batch_eval_drop_last = False
     num_workers = 0
 
-    num_epochs_input = 5000
-
-    best_checkpoint_cum_loss = 0.2
+    best_avg_checkpoint_cum_loss = 5
     min_best_cum_loss = torch.tensor(2.5, device=device, dtype=torch.float64)
-    save_model_at_epoch_multiple = 2500
     model_uuid = 1#str(uuid.uuid4())
 
-    loss_stop_threshold = 0.000001#0.00005
+    loss_stop_threshold = 0.001#0.000001#0.0000013
+    use_mixed_precision = True
 
-    #adamw optimizer and cyclic scheduler
-    run_adamw = True
-    adamw_weight_decay = 0.01#0.00001
-    adamw_scheduler_cyclic_policy = "cosine" #["cosine", "arccosine", "triangular", "triangular2", "exp_range"]
-    adamw_scheduler_restart_period = 10 #epoch count in the first restart period
-    adamw_scheduler_t_mult = 1.2 #multiplication factor by which the next restart period will expand/shrink
+    #pytorch Schedulers
+    scheduler_type = "CyclicLRWithRestarts" #ReduceLROnPlateau, OneCycleLR, CyclicLRWithRestarts
+    scheduler = None
+
+    #CyclicLRWithRestarts Scheduler
+    cyclicLRWithRestarts_cyclic_policy = "cosine" #["cosine", "arccosine", "triangular", "triangular2", "exp_range"]
+    cyclicLRWithRestarts_restart_period = 5 #epoch count in the first restart period
+    cyclicLRWithRestarts_t_mult = 1.2 #multiplication factor by which the next restart period will expand/shrink
+
+    #ReduceLROnPlateau Scheduler:
+    reduceLROnPlateau_patience = 700 #10000 to ignore lrscheduler
+    reduceLROnPlateau_mode = 'min'
+    reduceLROnPlateau_max_stale_loss_epochs = 300 #100000 to ignore lrscheduler #max(4 * lr_scheduler_patience,300)
+    reduceLROnPlateau_enable_reset = True
+    reduceLROnPlateau_reset_rate = 0.001#0.001
+    reduceLROnPlateau_reset_threshold = 0.000001
+    reduceLROnPlateau_factor = 0.01
+    reduceLROnPlateau_min_lr = 1e-8
+
+    #OneCycleLR:
+    oneCycleLR_max_lr=0.01
+    oneCycleLR_pct_start=0.9 #percentage of the cycle spent increasing the learning rate
+
+    #select optimizer
+    optimizer_type = "adam.Adamw" #SGD , Adam, adam.Adamw, optim.Adamw
+    optimizer = None
+
+    #TODO refactor configs optimizers and schedulers
+    #adamw optimizer
+    adamw_weight_decay = 0.001#0.00001#0.000001
     
-    #pytorch LR scheduler
-    lr_scheduler_patience = 700 #10000 to ignore lrscheduler
-    lr_scheduler_mode = 'min'
-    #max_stale_loss_epochs = max(4 * lr_scheduler_patience,300)
-    max_stale_loss_epochs = 300
-    #max_stale_loss_epochs =100000 #to ignore lrscheduler
-    # LR reset
-    enable_lr_reset = True
-    lr_reset_rate = 0.001
-    lr_reset_threshold = 0.000001
+    #adam optimizer
+    adam_weight_decay = 0.00001
+    adam_betas = (0.9,0.999) #(exponential decay rate for the first moment estimate,exponential decay rate for the first moment estimate). Either higher more responsive.
 
     epoch_running_loss_check = 2500
     
-    epoch_running_gradients_check = 6000
+    epoch_running_gradients_check = 12000
 
     checkpt_dict = {
             'run_id': None,
@@ -244,11 +282,9 @@ class Parameters:
     if nn_predict_price:
         #function_loss = nn.MSELoss()
         function_loss = nn.L1Loss()
+        #function_loss = nn.SmoothL1Loss()
     else:
         function_loss = nn.CrossEntropyLoss()
-
-    optimizer_type = "Adam" #SGD or Adam if adamw=False, else adamw
-    optimizer = None
 
     #regularization activation funcs
     use_relu = False
@@ -258,5 +294,12 @@ class Parameters:
         regularization_function = nn.SiLU()
 
     #training net peer
-    save_params_at_epoch_multiple = 200
+    num_epochs_input = 20000
+    eval_at_epoch_multiple = 5
+    save_model_at_epoch_multiple = 10
+    log_params_at_epoch_multiple = 10
     training_analytics_params_log_fname = 'nn_peer_stats.txt'
+
+    #global tracking vars
+    max_acc_1dp = 0.0
+    max_acc_1dp_epoch = 0

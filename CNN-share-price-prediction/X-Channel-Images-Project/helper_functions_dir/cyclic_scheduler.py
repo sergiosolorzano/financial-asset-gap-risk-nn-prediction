@@ -177,6 +177,7 @@ class CyclicLRWithRestarts(_LRScheduler):
             self.end_of_period = True
 
         if self.t_epoch % self.restart_period < self.t_epoch:
+            print("At self.t_epoch",self.t_epoch,"self.restart_period",self.restart_period,"Modulus",self.t_epoch % self.restart_period,"self.t_epoch",self.t_epoch)
             if self.verbose:
                 print("Restart {} at epoch {}".format(self.restarts + 1,
                                                       self.last_epoch))
@@ -191,18 +192,24 @@ class CyclicLRWithRestarts(_LRScheduler):
     def _set_batch_increment(self):
         d, r = divmod(self.epoch_size, self.batch_size)
         batches_in_epoch = d + 2 if r > 0 else d + 1
+        batches_in_epoch = math.ceil(self.epoch_size / self.batch_size)
+        #print("self.epoch_size CODE",self.epoch_size,"self.batch_size",self.batch_size,"d",d,"r",r,"batches_in_epoch",batches_in_epoch)
         self.iteration = 0
         self.batch_increments = torch.linspace(0, 1, batches_in_epoch).tolist()
-
+        
     def step(self):
         self.last_epoch += 1
         self.t_epoch += 1
+        #print("NOW AT STEP setting to ZERO")
         self._set_batch_increment()
-        self.batch_step()
+        #self.batch_step()
 
     def batch_step(self):
         try:
+            #print("Iteration",self.iteration,"len batchincrements",len(self.batch_increments))
             t_cur = self.t_epoch + self.batch_increments[self.iteration]
+            #print("t_cur",t_cur)
+            #print("Comparing ",self.iteration+1,"versus ",len(self.batch_increments))
             self._on_iteration()
             self.iteration += 1
             self.total_iterations += 1
