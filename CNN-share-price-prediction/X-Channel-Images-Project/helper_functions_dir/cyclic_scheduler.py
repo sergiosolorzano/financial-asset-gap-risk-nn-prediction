@@ -177,7 +177,6 @@ class CyclicLRWithRestarts(_LRScheduler):
             self.end_of_period = True
 
         if self.t_epoch % self.restart_period < self.t_epoch:
-            print("At self.t_epoch",self.t_epoch,"self.restart_period",self.restart_period,"Modulus",self.t_epoch % self.restart_period,"self.t_epoch",self.t_epoch)
             if self.verbose:
                 print("Restart {} at epoch {}".format(self.restarts + 1,
                                                       self.last_epoch))
