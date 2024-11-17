@@ -18,6 +18,7 @@ from torchmetrics import R2Score, Accuracy,MeanAbsoluteError
 
 import numpy as np
 from sklearn.metrics import confusion_matrix
+from torchmetrics.functional import structural_similarity_index_measure as ssim
 
 import mlflow
 
@@ -71,6 +72,9 @@ class Net(nn.Module):
         self.bn2 = nn.BatchNorm2d(Parameters.output_conv_2)
         self.regularization_activation_function_2 = Parameters.regularization_function
         self.pool2 = nn.MaxPool2d(kernel_size=Parameters.filter_size_2, stride = Parameters.stride_2)
+
+        if Parameters.use_adaptiveAvgPool2d:
+            self.adaptive_pool = nn.AdaptiveAvgPool2d(Parameters.adaptiveAvgPool2d_outputsize)
 
         if Parameters.model_complexity == "Complex":
             self.conv3 = nn.Conv2d(Parameters.output_conv_2, Parameters.output_conv_3, Parameters.filter_size_1,Parameters.stride_1)
@@ -141,16 +145,28 @@ class Net(nn.Module):
             )
 
         # Update conv_output_size
-        if Parameters.model_complexity == "Complex":
-            self.conv_output_size = H_out_8 * W_out_8
+        if Parameters.use_adaptiveAvgPool2d:
+            # Set conv_output_size based on adaptive pooling output size
+            self.conv_output_size = Parameters.adaptiveAvgPool2d_outputsize[0] * Parameters.adaptiveAvgPool2d_outputsize[1]
         else:
-            self.conv_output_size = H_out_4 * W_out_4
+            if Parameters.model_complexity == "Complex":
+                self.conv_output_size = H_out_8 * W_out_8
+            else:
+                self.conv_output_size = H_out_4 * W_out_4
 
         #FC Layers  
-        if Parameters.model_complexity == "Complex":
-            self.fc1 = nn.Linear(params.output_conv_4 * self.conv_output_size, params.output_FC_1)
+        if Parameters.use_adaptiveAvgPool2d:
+            if Parameters.model_complexity == "Complex":
+                fc1_in_features = Parameters.output_conv_4 * Parameters.adaptiveAvgPool2d_outputsize[0] * Parameters.adaptiveAvgPool2d_outputsize[1]
+            else:
+                fc1_in_features = Parameters.output_conv_2 * Parameters.adaptiveAvgPool2d_outputsize[0] * Parameters.adaptiveAvgPool2d_outputsize[1]
         else:
-            self.fc1 = nn.Linear(params.output_conv_2 * self.conv_output_size, params.output_FC_1)
+            if Parameters.model_complexity == "Complex":
+                fc1_in_features = params.output_conv_4 * self.conv_output_size
+            else:
+                fc1_in_features = params.output_conv_2 * self.conv_output_size
+
+        self.fc1 = nn.Linear(fc1_in_features, params.output_FC_1)
             
         self.bn_fc1 = nn.BatchNorm1d(params.output_FC_1)
         self.regularization_activation_function_fc1 = Parameters.regularization_function
@@ -186,7 +202,7 @@ class Net(nn.Module):
         x = self.bn2(x)
         x = self.regularization_activation_function_2(x)
         x = self.pool2(x)
-        
+
         if Parameters.model_complexity == "Complex":
             x = self.conv3(x)
             x = self.bn3(x)
@@ -200,14 +216,24 @@ class Net(nn.Module):
 
             #capture feature maps
             feature_maps_cnn = x
-            
-            x = x.view(-1, self.output_conv_4 * self.conv_output_size)
+
+            if Parameters.use_adaptiveAvgPool2d:
+                x = self.adaptive_pool(x)
+                #Flatten for FC
+                x = x.view(x.size(0), -1)
+            else:
+                x = x.view(-1, self.output_conv_4 * self.conv_output_size)
         
         if Parameters.model_complexity == "Average" or Parameters.model_complexity == "Simple":
             #capture feature maps
             feature_maps_cnn = x
 
-            x = x.view(-1, self.output_conv_2 * self.conv_output_size)
+            if Parameters.use_adaptiveAvgPool2d:
+                x = self.adaptive_pool(x)
+                #Flatten for FC
+                x = x.view(x.size(0), -1)
+            else:
+                x = x.view(-1, self.output_conv_2 * self.conv_output_size)
                 
         #Fully Connected Layers
         x = self.fc1(x)
@@ -232,9 +258,9 @@ def weights_init_he(m):
     if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
         #mode=fan_out: Used for convolutional layers to account for the output size of the layer
         if Parameters.use_relu:
-            nn.init.kaiming_uniform_(m.weight, mode='fan_out', nonlinearity='relu')
+            nn.init.kaiming_uniform_(m.weight, mode='fan_out', nonlinearity=Parameters.kaiming_uniform_nonlinearity_type, a=Parameters.kaiming_uniform_leakyrelu_a)
         else:
-            nn.init.kaiming_uniform_(m.weight, mode='fan_out', nonlinearity='relu')
+            nn.init.kaiming_uniform_(m.weight, mode='fan_out', nonlinearity=Parameters.kaiming_uniform_nonlinearity_type, a=Parameters.kaiming_uniform_leakyrelu_a)
             #Xavier for SILU
             # nn.init.xavier_uniform_(m.weight)
             # if m.bias is not None:
@@ -374,7 +400,7 @@ def instantiate_optimizer_and_scheduler(net, params, train_loader):
     if Parameters.scheduler_type == "OneCycleLR":
         Parameters.scheduler = scheduler = OneCycleLR(optimizer, max_lr=Parameters.oneCycleLR_max_lr, total_steps=Parameters.num_epochs_input*len(train_loader),pct_start=Parameters.oneCycleLR_pct_start)
     if Parameters.scheduler_type == "ReduceLROnPlateau":
-        Parameters.scheduler = scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode=Parameters.reduceLROnPlateau_mode, patience=Parameters.reduceLROnPlateau_patience, factor=Parameters.reduceLROnPlateau_factor, min_lr=Parameters.reduceLROnPlateau_min_lr)
+        Parameters.scheduler = scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode=Parameters.reduceLROnPlateau_mode, patience=Parameters.reduceLROnPlateau_patience, factor=Parameters.reduceLROnPlateau_factor, min_lr=Parameters.reduceLROnPlateau_min_lr, cooldown=Parameters.reduceLROnPlateau_reset_cooldown)
     if Parameters.scheduler_type == "CyclicLRWithRestarts":
         #print("batch_size cyclic",Parameters.batch_size,"epoch size",len(train_loader.dataset))
         scheduler = cyclic_scheduler.CyclicLRWithRestarts(optimizer=optimizer, batch_size=Parameters.batch_size, epoch_size=len(train_loader.dataset), restart_period=Parameters.cyclicLRWithRestarts_restart_period, t_mult=Parameters.cyclicLRWithRestarts_t_mult, policy=Parameters.cyclicLRWithRestarts_cyclic_policy, verbose=True)
@@ -425,7 +451,6 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
 
     inputs_list = []
 
-    ReduceLROnPlateau_last_best_epoch = torch.tensor(0.0, device=device, dtype=torch.float32)
     best_avg_cum_loss_epoch = torch.tensor(0.0, device=device, dtype=torch.float32)
     best_avg_cum_loss = Parameters.min_best_cum_loss
     best_avg_checkpoint_cum_loss = Parameters.best_avg_checkpoint_cum_loss
@@ -444,12 +469,14 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
 
     train_mae_metric = MeanAbsoluteError().to(device)
     train_max_r2 = 0
+    train_max_r2_epoch = 0
     eval_max_r2 = 0
     eval_max_r2_epoch = 0
     
     #torch.set_printoptions(threshold=torch.inf)
 
     start_time = time.time()
+    ReduceLROnPlateau_blocked = 0
 
     print_mssg=f"Train params: learning_rate: {params.learning_rate}, momentum:{params.momentum} loss_threshold {params.loss_stop_threshold}<p>"
     #print(print_mssg)
@@ -525,6 +552,12 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
                 #print("outputs shape",outputs.shape,outputs)
                 #print("labels",labels)
                 loss = criterion(outputs, labels)
+                #print("LOSS",loss, "labda",Parameters.fc_lambda_ssim, "1-ssim",(1 - Parameters.fc_ssim_score))
+                if Parameters.use_ssim_adjusted_loss:
+                    loss = loss
+                    + Parameters.lambda_ssim*Parameters.cnn_fc_lambda_ssim_ratio*(1 - Parameters.cnn_ssim_score) 
+                    + Parameters.lambda_ssim*(1-Parameters.cnn_fc_lambda_ssim_ratio)*(1 - Parameters.fc_ssim_score)
+                    if i==0: print("Loss Adjustment Factor",+ Parameters.lambda_ssim*Parameters.cnn_fc_lambda_ssim_ratio*(1 - Parameters.cnn_ssim_score) + Parameters.lambda_ssim*(1-Parameters.cnn_fc_lambda_ssim_ratio)*(1 - Parameters.fc_ssim_score))
 
             feature_maps_cnn_list.append(feature_maps_cnn)
             feature_maps_fc_list.append(feature_maps_fc)
@@ -559,7 +592,7 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
     
                 if Parameters.scheduler_type == "OneCycleLR":
                     if i==0: print(f"Batch 0 epoch {epoch} Current OneCycleLR Learning Rate:",scheduler.get_last_lr())
-                    epoch_metrics = {f"epoch_avg_cum_loss": epoch_avg_cum_loss.item(),f"last_lr": current_lr}
+                    epoch_metrics = {f"epoch_avg_cum_loss": epoch_avg_cum_loss.item(),f"last_lr": scheduler.get_last_lr()}
                     scheduler.step()
 
                 if Parameters.scheduler_type == "CyclicLRWithRestarts":
@@ -567,7 +600,9 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
                     #print("Getting Learning Rate ", scheduler_param_group['lr'])
                     #print("Getting weight decay", scheduler_param_group['weight_decay'])
                     #print("In Batch Loss", loss.detach().item())
-                    epoch_metrics = {f"batch_loss": loss.detach().item(),
+                    if i==0:
+                        print(f"batch_loss {loss.detach().item()} last_lr {scheduler_param_group['lr']}")
+                        epoch_metrics = {f"batch_loss": loss.detach().item(),
                                 f"last_lr": scheduler_param_group['lr']}
                     
                 # or Parameters.scheduler_type == "CyclicLRWithRestarts" not possible too slow
@@ -624,19 +659,17 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
         # best_cum_loss improved
         if epoch_avg_cum_loss < best_avg_cum_loss:
             best_avg_cum_loss_epoch = epoch
-            ReduceLROnPlateau_last_best_epoch = epoch
             best_avg_cum_loss = epoch_avg_cum_loss
             if Parameters.enable_mlflow:
                 mlflow.log_metric("best_avg_cum_loss",best_avg_cum_loss,step=epoch)
         
-        print(f"Cum loss: {epoch_avg_cum_loss:.7f}  MAE {epoch_train_mae:.7f} epoch {epoch} Best Avg Cum Loss: {best_avg_cum_loss:.7f} Best Train MAE: {best_train_mae:.7f} at Best_cumloss_epoch {best_avg_cum_loss_epoch} Best_mae_epoch {best_train_mae_epoch}")
+        print(f"Cum loss: {epoch_avg_cum_loss:.7f}  Train MAE {epoch_train_mae:.7f} epoch {epoch} Best Avg Cum Loss: {best_avg_cum_loss:.7f} Best Train MAE: {best_train_mae:.7f} at Best_cumloss_epoch {best_avg_cum_loss_epoch} Best_mae_epoch {best_train_mae_epoch}")
         
         # loss<threshold: update checkpoint
         #print(f"BEFORE Updating Checkpoint {epoch} loss {epoch_avg_cum_loss} prior best loss {best_checkpoint_cum_loss}")
         if epoch_avg_cum_loss < best_avg_checkpoint_cum_loss or epoch==0:
             best_avg_checkpoint_cum_loss = epoch_avg_cum_loss
             best_avg_cum_loss_epoch = epoch
-            ReduceLROnPlateau_last_best_epoch = epoch
             best_avg_cum_loss = epoch_avg_cum_loss
             best_checkpt_dict=helper_functions.update_best_checkpoint_dict(best_avg_cum_loss_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), epoch_avg_cum_loss)
 
@@ -678,11 +711,10 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
         if (epoch + 1) % Parameters.log_params_at_epoch_multiple == 0:
             if Parameters.nn_predict_price == 0:
                 epoch_accuracy = acc_metric.compute()
-                mssg=f"Train Epoch [{epoch + 1}/{Parameters.num_epochs_input}], Average Loss: {epoch_avg_cum_loss:.6f}, MAE: {epoch_train_mae:.6f}, Accuracy: {epoch_accuracy:.4f}"
+                mssg=f"Train Epoch [{epoch + 1}/{Parameters.num_epochs_input}], Average Loss: {epoch_avg_cum_loss:.6f}, Train MAE: {epoch_train_mae:.6f}, Accuracy: {epoch_accuracy:.4f}"
             else:
                 epoch_r2 = r2_metric.compute() if Parameters.nn_predict_price else None
-                mssg = f"Train Epoch [{epoch + 1}/{Parameters.num_epochs_input}], Average Loss: {epoch_avg_cum_loss:.6f}, MAE: {epoch_train_mae:.6f}, R^2: {epoch_r2:.4f}"
-                
+                mssg = f"\033[32mTrain Epoch [{epoch + 1}/{Parameters.num_epochs_input}], Average Loss: {epoch_avg_cum_loss:.6f}, Train MAE: {epoch_train_mae:.6f}, Train R^2: {epoch_r2:.4f}\033[0m"
                 print(mssg)
                 #helper_functions.write_scenario_to_log_file(mssg)
                 epoch_stats = summarize_epoch_statistics(net, epoch, epoch_avg_cum_loss, epoch_accuracy,epoch_r2, epoch_train_mae)
@@ -717,46 +749,61 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
             return net, model_signature if 'model_signature' in locals() else None or None, stack_input, feature_maps_cnn_list, feature_maps_fc_list
         
         #exit if there's no improvement for x-epochs and LR Reset not enabled
-        if not Parameters.reduceLROnPlateau_enable_reset and ((best_avg_cum_loss_epoch + Parameters.reduceLROnPlateau_max_stale_loss_epochs) < epoch):
-            print(f"[WARNING] Epoch Cum Loss Stale {epoch_avg_cum_loss} at {epoch}. Abandon training.")
-            if Parameters.save_runs_to_md:
-                helper_functions.write_to_md(f"[WARNING] Epoch Cum Loss Stale {epoch_avg_cum_loss} at {epoch}. Abandon training.",None)
+        # if not Parameters.reduceLROnPlateau_enable_reset and ((best_avg_cum_loss_epoch + Parameters.reduceLROnPlateau_max_stale_loss_epochs) < epoch):
+        #     print(f"[WARNING] Epoch Cum Loss Stale {epoch_avg_cum_loss} at {epoch}. Abandon training.")
+        #     if Parameters.save_runs_to_md:
+        #         helper_functions.write_to_md(f"[WARNING] Epoch Cum Loss Stale {epoch_avg_cum_loss} at {epoch}. Abandon training.",None)
             
             #profiler.stop()
             
-            Train_tail_end(best_checkpt_dict, epoch_avg_cum_loss, epoch_train_mae, epoch, best_avg_cum_loss_epoch, best_avg_cum_loss, best_train_mae, best_train_mae_epoch, train_loader, start_time, run_id, experiment_name, net, stock_params)
+            # Train_tail_end(best_checkpt_dict, epoch_avg_cum_loss, epoch_train_mae, epoch, best_avg_cum_loss_epoch, best_avg_cum_loss, best_train_mae, best_train_mae_epoch, train_loader, start_time, run_id, experiment_name, net, stock_params)
 
-            return net, model_signature if 'model_signature' in locals() else None, stack_input, feature_maps_cnn_list, feature_maps_fc_list
+            # return net, model_signature if 'model_signature' in locals() else None, stack_input, feature_maps_cnn_list, feature_maps_fc_list
         
-        if Parameters.scheduler_type=="ReduceLROnPlateau":
-            prior_lr = scheduler.get_last_lr()[0]
-            scheduler.step(epoch_avg_cum_loss.item())
-            current_lr = scheduler.get_last_lr()[0]
-            #if ReduceLROnPlateau auto readjusts LR, delay manual hike of LR
-            if prior_lr > current_lr:
-                ReduceLROnPlateau_last_best_epoch = epoch
-                #print("****READJUST ReduceLROnPlateau_last_best_epoch",ReduceLROnPlateau_last_best_epoch)
-            epoch_metrics = {f"epoch_avg_cum_loss": epoch_avg_cum_loss.item(),f"last_lr": current_lr}
-            print(f"epoch_avg_cum_loss {epoch_avg_cum_loss.item()} last_lr {current_lr}")
-            if Parameters.enable_mlflow:
-                mlflow.log_metrics(epoch_metrics,step=epoch)
-        
-        #LR reset
-        if Parameters.scheduler_type=="ReduceLROnPlateau":
-            if Parameters.reduceLROnPlateau_enable_reset and ((ReduceLROnPlateau_last_best_epoch + Parameters.reduceLROnPlateau_max_stale_loss_epochs) < epoch):
-                optimizer.param_groups[0]['lr'] = Parameters.reduceLROnPlateau_reset_rate
-                #scheduler.cooldown = params.lr_scheduler_patience
-                print(f"[WARNING] Current Scheduler LR {scheduler.get_last_lr()[0]} Reset as Cum Loss Stale {epoch_avg_cum_loss} at {epoch}. LR reset to {optimizer.param_groups[0]['lr']}.")
+        #track scheduler auto step down
+        if Parameters.scheduler_type == "ReduceLROnPlateau":
+            if ReduceLROnPlateau_blocked == Parameters.reduceLROnPlateau_reset_cooldown:
+                prior_lr = scheduler.optimizer.param_groups[0]['lr']
+                
+                scheduler.step(epoch_avg_cum_loss.item())
+                
+                current_lr = scheduler.optimizer.param_groups[0]['lr']
+                
+                # If the scheduler reduced the learning rate, update the last best epoch
+                if prior_lr > current_lr:
+                    print(f"[INFO] ReduceLROnPlateau adjusted LR from {prior_lr} to {current_lr}")
+
+                if Parameters.enable_mlflow:
+                    mlflow.log_metric("last_lr", current_lr, step=epoch)
+            else:
+                ReduceLROnPlateau_blocked+=1
             
-            if Parameters.reduceLROnPlateau_enable_reset and optimizer.param_groups[0]['lr'] <=Parameters.reduceLROnPlateau_reset_threshold:
-                print(f"Setting LR {optimizer.param_groups[0]['lr']} to Reset Rate {Parameters.learning_rate}")
-                optimizer.param_groups[0]['lr']=Parameters.learning_rate
+            current_lr = scheduler.optimizer.param_groups[0]['lr']
+            print(f"epoch_avg_cum_loss {epoch_avg_cum_loss.item()} last_lr {current_lr}")
+
+
+        # LR manual reset logic
+        if Parameters.scheduler_type == "ReduceLROnPlateau":
+            print("curr LR",scheduler.optimizer.param_groups[0]['lr'], " VS ",(Parameters.reduceLROnPlateau_min_lr + Parameters.reduceLROnPlateau_min_lr * 1e-2 ))
+            if scheduler.optimizer.param_groups[0]['lr'] < (Parameters.reduceLROnPlateau_min_lr + Parameters.reduceLROnPlateau_min_lr * 1e-2 ):
+                for param_group in optimizer.param_groups:
+                    param_group['lr'] = Parameters.reduceLROnPlateau_reset_rate
+                    ReduceLROnPlateau_blocked = 0
+                print(f"[WARNING] LR reset to {Parameters.reduceLROnPlateau_reset_rate} due to stale loss at epoch {epoch}")
+
+            # # Check if the learning rate needs to be reset to the initial rate if it drops below a threshold
+            # if Parameters.reduceLROnPlateau_enable_reset and current_lr <= Parameters.reduceLROnPlateau_reset_threshold:
+            #     print(f"[INFO] Resetting learning rate to {Parameters.learning_rate}")
+            #     for param_group in optimizer.param_groups:
+            #         param_group['lr'] = Parameters.learning_rate
+
 
         if train_max_r2 < epoch_r2:
             train_max_r2 = epoch_r2
+            train_max_r2_epoch = epoch
             if Parameters.enable_mlflow:
                     mlflow.log_metric("max_train_R2",train_max_r2, epoch)
-        print(f"\033[32mMax Train R^2 {train_max_r2} at epoch {epoch}\033[0m")
+        print(f"\033[32mMax Train R^2 {train_max_r2} at epoch {train_max_r2_epoch}\033[0m")
 
     #end training without reaching loss_threshold
     #profiler.stop()
@@ -904,12 +951,13 @@ def Test(test_loader, net, stock_ticker, epoch, device, experiment_name, run):
         if Parameters.nn_predict_price:
             accuracy_metrics = {f"accuracy_2dp_score": (correct_2dp_score.double().item())/100,
                     f"accuracy_1dp_score": (correct_1dp_score.double().item())/100,
+                    f"max_accuracy_1dp_score": (Parameters.max_acc_1dp.double().item())/100,
                     f"error_pct_outside_iqr": error_pct_outside_iqr,
                     f"eval_r2_torch": float(epoch_r2)}
         else:
             accuracy_metrics = {f"accuracy_classification_score": correct_classification_score.double().item()}
         
-        mlflow.log_metrics(accuracy_metrics)
+        mlflow.log_metrics(accuracy_metrics, step=epoch)
 
     return stack_input, predicted_list, actual_list, accuracy, stack_actual, stack_predicted, feature_maps_cnn_list, feature_maps_fc_list,
 

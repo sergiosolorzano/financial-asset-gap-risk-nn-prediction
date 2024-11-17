@@ -10,18 +10,18 @@ Net                                      [16, 1]                   --
 ├─BatchNorm2d: 1-6                       [16, 30, 31, 31]          60
 ├─SiLU: 1-7                              [16, 30, 31, 31]          --
 ├─MaxPool2d: 1-8                         [16, 30, 30, 30]          --
-├─Linear: 1-9                            [16, 50]                  1,350,050
-├─BatchNorm1d: 1-10                      [16, 50]                  100
-├─SiLU: 1-11                             [16, 50]                  --
-├─Linear: 1-12                           [16, 1]                   51
+├─Linear: 1-9                            [16, 100]                 2,700,100
+├─BatchNorm1d: 1-10                      [16, 100]                 200
+├─SiLU: 1-11                             [16, 100]                 --
+├─Linear: 1-12                           [16, 1]                   101
 ==========================================================================================
-Total params: 1,351,651
-Trainable params: 1,351,651
+Total params: 2,701,851
+Trainable params: 2,701,851
 Non-trainable params: 0
-Total mult-adds (Units.MEGABYTES): 41.83
+Total mult-adds (Units.MEGABYTES): 63.43
 ==========================================================================================
 Input size (MB): 0.07
-Forward/backward pass size (MB): 17.88
-Params size (MB): 5.41
-Estimated Total Size (MB): 23.35
+Forward/backward pass size (MB): 17.89
+Params size (MB): 10.81
+Estimated Total Size (MB): 28.76
 ==========================================================================================

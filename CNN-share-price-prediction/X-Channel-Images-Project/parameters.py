@@ -95,7 +95,7 @@ class Parameters:
 
     log_returns = True #1=log return rebased price series else price series
 
-    enable_mlflow=True
+    enable_mlflow=False
     enable_save_model = False
     mlflow_experiment_name = 'gaprisk-generalize-1'
     mlflow_experiment_description = "Objective generalize results on largest DTW stock pair"
@@ -162,8 +162,9 @@ class Parameters:
     stride_1 = 1
     stride_2 = 1#2
 
-    # output_conv_1 = 40
-    # output_conv_2 = 12
+    use_adaptiveAvgPool2d = False
+    adaptiveAvgPool2d_outputsize = (1,1)
+
     if model_complexity=="Complex":
         filter_size_1 = (3, 3)
         filter_size_2 = (2, 2)
@@ -197,7 +198,7 @@ class Parameters:
         output_conv_2 = 30
         output_conv_3 = 0
         output_conv_4 = 0
-        output_FC_1 = 50
+        output_FC_1 = 100
         output_FC_2 = 0
         
     if nn_predict_price:
@@ -215,10 +216,14 @@ class Parameters:
 
     momentum = 0.9
 
+    use_ssim_adjusted_loss = True
+    lambda_ssim = 0.5
+    cnn_fc_lambda_ssim_ratio = 0.25
+
     use_clip_grad_norm = False
     grad_norm_clip_max = 0.5
 
-    dropout_probab = 0.2
+    dropout_probab = 0
 
     batch_size = 16
     batch_train_drop_last = False
@@ -232,6 +237,10 @@ class Parameters:
     loss_stop_threshold = 0.001#0.000001#0.0000013
     use_mixed_precision = True
 
+    #weights init
+    kaiming_uniform_nonlinearity_type = 'relu' #relu leaky_relu
+    kaiming_uniform_leakyrelu_a = 0
+
     #pytorch Schedulers
     scheduler_type = "CyclicLRWithRestarts" #ReduceLROnPlateau, OneCycleLR, CyclicLRWithRestarts
     scheduler = None
@@ -242,14 +251,14 @@ class Parameters:
     cyclicLRWithRestarts_t_mult = 1.2 #multiplication factor by which the next restart period will expand/shrink
 
     #ReduceLROnPlateau Scheduler:
-    reduceLROnPlateau_patience = 700 #10000 to ignore lrscheduler
+    reduceLROnPlateau_patience = 50 #10000 to ignore lrscheduler
+    reduceLROnPlateau_reset_cooldown = 20
     reduceLROnPlateau_mode = 'min'
-    reduceLROnPlateau_max_stale_loss_epochs = 300 #100000 to ignore lrscheduler #max(4 * lr_scheduler_patience,300)
+    reduceLROnPlateau_max_stale_loss_epochs = 20 #100000 to ignore lrscheduler #max(4 * lr_scheduler_patience,300)
     reduceLROnPlateau_enable_reset = True
-    reduceLROnPlateau_reset_rate = 0.001#0.001
-    reduceLROnPlateau_reset_threshold = 0.000001
-    reduceLROnPlateau_factor = 0.01
-    reduceLROnPlateau_min_lr = 1e-8
+    reduceLROnPlateau_reset_rate = 0.01#manual reset rate, will be ratched down by factor in scheduler.step
+    reduceLROnPlateau_factor = 0.1
+    reduceLROnPlateau_min_lr = 1e-6 #can only be higher than 1e-8
 
     #OneCycleLR:
     oneCycleLR_max_lr=0.01
@@ -293,13 +302,15 @@ class Parameters:
     else:
         regularization_function = nn.SiLU()
 
-    #training net peer
-    num_epochs_input = 20000
+    #during training-and-eval vars
+    num_epochs_input = 10000
     eval_at_epoch_multiple = 5
     save_model_at_epoch_multiple = 10
     log_params_at_epoch_multiple = 10
     training_analytics_params_log_fname = 'nn_peer_stats.txt'
 
     #global tracking vars
-    max_acc_1dp = 0.0
+    max_acc_1dp = torch.tensor(0, dtype=torch.float64)
     max_acc_1dp_epoch = 0
+    fc_ssim_score = torch.tensor(0, dtype=torch.float64)
+    cnn_ssim_score = torch.tensor(0, dtype=torch.float64)
