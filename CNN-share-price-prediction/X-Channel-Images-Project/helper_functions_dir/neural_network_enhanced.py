@@ -15,6 +15,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.backends.cudnn
 from torchmetrics import R2Score, Accuracy,MeanAbsoluteError
+import GPyOpt
 
 import numpy as np
 from sklearn.metrics import confusion_matrix
@@ -361,6 +362,7 @@ def instantiate_optimizer_and_scheduler(net, params, train_loader):
     
     conv_params, fc_params, other_params = set_optimizer_layer_learning_rate(net)
 
+    #Optimizer init
     if Parameters.optimizer_type == "adam.Adamw":
         Parameters.optimizer = optimizer = adamw.AdamW(
             [
@@ -397,6 +399,7 @@ def instantiate_optimizer_and_scheduler(net, params, train_loader):
             ]
             , lr=Parameters.learning_rate, momentum=Parameters.momentum)
     
+    #Scheduler init
     if Parameters.scheduler_type == "OneCycleLR":
         Parameters.scheduler = scheduler = OneCycleLR(optimizer, max_lr=Parameters.oneCycleLR_max_lr, total_steps=Parameters.num_epochs_input*len(train_loader),pct_start=Parameters.oneCycleLR_pct_start)
     if Parameters.scheduler_type == "ReduceLROnPlateau":
@@ -404,6 +407,8 @@ def instantiate_optimizer_and_scheduler(net, params, train_loader):
     if Parameters.scheduler_type == "CyclicLRWithRestarts":
         #print("batch_size cyclic",Parameters.batch_size,"epoch size",len(train_loader.dataset))
         scheduler = cyclic_scheduler.CyclicLRWithRestarts(optimizer=optimizer, batch_size=Parameters.batch_size, epoch_size=len(train_loader.dataset), restart_period=Parameters.cyclicLRWithRestarts_restart_period, t_mult=Parameters.cyclicLRWithRestarts_t_mult, policy=Parameters.cyclicLRWithRestarts_cyclic_policy, verbose=True)
+    if Parameters.scheduler_type == "BayesianLR":
+        scheduler = None
     
     return optimizer, scheduler
 
@@ -472,7 +477,7 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
     train_max_r2_epoch = 0
     eval_max_r2 = 0
     eval_max_r2_epoch = 0
-    
+
     #torch.set_printoptions(threshold=torch.inf)
 
     start_time = time.time()
@@ -493,13 +498,34 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
 
     optimizer, scheduler = instantiate_optimizer_and_scheduler(net, params, train_loader)
 
+    bayesian_LR_warmup_loss_list = []
+   
     # profiler = torch.profiler.profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True)
     # profiler.start()
     for epoch in range(params.num_epochs_input):
 
         if Parameters.scheduler_type == "CyclicLRWithRestarts":
             scheduler.step()
+
+        #warm up LR rate for bayesian
+        if Parameters.scheduler_type == "BayesianLR" and (Parameters.bayesian_warmup_epochs-1 > epoch):
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = Parameters.bayesian_warmup_learning_rates[epoch]
             
+        #init bayesianLR scheduler
+        if Parameters.scheduler_type == "BayesianLR" and Parameters.bayesian_warmup_epochs == epoch:
+            bayesian_LR_warmup_loss_list_np = np.array(bayesian_LR_warmup_loss_list).reshape(-1, 1)
+            learning_rates_np = np.array(Parameters.bayesian_warmup_learning_rates).reshape(-1, 1)
+            
+            Parameters.scheduler = scheduler = GPyOpt.methods.BayesianOptimization(f=None, 
+                                                initial_design_numdata=len(bayesian_LR_warmup_loss_list), 
+                                                X=learning_rates_np, 
+                                                Y=bayesian_LR_warmup_loss_list_np,
+                                                domain=Parameters.bayesianLR_bounds,
+                                                acquisition_type='LCB', acquisition_weight=2,
+                                                xi=0.1,
+                                                batch_size=Parameters.batch_size)
+    
         #get only the last epochs for analysis
         feature_maps_cnn_list =[]
         feature_maps_fc_list =[]
@@ -553,12 +579,10 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
                 #print("labels",labels)
                 loss = criterion(outputs, labels)
                 #print("LOSS",loss, "labda",Parameters.fc_lambda_ssim, "1-ssim",(1 - Parameters.fc_ssim_score))
+                #print("Standard LOSS",loss)
                 if Parameters.use_ssim_adjusted_loss:
-                    loss = loss
-                    + Parameters.lambda_ssim*Parameters.cnn_fc_lambda_ssim_ratio*(1 - Parameters.cnn_ssim_score) 
-                    + Parameters.lambda_ssim*(1-Parameters.cnn_fc_lambda_ssim_ratio)*(1 - Parameters.fc_ssim_score)
-                    if i==0: print("Loss Adjustment Factor",+ Parameters.lambda_ssim*Parameters.cnn_fc_lambda_ssim_ratio*(1 - Parameters.cnn_ssim_score) + Parameters.lambda_ssim*(1-Parameters.cnn_fc_lambda_ssim_ratio)*(1 - Parameters.fc_ssim_score))
-
+                    loss = loss + Parameters.lambda_ssim*Parameters.cnn_fc_lambda_ssim_ratio*(1 - Parameters.cnn_ssim_score) + Parameters.lambda_ssim*(1-Parameters.cnn_fc_lambda_ssim_ratio)*(1 - Parameters.fc_ssim_score)
+                    
             feature_maps_cnn_list.append(feature_maps_cnn)
             feature_maps_fc_list.append(feature_maps_fc)
             if i==0 and epoch==0:
@@ -637,6 +661,10 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
             # _ = gc.collect() #force garbage collect
 
         epoch_avg_cum_loss = epoch_total_loss / total_samples
+
+        if Parameters.scheduler_type == "BayesianLR" and epoch < Parameters.bayesian_warmup_epochs:
+            bayesian_LR_warmup_loss_list.append(epoch_avg_cum_loss.cpu().item())
+            print(f"Collected with LR {Parameters.bayesian_warmup_learning_rates[epoch]} Loss {epoch_avg_cum_loss}")
         
         epoch_train_mae = train_mae_metric.compute()
         if epoch_train_mae < best_train_mae:
@@ -778,8 +806,9 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
             else:
                 ReduceLROnPlateau_blocked+=1
             
-            current_lr = scheduler.optimizer.param_groups[0]['lr']
-            print(f"epoch_avg_cum_loss {epoch_avg_cum_loss.item()} last_lr {current_lr}")
+            if scheduler in ["ReduceLROnPlateau","CyclicLRWithRestarts","OneCycleLR"]:
+                current_lr = scheduler.optimizer.param_groups[0]['lr']
+                print(f"epoch_avg_cum_loss {epoch_avg_cum_loss.item()} last_lr {current_lr}")
 
 
         # LR manual reset logic
@@ -791,20 +820,43 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
                     ReduceLROnPlateau_blocked = 0
                 print(f"[WARNING] LR reset to {Parameters.reduceLROnPlateau_reset_rate} due to stale loss at epoch {epoch}")
 
-            # # Check if the learning rate needs to be reset to the initial rate if it drops below a threshold
-            # if Parameters.reduceLROnPlateau_enable_reset and current_lr <= Parameters.reduceLROnPlateau_reset_threshold:
-            #     print(f"[INFO] Resetting learning rate to {Parameters.learning_rate}")
-            #     for param_group in optimizer.param_groups:
-            #         param_group['lr'] = Parameters.learning_rate
-
-
         if train_max_r2 < epoch_r2:
             train_max_r2 = epoch_r2
             train_max_r2_epoch = epoch
             if Parameters.enable_mlflow:
                     mlflow.log_metric("max_train_R2",train_max_r2, epoch)
+        
         print(f"\033[32mMax Train R^2 {train_max_r2} at epoch {train_max_r2_epoch}\033[0m")
 
+        if Parameters.scheduler_type == "BayesianLR" and Parameters.bayesian_warmup_epochs <= epoch and ((epoch + 1) % Parameters.bayes_find_lr_frequency_epochs == 0):
+            #add observations to bayesian
+            suggested_lr = scheduler.suggest_next_locations()[0][0]
+            scheduler.X = np.vstack((scheduler.X, np.array([[suggested_lr]])))
+            scheduler.Y = np.vstack((scheduler.Y, np.array([[epoch_avg_cum_loss.item()]])))
+            scheduler._update_model()
+
+            #update optimizer lr
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = suggested_lr
+
+            #bayesian_LR_warmup_loss_list.append(suggested_lr.item())
+            bayesian_LR_warmup_loss_list.append(epoch_avg_cum_loss.cpu().item())
+            Parameters.bayesian_warmup_learning_rates.append(suggested_lr.item())
+
+            if Parameters.enable_mlflow:
+                if epoch_avg_cum_loss.item() < Parameters.bayes_loss_threshold_to_log:
+                    bayesian_lr_loss_mlflow = {
+                        "bayes_lr": suggested_lr.cpu().item(),
+                        "bayes_loss": epoch_avg_cum_loss.cpu().item()
+                    }
+                    
+                    if Parameters.enable_mlflow:
+                        mlflow.log_metrics(bayesian_lr_loss_mlflow, epoch)
+
+            plot_data.plot_lr_vs_loss(Parameters.bayesian_warmup_learning_rates, bayesian_LR_warmup_loss_list)
+
+        print("Current LR",optimizer.param_groups[0]['lr'])
+        
     #end training without reaching loss_threshold
     #profiler.stop()
 

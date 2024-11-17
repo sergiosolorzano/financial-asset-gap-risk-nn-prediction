@@ -216,9 +216,9 @@
 
 #     momentum = 0.9
 
-    # use_ssim_adjusted_loss = True
+    # use_ssim_adjusted_loss = False
     # lambda_ssim = 0.5
-    # cnn_fc_lambda_ssim_ratio = 0.25
+    # cnn_fc_lambda_ssim_ratio = 0.2
 
 #     use_clip_grad_norm = False
 #     grad_norm_clip_max = 0.5
@@ -241,7 +241,17 @@
 #     kaiming_uniform_nonlinearity_type = 'relu' #relu leaky_relu
 #     kaiming_uniform_leakyrelu_a = 0
 
-#     #pytorch Schedulers
+    # pytorch Schedulers
+    # scheduler_type = "BayesianLR" #ReduceLROnPlateau, OneCycleLR, CyclicLRWithRestarts, BayesianLR
+    # scheduler = None    
+    
+    #bayesian Scheduler
+    # bayesianLR_bounds = [{'name': 'learning_rate', 'type': 'continuous', 'domain': (1e-6, 1e-1)}]
+    # bayesian_warmup_learning_rates = [0.0001, 0.00001, 0.000001, 0.001, 0.01]
+    # bayesian_warmup_epochs = 5
+    # bayes_find_lr_frequency_epochs = 5+bayesian_warmup_epochs
+    # bayes_loss_threshold_to_log = 1
+
 #     scheduler_type = "CyclicLRWithRestarts" #ReduceLROnPlateau, OneCycleLR, CyclicLRWithRestarts
 #     scheduler = None
 
