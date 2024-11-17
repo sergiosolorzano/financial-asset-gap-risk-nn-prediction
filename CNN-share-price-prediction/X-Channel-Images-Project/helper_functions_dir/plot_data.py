@@ -9,7 +9,6 @@ import pandas as pd
 from fastdtw import fastdtw
 
 import matplotlib
-import matplotlib.pyplot as plt
 import seaborn as sns
 import random as rand
 
@@ -31,6 +30,8 @@ import torch
 import pipeline_data
 
 matplotlib.use(Parameters.matplotlib_use)
+import matplotlib.pyplot as plt
+
 
 def plot_weights_gradients(weights_dict, gradients_dict, epoch, experiment_name, run_id):
     for name, weight_list in weights_dict.items():
@@ -418,6 +419,20 @@ def dtw_matrix_logprices(stocks, run, experiment_name):
     else:
         plot_dtw_matrix(distance_matrix,stock_tickers,experiment_name,None, title, fname)
                                     
+def plot_lr_vs_loss(lr_values, loss_values):
+    
+    plt.figure(figsize=(8, 6))
+    plt.plot(lr_values, loss_values, marker='o', linestyle='None', markersize=2)
+    plt.xlabel("Learning Rate")
+    plt.ylabel("Loss")
+    plt.title("Learning Rate vs. Loss")
+    plt.grid(True)
+    plt.xlim(0, 1e-1)  # Set x-axis limits
+    plt.ylim(0, 1)  # Set y-axis limits
+    plt.savefig("bayes_plot.png") 
+    #plt.show()
+
+
 # def dtw_matrix_encoded_images(stock_images_df, stocks, run_id, experiment_name):
     
 #     print("DTW Correlation Images DF Cols ",stock_images_df.columns,"imagedata",stock_images_df)

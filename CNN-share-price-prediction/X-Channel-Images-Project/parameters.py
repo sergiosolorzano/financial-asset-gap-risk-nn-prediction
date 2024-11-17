@@ -216,9 +216,9 @@ class Parameters:
 
     momentum = 0.9
 
-    use_ssim_adjusted_loss = True
+    use_ssim_adjusted_loss = False
     lambda_ssim = 0.5
-    cnn_fc_lambda_ssim_ratio = 0.25
+    cnn_fc_lambda_ssim_ratio = 0.2
 
     use_clip_grad_norm = False
     grad_norm_clip_max = 0.5
@@ -242,8 +242,15 @@ class Parameters:
     kaiming_uniform_leakyrelu_a = 0
 
     #pytorch Schedulers
-    scheduler_type = "CyclicLRWithRestarts" #ReduceLROnPlateau, OneCycleLR, CyclicLRWithRestarts
-    scheduler = None
+    scheduler_type = "CyclicLRWithRestarts" #ReduceLROnPlateau, OneCycleLR, CyclicLRWithRestarts, BayesianLR
+    scheduler = None    
+    
+    #bayesian Scheduler
+    bayesianLR_bounds = [{'name': 'learning_rate', 'type': 'continuous', 'domain': (1e-6, 1e-1)}]
+    bayesian_warmup_learning_rates = [0.0001, 0.00001, 0.000001, 0.001, 0.01]
+    bayesian_warmup_epochs = 5
+    bayes_find_lr_frequency_epochs = 5+bayesian_warmup_epochs
+    bayes_loss_threshold_to_log = 1
 
     #CyclicLRWithRestarts Scheduler
     cyclicLRWithRestarts_cyclic_policy = "cosine" #["cosine", "arccosine", "triangular", "triangular2", "exp_range"]
@@ -251,7 +258,7 @@ class Parameters:
     cyclicLRWithRestarts_t_mult = 1.2 #multiplication factor by which the next restart period will expand/shrink
 
     #ReduceLROnPlateau Scheduler:
-    reduceLROnPlateau_patience = 50 #10000 to ignore lrscheduler
+    reduceLROnPlateau_patience = 0 #10000 to ignore lrscheduler
     reduceLROnPlateau_reset_cooldown = 20
     reduceLROnPlateau_mode = 'min'
     reduceLROnPlateau_max_stale_loss_epochs = 20 #100000 to ignore lrscheduler #max(4 * lr_scheduler_patience,300)
@@ -303,7 +310,7 @@ class Parameters:
         regularization_function = nn.SiLU()
 
     #during training-and-eval vars
-    num_epochs_input = 10000
+    num_epochs_input = 40
     eval_at_epoch_multiple = 5
     save_model_at_epoch_multiple = 10
     log_params_at_epoch_multiple = 10
