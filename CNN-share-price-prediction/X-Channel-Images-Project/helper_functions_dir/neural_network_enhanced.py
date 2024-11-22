@@ -29,6 +29,7 @@ sys.path.append(os.path.abspath('./helper_functions_dir'))
 import adamw as adamw
 import cyclic_scheduler as cyclic_scheduler 
 from torch.optim.lr_scheduler import OneCycleLR
+from torch.optim.lr_scheduler import LinearLR
 import plot_data as plot_data
 import image_transform as image_transform
 import helper_functions as helper_functions
@@ -44,6 +45,9 @@ import contextlib
 torch.manual_seed(42)
 np.random.seed(42)
 random.seed(42)
+# torch.backends.cudnn.deterministic = True
+# torch.backends.cudnn.benchmark = False
+# torch.use_deterministic_algorithms(True)
 
 class Net(nn.Module):
     def __init__(self, params, device):
@@ -64,13 +68,24 @@ class Net(nn.Module):
 
         #num channels input, num channels output, filter size
         self.conv1 = nn.Conv2d(1, self.output_conv_1, Parameters.filter_size_1, Parameters.stride_1)
-        self.bn1 = nn.BatchNorm2d(self.output_conv_1)
+        if Parameters.use_batch_regularization:
+            if Parameters.batch_regul_type=="Group":
+                self.bn1 = nn.GroupNorm(Parameters.bn1_num_groups,self.output_conv_1)
+            if Parameters.batch_regul_type=="Norm":
+                self.bn1 = nn.BatchNorm2d(self.output_conv_1)
+
         self.regularization_activation_function_1 = Parameters.regularization_function
         self.pool1 = nn.MaxPool2d(kernel_size=Parameters.filter_size_2, stride = Parameters.stride_2)
         
         #maxpool acts the same way in each channel, so doesn't need to be fed the num channels of the input
         self.conv2 = nn.Conv2d(self.output_conv_1, Parameters.output_conv_2, Parameters.filter_size_1,Parameters.stride_1)
-        self.bn2 = nn.BatchNorm2d(Parameters.output_conv_2)
+        
+        if Parameters.use_batch_regularization:
+            if Parameters.batch_regul_type=="Group":
+                self.bn2 = nn.GroupNorm(Parameters.bn2_num_groups,self.output_conv_2)
+            if Parameters.batch_regul_type=="Norm":
+                self.bn2 = nn.BatchNorm2d(Parameters.output_conv_2)
+
         self.regularization_activation_function_2 = Parameters.regularization_function
         self.pool2 = nn.MaxPool2d(kernel_size=Parameters.filter_size_2, stride = Parameters.stride_2)
 
@@ -79,12 +94,23 @@ class Net(nn.Module):
 
         if Parameters.model_complexity == "Complex":
             self.conv3 = nn.Conv2d(Parameters.output_conv_2, Parameters.output_conv_3, Parameters.filter_size_1,Parameters.stride_1)
-            self.bn3 = nn.BatchNorm2d(Parameters.output_conv_3)
+            if Parameters.use_batch_regularization:
+                if Parameters.batch_regul_type == "Group":
+                    self.bn3 = nn.GroupNorm(Parameters.bn3_num_groups,Parameters.output_conv_3)
+                if Parameters.batch_regul_type == "Norm":
+                    self.bn3 = nn.BatchNorm2d(Parameters.output_conv_3)
+
             self.regularization_activation_function_3 = Parameters.regularization_function
             self.pool3 = nn.MaxPool2d(kernel_size=Parameters.filter_size_2, stride = Parameters.stride_2)
 
             self.conv4 = nn.Conv2d(Parameters.output_conv_3, Parameters.output_conv_4, Parameters.filter_size_3,params.stride_1)
-            self.bn4 = nn.BatchNorm2d(Parameters.output_conv_4)
+
+            if Parameters.use_batch_regularization:
+                if Parameters.batch_regul_type == "Group":
+                    self.bn4 = nn.GroupNorm(Parameters.bn4_num_groups,Parameters.output_conv_4)
+                if Parameters.batch_regul_type == "Norm":
+                    self.bn4 = nn.BatchNorm2d(Parameters.output_conv_4)
+            
             self.regularization_activation_function_4 = Parameters.regularization_function
             self.pool4 = nn.MaxPool2d(kernel_size=Parameters.filter_size_2, stride = Parameters.stride_2)
 
@@ -163,18 +189,30 @@ class Net(nn.Module):
                 fc1_in_features = Parameters.output_conv_2 * Parameters.adaptiveAvgPool2d_outputsize[0] * Parameters.adaptiveAvgPool2d_outputsize[1]
         else:
             if Parameters.model_complexity == "Complex":
-                fc1_in_features = params.output_conv_4 * self.conv_output_size
+                fc1_in_features = Parameters.output_conv_4 * self.conv_output_size
             else:
-                fc1_in_features = params.output_conv_2 * self.conv_output_size
+                fc1_in_features = Parameters.output_conv_2 * self.conv_output_size
 
-        self.fc1 = nn.Linear(fc1_in_features, params.output_FC_1)
-            
-        self.bn_fc1 = nn.BatchNorm1d(params.output_FC_1)
+        self.fc1 = nn.Linear(fc1_in_features, Parameters.output_FC_1)
+        
+        if Parameters.use_batch_regularization:
+                if Parameters.batch_regul_type == "Group":
+                    self.bn_fc1 = nn.GroupNorm(Parameters.bn_fc1_num_groups,Parameters.output_FC_1)
+                if Parameters.batch_regul_type == "Norm":
+                    self.bn_fc1 = nn.BatchNorm1d(Parameters.output_FC_1)
+
         self.regularization_activation_function_fc1 = Parameters.regularization_function
         
         if Parameters.model_complexity == "Average" or Parameters.model_complexity=="Complex":
-            self.fc2 = nn.Linear(params.output_FC_1, params.output_FC_2)
-            self.bn_fc2 = nn.BatchNorm1d(params.output_FC_2)
+            
+            self.fc2 = nn.Linear(Parameters.output_FC_1, Parameters.output_FC_2)
+            
+            if Parameters.use_batch_regularization:
+                if Parameters.batch_regul_type == "Group":
+                    self.bn_fc2 = nn.GroupNorm(Parameters.bn_fc2_num_groups, Parameters.output_FC_2)
+                if Parameters.batch_regul_type == "Norm":
+                    self.bn_fc2 = nn.BatchNorm1d(Parameters.output_FC_2)
+            
             self.regularization_activation_function_fc2 = Parameters.regularization_function
     
             self.fc3 = nn.Linear(Parameters.output_FC_2, Parameters.final_FCLayer_outputs)
@@ -195,23 +233,27 @@ class Net(nn.Module):
             print("NaN or Inf detected in conv1 weights before convolution")
             return x, None, None
         x = self.conv1(x)
-        x = self.bn1(x)
+        if Parameters.use_batch_regularization:
+            x = self.bn1(x)
         x = self.regularization_activation_function_1(x)
         x = self.pool1(x)
         
         x = self.conv2(x)
-        x = self.bn2(x)
+        if Parameters.use_batch_regularization:
+            x = self.bn2(x)
         x = self.regularization_activation_function_2(x)
         x = self.pool2(x)
 
         if Parameters.model_complexity == "Complex":
             x = self.conv3(x)
-            x = self.bn3(x)
+            if Parameters.use_batch_regularization:
+                x = self.bn3(x)
             x = self.regularization_activation_function_3(x)
             x = self.pool3(x)
             
             x = self.conv4(x)
-            x = self.bn4(x)
+            if Parameters.use_batch_regularization:
+                x = self.bn4(x)
             x = self.regularization_activation_function_4(x)
             x = self.pool4(x)
 
@@ -238,13 +280,15 @@ class Net(nn.Module):
                 
         #Fully Connected Layers
         x = self.fc1(x)
-        x = self.bn_fc1(x)
+        if Parameters.use_batch_regularization:
+            x = self.bn_fc1(x)
         x = self.regularization_activation_function_fc1(x)
         if self.dropout_probab>0: x = self.dropout1(x)
         
         if Parameters.model_complexity == "Average" or Parameters.model_complexity == "Complex":
             x = self.fc2(x)
-            x = self.bn_fc2(x)
+            if Parameters.use_batch_regularization:
+                x = self.bn_fc2(x)
             x = self.regularization_activation_function_fc2(x)
             if self.dropout_probab>0: x = self.dropout2(x)
         
@@ -326,10 +370,10 @@ def Report_profiler(prof, profiler_key_averages, epoch):
         print(f"GPU {gpu.id}: {gpu.load * 100}% utilized")
         mlflow.log_param("gpu_utilization", gpu.load * 100)
 
-def Train_tail_end(best_checkpoint_dict,epoch_avg_cum_loss, epoch_train_mae, epoch, best_cum_loss_epoch, best_cum_loss, best_mae, best_mae_epoch, train_loader, start_time, run_id, experiment_name,
+def Train_tail_end(best_checkpoint_dict,epoch_avg_cum_loss, epoch_train_mae, epoch, eval_max_r2_epoch, best_cum_loss_epoch, best_cum_loss, best_mae, best_mae_epoch, train_loader, start_time, run_id, experiment_name,
                    net, stock_params):
     #end of training    
-    print_mssg = f"End of Training: Cum loss: {epoch_avg_cum_loss:.7f}  MAE {epoch_train_mae:.7f} epoch {epoch} Best Cum Loss: {best_cum_loss:.7f} Best MAE: {best_mae:.7f} at Best_cumloss_epoch {best_cum_loss_epoch} Best_mae_epoch {best_mae_epoch}.<p>"
+    print_mssg = f"End of Training: Cum loss: {epoch_avg_cum_loss:.7f}  MAE {epoch_train_mae:.7f} epoch {epoch} Best Eval R^2 epoch {eval_max_r2_epoch} Best Cum Loss: {best_cum_loss:.7f} Best MAE: {best_mae:.7f} at Best_cumloss_epoch {best_cum_loss_epoch} Best_mae_epoch {best_mae_epoch}.<p>"
     print(print_mssg)
     if Parameters.save_runs_to_md:
         helper_functions.write_to_md(print_mssg,None)
@@ -348,7 +392,7 @@ def Train_tail_end(best_checkpoint_dict,epoch_avg_cum_loss, epoch_train_mae, epo
         mlflow.log_metric("epoch_avg_cum_loss",epoch_avg_cum_loss,step=epoch)
         mlflow.log_param(f"last_epoch", epoch)
                                             
-    helper_functions.save_checkpoint_model(best_checkpoint_dict, best_cum_loss_epoch, best_cum_loss, epoch_avg_cum_loss, net, run_id, experiment_name, stock_params, epoch)
+    helper_functions.save_checkpoint_model(best_checkpoint_dict, best_cum_loss_epoch, eval_max_r2_epoch, best_cum_loss, epoch_avg_cum_loss, net, run_id, experiment_name, stock_params, epoch)
 
 def set_optimizer_layer_learning_rate(net):
     conv_params = [p for name, p in net.named_parameters() if 'conv' in name]
@@ -409,32 +453,37 @@ def instantiate_optimizer_and_scheduler(net, params, train_loader):
         scheduler = cyclic_scheduler.CyclicLRWithRestarts(optimizer=optimizer, batch_size=Parameters.batch_size, epoch_size=len(train_loader.dataset), restart_period=Parameters.cyclicLRWithRestarts_restart_period, t_mult=Parameters.cyclicLRWithRestarts_t_mult, policy=Parameters.cyclicLRWithRestarts_cyclic_policy, verbose=True)
     if Parameters.scheduler_type == "BayesianLR":
         scheduler = None
+    if Parameters.scheduler_type == "Warmup":
+        scheduler = LinearLR(optimizer, start_factor=0.01, total_iters=10)
+    if Parameters.scheduler_type == "None":
+        scheduler = None
     
     return optimizer, scheduler
 
-def summarize_epoch_statistics(net, epoch, epoch_loss, epoch_accuracy, epoch_r2, epoch_train_mae):
+def summarize_epoch_statistics(net, epoch, epoch_loss, epoch_accuracy, epoch_r2, epoch_train_mae, curr_lr):
     if Parameters.nn_predict_price:
-        summary_stats = {'epoch_avg_cum_loss': float(epoch_loss), 'train_r2': max(float(epoch_r2),0), 'train_mae': float(epoch_train_mae)}
+        summary_stats = {'epoch_avg_cum_loss': float(epoch_loss), 'train_r2': max(float(epoch_r2),0), 'train_mae': float(epoch_train_mae), 'curr_lr':float(curr_lr)}
     else:
-        summary_stats = {'epoch_avg_cum_loss': float(epoch_loss), 'train_accuracy': float(epoch_accuracy)}
+        summary_stats = {'epoch_avg_cum_loss': float(epoch_loss), 'train_accuracy': float(epoch_accuracy), 'curr_lr':float(curr_lr)}
     
     # Iterate through model layers to collect weight and gradient statistics
-    for name, param in net.named_parameters():
-        if param.requires_grad:
-            # Collect weight statistics
-            #print("###weights",param.data.mean().item())
-            summary_stats[f"{name}_weight_mean"] = float(param.data.mean().item())
-            summary_stats[f"{name}_weight_std"] = float(param.data.std().item()) if param.data.numel() > 1 else 0.0
-            summary_stats[f"{name}_weight_min"] = float(param.data.min().item())
-            summary_stats[f"{name}_weight_max"] = float(param.data.max().item())
-            
-            # Collect gradient statistics
-            if param.grad is not None:
-                #print(f"###grad {name}",param.grad.mean().item())
-                summary_stats[f"{name}_grad_mean"] = float(param.grad.mean().item()) if param.grad is not None else 0.0
-                summary_stats[f"{name}_grad_std"] = float(param.grad.std().item()) if param.grad.numel() > 1 else 0.0
-                summary_stats[f"{name}_grad_min"] = float(param.grad.min().item()) if param.grad is not None else 0.0
-                summary_stats[f"{name}_grad_max"] = float(param.grad.max().item()) if param.grad is not None else 0.0
+    if Parameters.log_weights:
+        for name, param in net.named_parameters():
+            if param.requires_grad:
+                # Collect weight statistics
+                #print("###weights",param.data.mean().item())
+                summary_stats[f"{name}_weight_mean"] = float(param.data.mean().item())
+                summary_stats[f"{name}_weight_std"] = float(param.data.std().item()) if param.data.numel() > 1 else 0.0
+                summary_stats[f"{name}_weight_min"] = float(param.data.min().item())
+                summary_stats[f"{name}_weight_max"] = float(param.data.max().item())
+                
+                # Collect gradient statistics
+                if param.grad is not None:
+                    #print(f"###grad {name}",param.grad.mean().item())
+                    summary_stats[f"{name}_grad_mean"] = float(param.grad.mean().item()) if param.grad is not None else 0.0
+                    summary_stats[f"{name}_grad_std"] = float(param.grad.std().item()) if param.grad.numel() > 1 else 0.0
+                    summary_stats[f"{name}_grad_min"] = float(param.grad.min().item()) if param.grad is not None else 0.0
+                    summary_stats[f"{name}_grad_max"] = float(param.grad.max().item()) if param.grad is not None else 0.0
 
     if Parameters.enable_mlflow:
         mlflow.log_metrics(summary_stats,step=epoch)
@@ -549,6 +598,9 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
 
         weights_dict = {name: [] for name, _ in net.named_parameters() if 'weight' in name}
 
+        curr_lr = optimizer.param_groups[0]['lr']
+        print(f"Current LR {curr_lr:.6f}")
+
         for i, data in enumerate(train_loader, 0):
             #print(f"Batch {i}, len trianloader {len(train_loader)} len trainloaderdata {len(train_loader.dataset)}")
 
@@ -605,18 +657,25 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
                     gradScaler.scale(loss).backward()
                     gradScaler.unscale_(optimizer)
                     if Parameters.use_clip_grad_norm:
-                        torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=Parameters.grad_norm_clip_max)
+                        total_norm_before = torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=Parameters.grad_norm_clip_max)
+                        if total_norm_before > Parameters.grad_norm_clip_max:
+                            print("****[WARNING Clipping Applied]*****",total_norm_before,"epoch", epoch)
+                            if Parameters.enable_mlflow:
+                                mlflow.log_metric("norm_clip",0.5,step=epoch)
                     gradScaler.step(optimizer)
                     gradScaler.update()
                 else:
                     loss.backward()
                     if Parameters.use_clip_grad_norm:
-                        torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=Parameters.grad_norm_clip_max)
+                        total_norm_before = torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=Parameters.grad_norm_clip_max)
+                        if total_norm_before > Parameters.grad_norm_clip_max:
+                            print("****[WARNING Clipping Applied]*****",total_norm_before,"epoch", epoch)
+                            if Parameters.enable_mlflow:
+                                mlflow.log_metric("norm_clip",0.5,step=epoch)
                     optimizer.step()
-    
+
                 if Parameters.scheduler_type == "OneCycleLR":
-                    if i==0: print(f"Batch 0 epoch {epoch} Current OneCycleLR Learning Rate:",scheduler.get_last_lr())
-                    epoch_metrics = {f"epoch_avg_cum_loss": epoch_avg_cum_loss.item(),f"last_lr": scheduler.get_last_lr()}
+                    if i==0: print(f"Batch 0 epoch {epoch} Current OneCycleLR Learning Rate:",scheduler.get_last_lr(), "epoch avg cum loss",epoch_avg_cum_loss.item())
                     scheduler.step()
 
                 if Parameters.scheduler_type == "CyclicLRWithRestarts":
@@ -624,16 +683,7 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
                     #print("Getting Learning Rate ", scheduler_param_group['lr'])
                     #print("Getting weight decay", scheduler_param_group['weight_decay'])
                     #print("In Batch Loss", loss.detach().item())
-                    if i==0:
-                        print(f"batch_loss {loss.detach().item()} last_lr {scheduler_param_group['lr']}")
-                        epoch_metrics = {f"batch_loss": loss.detach().item(),
-                                f"last_lr": scheduler_param_group['lr']}
-                    
-                # or Parameters.scheduler_type == "CyclicLRWithRestarts" not possible too slow
-                if Parameters.scheduler_type == "OneCycleLR":
-                    if Parameters.enable_mlflow:
-                        mlflow.log_metrics(epoch_metrics,step=epoch)
-                    
+                
                 # Print optimizer's state_dict
                 # print("Optimizer's state_dict:")
                 # for var_name in optimizer.state_dict():
@@ -691,18 +741,16 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
             if Parameters.enable_mlflow:
                 mlflow.log_metric("best_avg_cum_loss",best_avg_cum_loss,step=epoch)
         
-        print(f"Cum loss: {epoch_avg_cum_loss:.7f}  Train MAE {epoch_train_mae:.7f} epoch {epoch} Best Avg Cum Loss: {best_avg_cum_loss:.7f} Best Train MAE: {best_train_mae:.7f} at Best_cumloss_epoch {best_avg_cum_loss_epoch} Best_mae_epoch {best_train_mae_epoch}")
-        
         # loss<threshold: update checkpoint
         #print(f"BEFORE Updating Checkpoint {epoch} loss {epoch_avg_cum_loss} prior best loss {best_checkpoint_cum_loss}")
         if epoch_avg_cum_loss < best_avg_checkpoint_cum_loss or epoch==0:
             best_avg_checkpoint_cum_loss = epoch_avg_cum_loss
             best_avg_cum_loss_epoch = epoch
             best_avg_cum_loss = epoch_avg_cum_loss
-            best_checkpt_dict=helper_functions.update_best_checkpoint_dict(best_avg_cum_loss_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), epoch_avg_cum_loss)
 
-        if epoch == 0 or (epoch+1) % Parameters.save_model_at_epoch_multiple == 0:
-            helper_functions.save_checkpoint_model(best_checkpt_dict,best_avg_cum_loss_epoch, best_avg_cum_loss, epoch_avg_cum_loss, net, run_id, experiment_name, stock_params, epoch)
+        if epoch==0:
+            best_checkpt_dict=helper_functions.update_best_checkpoint_dict(best_avg_cum_loss_epoch, eval_max_r2_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), epoch_avg_cum_loss)
+            helper_functions.save_checkpoint_model(best_checkpt_dict,best_avg_cum_loss_epoch, eval_max_r2_epoch, best_avg_cum_loss, epoch_avg_cum_loss, net, run_id, experiment_name, stock_params, epoch)
         
         #Eval
         #evaluation test image generation
@@ -716,9 +764,11 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
         if (epoch + 1) % Parameters.eval_at_epoch_multiple == 0:
             print("=====Evaluate at Training======")
             #load best checkpoint
-            net_eval = pipeline.load_checkpoint_for_eval(device, stock_params, train_loader)
+            #net_eval = pipeline.load_checkpoint_for_eval(device, stock_params, train_loader)
+            net  = set_model_for_eval(net)
+            torch.set_grad_enabled(False)
             
-            eval_error_stats = pipeline.evaluate_and_report(net_eval, stock_params, device, test_loader, run, run_id, experiment_name, 
+            eval_error_stats = pipeline.evaluate_and_report(net, stock_params, device, test_loader, run, run_id, experiment_name, 
                                 train_gaf_image_dataset_list_f32, eval_gaf_image_dataset_list_f32,
                                 evaluation_test_stock_dataset_df,
                                 feature_maps_cnn_list, feature_maps_fc_list, stack_input, epoch)
@@ -728,10 +778,20 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
                 eval_max_r2_epoch = epoch
                 if Parameters.enable_mlflow:
                     mlflow.log_metric("max_eval_R2",eval_max_r2, epoch)
+                
+                best_checkpt_dict=helper_functions.update_best_checkpoint_dict(best_avg_cum_loss_epoch, eval_max_r2_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), epoch_avg_cum_loss)
+                
+                helper_functions.save_feature_maps(feature_maps_cnn_list, feature_maps_fc_list)
+
+                #print("NOW train",feature_maps_fc_list[0],"len",len(feature_maps_fc_list),"shape",feature_maps_fc_list[0].shape)
             
             print(f"\033[32mMax Eval R^2 {eval_max_r2} at epoch {eval_max_r2_epoch}\033[0m")
+            
+            if (epoch+1) % Parameters.save_model_at_epoch_multiple == 0:
+                helper_functions.save_checkpoint_model(best_checkpt_dict,best_avg_cum_loss_epoch, eval_max_r2_epoch, best_avg_cum_loss, epoch_avg_cum_loss, net, run_id, experiment_name, stock_params, epoch)
 
-            #return grad enabled post eval
+            #return train and grad enabled post eval
+            net.train()
             torch.set_grad_enabled(True)
             
         #report for during training analytics on this epoch
@@ -745,8 +805,11 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
                 mssg = f"\033[32mTrain Epoch [{epoch + 1}/{Parameters.num_epochs_input}], Average Loss: {epoch_avg_cum_loss:.6f}, Train MAE: {epoch_train_mae:.6f}, Train R^2: {epoch_r2:.4f}\033[0m"
                 print(mssg)
                 #helper_functions.write_scenario_to_log_file(mssg)
-                epoch_stats = summarize_epoch_statistics(net, epoch, epoch_avg_cum_loss, epoch_accuracy,epoch_r2, epoch_train_mae)
+                epoch_stats = summarize_epoch_statistics(net, epoch, epoch_avg_cum_loss, epoch_accuracy,epoch_r2, epoch_train_mae, curr_lr)
                 #helper_functions.write_scenario_to_log_file(epoch_stats)
+
+        # if Parameters.log_params_at_epoch_multiple!=1:
+        #     print(f"Train Epoch [{epoch + 1}/{Parameters.num_epochs_input}], Cum loss: {epoch_avg_cum_loss:.7f}  Train MAE {epoch_train_mae:.7f} Train R^2 {epoch_r2:.7f} Best Avg Cum Loss: {best_avg_cum_loss:.7f} Best Train MAE: {best_train_mae:.7f} at Best_cumloss_epoch {best_avg_cum_loss_epoch} Best_mae_epoch {best_train_mae_epoch}")
 
         #exit if below loss threshold
         #print(f"Comparing Stop - Cum Loss {epoch_cum_loss} Vs {params.loss_stop_threshold}")
@@ -771,45 +834,32 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
 
             #profiler.stop()
 
-            Train_tail_end(best_checkpt_dict, epoch_avg_cum_loss, epoch_train_mae, epoch, best_avg_cum_loss_epoch, best_avg_cum_loss, best_train_mae, best_train_mae_epoch, train_loader, start_time, run_id, experiment_name, net, stock_params)
+            Train_tail_end(best_checkpt_dict, epoch_avg_cum_loss, epoch_train_mae, epoch, eval_max_r2_epoch, best_avg_cum_loss_epoch, best_avg_cum_loss, best_train_mae, best_train_mae_epoch, train_loader, start_time, run_id, experiment_name, net, stock_params)
 
             #return net, model_signature, stack_input
             return net, model_signature if 'model_signature' in locals() else None or None, stack_input, feature_maps_cnn_list, feature_maps_fc_list
         
-        #exit if there's no improvement for x-epochs and LR Reset not enabled
-        # if not Parameters.reduceLROnPlateau_enable_reset and ((best_avg_cum_loss_epoch + Parameters.reduceLROnPlateau_max_stale_loss_epochs) < epoch):
-        #     print(f"[WARNING] Epoch Cum Loss Stale {epoch_avg_cum_loss} at {epoch}. Abandon training.")
-        #     if Parameters.save_runs_to_md:
-        #         helper_functions.write_to_md(f"[WARNING] Epoch Cum Loss Stale {epoch_avg_cum_loss} at {epoch}. Abandon training.",None)
-            
-            #profiler.stop()
-            
-            # Train_tail_end(best_checkpt_dict, epoch_avg_cum_loss, epoch_train_mae, epoch, best_avg_cum_loss_epoch, best_avg_cum_loss, best_train_mae, best_train_mae_epoch, train_loader, start_time, run_id, experiment_name, net, stock_params)
-
-            # return net, model_signature if 'model_signature' in locals() else None, stack_input, feature_maps_cnn_list, feature_maps_fc_list
-        
         #track scheduler auto step down
         if Parameters.scheduler_type == "ReduceLROnPlateau":
-            if ReduceLROnPlateau_blocked == Parameters.reduceLROnPlateau_reset_cooldown:
-                prior_lr = scheduler.optimizer.param_groups[0]['lr']
+            #scheduler step LR
+            prior_lr = scheduler.optimizer.param_groups[0]['lr']
+            
+            scheduler.step(epoch_avg_cum_loss.item())
+            #print("LR BEFORE STEP",prior_lr,"LR AFTER",scheduler.optimizer.param_groups[0]['lr'])
+            #print(f"Comparing Blocked {ReduceLROnPlateau_blocked} VS Cooldown {Parameters.reduceLROnPlateau_reset_cooldown}")
+            if ReduceLROnPlateau_blocked < Parameters.reduceLROnPlateau_reset_cooldown:
                 
-                scheduler.step(epoch_avg_cum_loss.item())
-                
+                for param_group in optimizer.param_groups:
+                    param_group['lr'] = Parameters.reduceLROnPlateau_reset_rate
+                print("I've reset rate at BLCOKED to ",Parameters.reduceLROnPlateau_reset_rate)
+                ReduceLROnPlateau_blocked+=1
+
                 current_lr = scheduler.optimizer.param_groups[0]['lr']
+                print(f"prior LR",prior_lr,"curr",current_lr)
                 
                 # If the scheduler reduced the learning rate, update the last best epoch
                 if prior_lr > current_lr:
                     print(f"[INFO] ReduceLROnPlateau adjusted LR from {prior_lr} to {current_lr}")
-
-                if Parameters.enable_mlflow:
-                    mlflow.log_metric("last_lr", current_lr, step=epoch)
-            else:
-                ReduceLROnPlateau_blocked+=1
-            
-            if scheduler in ["ReduceLROnPlateau","CyclicLRWithRestarts","OneCycleLR"]:
-                current_lr = scheduler.optimizer.param_groups[0]['lr']
-                print(f"epoch_avg_cum_loss {epoch_avg_cum_loss.item()} last_lr {current_lr}")
-
 
         # LR manual reset logic
         if Parameters.scheduler_type == "ReduceLROnPlateau":
@@ -818,7 +868,7 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
                 for param_group in optimizer.param_groups:
                     param_group['lr'] = Parameters.reduceLROnPlateau_reset_rate
                     ReduceLROnPlateau_blocked = 0
-                print(f"[WARNING] LR reset to {Parameters.reduceLROnPlateau_reset_rate} due to stale loss at epoch {epoch}")
+                print(f"[WARNING] LR reset to {Parameters.reduceLROnPlateau_reset_rate} due to hitting min loss at epoch {epoch}")
 
         if train_max_r2 < epoch_r2:
             train_max_r2 = epoch_r2
@@ -846,7 +896,7 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
             if Parameters.enable_mlflow:
                 if epoch_avg_cum_loss.item() < Parameters.bayes_loss_threshold_to_log:
                     bayesian_lr_loss_mlflow = {
-                        "bayes_lr": suggested_lr.cpu().item(),
+                        "bayes_lr": suggested_lr.item(),
                         "bayes_loss": epoch_avg_cum_loss.cpu().item()
                     }
                     
@@ -854,13 +904,11 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
                         mlflow.log_metrics(bayesian_lr_loss_mlflow, epoch)
 
             plot_data.plot_lr_vs_loss(Parameters.bayesian_warmup_learning_rates, bayesian_LR_warmup_loss_list)
-
-        print("Current LR",optimizer.param_groups[0]['lr'])
         
     #end training without reaching loss_threshold
     #profiler.stop()
 
-    Train_tail_end(best_checkpt_dict ,epoch_avg_cum_loss, epoch_train_mae, epoch, best_avg_cum_loss_epoch, best_avg_cum_loss, best_train_mae, best_train_mae_epoch, train_loader, start_time, run_id, experiment_name, net, stock_params)
+    Train_tail_end(best_checkpt_dict ,epoch_avg_cum_loss, epoch_train_mae, epoch, eval_max_r2_epoch, best_avg_cum_loss_epoch, best_avg_cum_loss, best_train_mae, best_train_mae_epoch, train_loader, start_time, run_id, experiment_name, net, stock_params)
     
     torch.set_printoptions()
 
@@ -899,15 +947,19 @@ def Test(test_loader, net, stock_ticker, epoch, device, experiment_name, run):
         #     print("TEST inputs",inputs[0][0])
         #     print("TEST labels",labels)
 
-        with torch.no_grad():
-            outputs, feature_maps_cnn, feature_maps_fc = net(inputs)
-            # if i==0: 
-            #     print("TEST outputs",outputs)
-            feature_maps_cnn_list.append(feature_maps_cnn)
-            feature_maps_fc_list.append(feature_maps_fc)
-            #print("outputs",outputs)
+        #mixed precision
+        autocast_context = torch.autocast(device_type='cuda', dtype=torch.float16) if (Parameters.use_mixed_precision) else contextlib.nullcontext()
 
-            r2_metric.update(outputs, labels)
+        with autocast_context:
+            with torch.no_grad():
+                outputs, feature_maps_cnn, feature_maps_fc = net(inputs)
+                # if i==0: 
+                #     print("TEST outputs",outputs)
+        feature_maps_cnn_list.append(feature_maps_cnn)
+        feature_maps_fc_list.append(feature_maps_fc)
+        #print("outputs",outputs)
+
+        r2_metric.update(outputs, labels)
         
         # for name, param in net.named_parameters():
         #     if param.requires_grad:

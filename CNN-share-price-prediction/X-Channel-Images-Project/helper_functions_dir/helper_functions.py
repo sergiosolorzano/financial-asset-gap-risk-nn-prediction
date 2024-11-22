@@ -78,7 +78,7 @@ def Save_Model_Arch(net, run_id, input_shape, input_type, mode, experiment_name)
         mlflow.log_artifact(local_path="./" + model_arch_fname_with_dir, run_id=run_id, artifact_path=Parameters.model_arch_dir)
 
 
-def update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net_state_dict, opti_state_dict, epoch_loss):
+def update_best_checkpoint_dict(best_cum_loss_epoch, eval_max_r2_epoch, run_id, net_state_dict, opti_state_dict, epoch_loss):
     #print("Update checkpoint_dict epoch", best_cum_loss_epoch, "epoch loss", epoch_loss.item())
     #print("opti_state_dict",opti_state_dict)
     best_checkpt_dict = {
@@ -88,11 +88,11 @@ def update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net_state_dict, opt
             'optimizer_state_dict': copy.deepcopy(opti_state_dict),
             'loss': epoch_loss,
             }
-    print(f"Updated at epoch {best_cum_loss_epoch} checkpt {best_checkpt_dict['model_state_dict']['conv2.weight'][0][0]}")
+    print(f"Updated at best r^2 eval epoch {eval_max_r2_epoch} thought best cum loss epoch {best_cum_loss_epoch} checkpt {best_checkpt_dict['model_state_dict']['conv2.weight'][0][0]}")
     
     return best_checkpt_dict
 
-def save_checkpoint_model(best_checkpoint_dict, best_cum_loss_epoch, best_cum_loss, curr_epoch_cum_loss, net, run_id, experiment_name, stock_params, epoch):
+def save_checkpoint_model(best_checkpoint_dict, best_cum_loss_epoch, eval_max_r2_epoch, best_cum_loss, curr_epoch_cum_loss, net, run_id, experiment_name, stock_params, epoch):
     train_stocks = stock_params.train_stock_tickers
     eval_stocks = stock_params.eval_stock_tickers
     model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}_{train_stocks}_{eval_stocks}_{Parameters.model_uuid}.pth'
@@ -100,7 +100,7 @@ def save_checkpoint_model(best_checkpoint_dict, best_cum_loss_epoch, best_cum_lo
     #     #print("***Updating checkpoint dict cos it's NONE", Parameters.checkpt_dict['optimizer_state_dict'])
     #     update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), curr_epoch_cum_loss)
     #print("SAVING:Parameters.checkpt_dict",Parameters.checkpt_dict['model_state_dict']['conv2.weight'])
-    print("Saving model best loss", best_cum_loss.item(), "at Epoch ", best_cum_loss_epoch, "name",model_checkpoint_fname_with_dir, "best_checkpoint_dict",best_checkpoint_dict['model_state_dict']['conv2.weight'][0][0])
+    print("Saving model best eval R^2",eval_max_r2_epoch, " though best cum loss is", best_cum_loss.item(), "at Epoch ", best_cum_loss_epoch, "name",model_checkpoint_fname_with_dir)#, "best_checkpoint_dict",best_checkpoint_dict['model_state_dict']['conv2.weight'][0][0])
     torch.save(best_checkpoint_dict, "./" + model_checkpoint_fname_with_dir)
     
     if Parameters.enable_mlflow:
@@ -151,6 +151,14 @@ def load_checkpoint_model(net, device, stock_params, train_loader):
     print(f"\033[32mLoaded checkpoint from {model_checkpoint_fname_with_dir}, epoch: {epoch}, loss: {loss}\033[0m")
     
     return net, epoch, loss, checkpoint
+
+def save_feature_maps(feature_maps_cnn_list, feature_maps_fc_list):
+    cnn_arrays = [tensor.cpu().numpy() for tensor in feature_maps_cnn_list]
+    np.savez(f"{Parameters.checkpoint_dir}/feature_maps_cnn_{Parameters.train_tickers}_{Parameters.eval_tickers}.npz", *cnn_arrays)
+
+    # Save feature_maps_fc_list to a file
+    fc_arrays = [tensor.cpu().numpy() for tensor in feature_maps_fc_list]
+    np.savez(f"{Parameters.checkpoint_dir}/feature_maps_fc_{Parameters.train_tickers}_{Parameters.eval_tickers}.npz", *fc_arrays)
 
 # def Load_State_Model(net, PATH):
 #     print("Loading State Model")

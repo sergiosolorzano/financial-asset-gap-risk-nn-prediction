@@ -12,9 +12,11 @@ import pandas as pd
 import numpy as np
 import math
 
+import torch.nn as nn
 from fastdtw import fastdtw
 from torchmetrics.functional.image import structural_similarity_index_measure as ssim
 import torch.nn.functional as F
+import contextlib
 
 #import scripts
 import importlib as importlib
@@ -38,6 +40,12 @@ import evaluation_test_pipeline as evaluation_test_pipeline
 import mlflow
 from torchinfo import summary
 import shap
+import random
+
+torch.manual_seed(42)
+np.random.seed(42)
+random.seed(42)
+os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 
 def create_eval_stock_obj():
     eval_stock_params = StockParams()
@@ -77,8 +85,8 @@ def create_model_naming_stocks_obj():
     # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
     
     #scenarios
-    stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
-    #stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
+    stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('OZK', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('CUBI', '2021-12-06', '2023-01-25')
@@ -172,37 +180,6 @@ def calculate_images_ssim(train_feature_image_dataset_list_f32_tensor, test_feat
     ssim_score = ssim(train_feature_image_dataset_list_f32_tensor, test_feature_image_dataset_list_f32_tensor, data_range=data_range)
     print(f"\033[32mssim_score {feature_type}: \033[0m",ssim_score)
 
-def train(device) :
-    
-    feature_maps_cnn_list =[]
-    feature_maps_fc_list =[]
-
-    model_name_stock_params = create_model_naming_stocks_obj()
-    
-    train_loader, test_loader, evaluation_test_stock_dataset_df, train_feature_image_dataset_list_f32 = pipeline_data.generate_dataset_to_images_process(model_name_stock_params, model_name_stock_params.get_train_stocks(), 
-                                                                                                                                                        Parameters, 
-                                                                                                                                                        Parameters.training_test_size, 
-                                                                                                                                                        Parameters.training_cols_used,
-                                                                                                                                                        None, None)
-    if Parameters.load_checkpoint_for_eval:
-        net = neural_network.instantiate_net(Parameters, device)
-        net, epoch, loss, checkpoint = helper_functions.load_checkpoint_model(net, device, model_name_stock_params, train_loader)
-        print("Epoch:", checkpoint['epoch'])
-        print("Loss:", checkpoint['loss'])
-        net  = neural_network.set_model_for_eval(net)
-        torch.set_grad_enabled(False)
-        #print("TRAIN Parameters.checkpt_dict",checkpoint['model_state_dict']['conv2.weight'])
-
-    for i, data in enumerate(train_loader, 0):
-        inputs, labels = data[0].to(device), data[1].to(device)
-        with torch.no_grad():
-            outputs, feature_map_cnn, feature_map_fc = net(inputs)
-            #print("outputs",outputs)
-            feature_maps_cnn_list.append(feature_map_cnn)
-            feature_maps_fc_list.append(feature_map_fc)
-
-    return feature_maps_cnn_list, feature_maps_fc_list
-
 def eval(device):
     
     feature_maps_cnn_list = []
@@ -223,17 +200,20 @@ def eval(device):
         net, epoch, loss, checkpoint = helper_functions.load_checkpoint_model(net, device, model_name_stock_params, train_loader)
         print("Epoch:", checkpoint['epoch'])
         print("Loss:", checkpoint['loss'])
-        net  = neural_network.set_model_for_eval(net)
         torch.set_grad_enabled(False)
+        net  = neural_network.set_model_for_eval(net)
         #print("EVAL Parameters.checkpt_dict",checkpoint['model_state_dict']['conv2.weight'])
 
     for i, data in enumerate(test_loader, 0):
         inputs, labels = data[0].to(device), data[1].to(device)
-        with torch.no_grad():
-            outputs, feature_map_cnn, feature_map_fc = net(inputs)
-            #print("outputs",outputs)
-            feature_maps_cnn_list.append(feature_map_cnn)
-            feature_maps_fc_list.append(feature_map_fc)
+        autocast_context = torch.autocast(device_type='cuda', dtype=torch.float16) if (Parameters.use_mixed_precision) else contextlib.nullcontext()
+
+        with autocast_context:
+            with torch.no_grad():
+                outputs, feature_map_cnn, feature_map_fc = net(inputs)
+        #print("outputs",outputs)
+        feature_maps_cnn_list.append(feature_map_cnn)
+        feature_maps_fc_list.append(feature_map_fc)
 
     #eval
     evaluation_test_stack_input, evaluation_test_stack_actual, evaluation_test_stack_predicted, eval_feature_maps_cnn_list, eval_feature_maps_fc_list, error_stats = pipeline_test.test_process(net, 
@@ -243,6 +223,19 @@ def eval(device):
                                                                                                         None, device, None)
     return feature_maps_cnn_list, feature_maps_fc_list, net
 
+def load_feature_maps():
+    
+    model_name_stock_params = create_model_naming_stocks_obj()
+
+    cnn_data = np.load(f"{Parameters.checkpoint_dir}/feature_maps_cnn_{model_name_stock_params.train_stock_tickers}_{model_name_stock_params.eval_stock_tickers}.npz")
+    train_feature_maps_cnn_list = [torch.tensor(cnn_data[key]).to(device) for key in cnn_data]
+
+    # Load the FC feature maps from file
+    fc_data = np.load(f"{Parameters.checkpoint_dir}/feature_maps_fc_{model_name_stock_params.train_stock_tickers}_{model_name_stock_params.eval_stock_tickers}.npz")
+    feature_maps_fc_list_loaded = [torch.tensor(fc_data[key]).to(device) for key in fc_data]
+
+    return train_feature_maps_cnn_list, feature_maps_fc_list_loaded
+    
 if __name__ == "__main__":
     
     device = torch.device("cpu")
@@ -257,20 +250,20 @@ if __name__ == "__main__":
     #reset global vars
     Parameters.enable_mlflow=False
     Parameters.model_uuid="1"
-    print("Start train",Parameters.train_tickers,"Eval",Parameters.eval_tickers)
     
-    train_feature_maps_cnn_list, train_feature_maps_fc_list = train(device)
+    train_feature_maps_cnn_list, feature_maps_fc_list_loaded = load_feature_maps()
+
     eval_feature_maps_cnn_list, eval_feature_maps_fc_list, net = eval(device)
-    print("Ttrain",Parameters.train_tickers,"Eval",Parameters.eval_tickers)
+    # print("train_feature_maps_cnn_list",train_feature_maps_cnn_list[0].dtype,"shape",train_feature_maps_cnn_list[0].shape)
+    # print("Type eval_feature_maps_cnn_list",eval_feature_maps_cnn_list[0].dtype,"shape",eval_feature_maps_cnn_list[0].shape)
+    # print("Ttrain",Parameters.train_tickers,"Eval",Parameters.eval_tickers)
     #CNN maps
     train_feature_maps_cnn_np = torch.cat(train_feature_maps_cnn_list, dim=0)
     eval_feature_maps_cnn_np = torch.cat(eval_feature_maps_cnn_list, dim=0)
-    # train_feature_maps_np = train_feature_maps_np.unsqueeze(1).unsqueeze(1)
-    # eval_feature_maps_np = eval_feature_maps_np.unsqueeze(1).unsqueeze(1)
     calculate_images_ssim(train_feature_maps_cnn_np, eval_feature_maps_cnn_np, "CNN")
     
     #FC maps
-    train_feature_maps_fc_np = torch.cat(train_feature_maps_fc_list, dim=0)
+    train_feature_maps_fc_np = torch.cat(feature_maps_fc_list_loaded, dim=0)
     eval_feature_maps_fc_np = torch.cat(eval_feature_maps_fc_list, dim=0)
     #print("AT MAIN len FC feature maps",len(eval_feature_maps_fc_np),"shape",eval_feature_maps_fc_np.shape)
     
@@ -283,6 +276,9 @@ if __name__ == "__main__":
         height = total_elements // width
     train_feature_maps_fc_np = train_feature_maps_fc_np.view(width, height).unsqueeze(0).unsqueeze(0)
     eval_feature_maps_fc_np = eval_feature_maps_fc_np.view(width, height).unsqueeze(0).unsqueeze(0)
+    
+    print("Type train FC",train_feature_maps_fc_np.dtype,"shape",train_feature_maps_fc_np.shape)
+    print("Type test FC",eval_feature_maps_fc_np.dtype,"shape",eval_feature_maps_fc_np.shape)
     calculate_images_ssim(train_feature_maps_fc_np, eval_feature_maps_fc_np, "FC")
 
     #set global params back
@@ -292,3 +288,47 @@ if __name__ == "__main__":
     Parameters.eval_tickers = temp_eval_tickers
     print("End train",Parameters.train_tickers,"Eval",Parameters.eval_tickers)
     #generate_shap(net, device, eval_feature_maps_np, train_feature_maps_np)
+
+
+# def train(device) :
+    
+#     feature_maps_cnn_list =[]
+#     feature_maps_fc_list =[]
+
+#     model_name_stock_params = create_model_naming_stocks_obj()
+    
+#     train_loader, test_loader, evaluation_test_stock_dataset_df, train_feature_image_dataset_list_f32 = pipeline_data.generate_dataset_to_images_process(model_name_stock_params, model_name_stock_params.get_train_stocks(), 
+#                                                                                                                                                         Parameters, 
+#                                                                                                                                                         Parameters.training_test_size, 
+#                                                                                                                                                         Parameters.training_cols_used,
+#                                                                                                                                                         None, None)
+#     if Parameters.load_checkpoint_for_eval:
+#         net = neural_network.instantiate_net(Parameters, device)
+#         net, epoch, loss, checkpoint = helper_functions.load_checkpoint_model(net, device, model_name_stock_params, train_loader)
+#         print("Epoch:", checkpoint['epoch'])
+#         print("Loss:", checkpoint['loss'])
+        
+#         torch.set_grad_enabled(False)
+#         net.train()
+        
+#         #print("TRAIN Parameters.checkpt_dict",checkpoint['model_state_dict']['conv2.weight'])
+
+#     for i, data in enumerate(train_loader, 0):
+#         inputs, labels = data[0].to(device), data[1].to(device)
+#         #mixed precision
+#         autocast_context = torch.autocast(device_type='cuda', dtype=torch.float16) if (Parameters.use_mixed_precision) else contextlib.nullcontext()
+
+#         with autocast_context:
+#             outputs, feature_map_cnn, feature_map_fc = net(inputs)
+#         #print("outputs",outputs)
+#         feature_maps_cnn_list.append(feature_map_cnn)
+#         feature_maps_fc_list.append(feature_map_fc)
+
+#     print("NOW train",feature_maps_fc_list[0], len(feature_maps_fc_list),"shape",feature_maps_fc_list[0].shape)
+#     print("AFTER RUN ")
+#     for name, module in net.named_modules():
+#         if isinstance(module, torch.nn.BatchNorm2d):
+#             print(f"{name} running mean: {module.running_mean}, running var: {module.running_var}")
+
+#     print("1train_feature_maps_cnn_list",feature_maps_cnn_list[0].dtype,"shape",feature_maps_cnn_list[0].shape)
+#     return feature_maps_cnn_list, feature_maps_fc_list

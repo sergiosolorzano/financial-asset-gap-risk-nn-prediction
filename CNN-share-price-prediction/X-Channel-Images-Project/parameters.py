@@ -85,7 +85,7 @@ class Parameters:
     matplotlib_use = "Agg"
     run_iter = False
 
-    model_complexity = "Simple" #Simple, Average, Complex
+    model_complexity = "Average" #Simple, Average, Complex
     train = True
     load_checkpoint_for_eval = True
 
@@ -94,8 +94,9 @@ class Parameters:
     classification_class_price_up=1
 
     log_returns = True #1=log return rebased price series else price series
+    log_weights = True
 
-    enable_mlflow=False
+    enable_mlflow=True
     enable_save_model = False
     mlflow_experiment_name = 'gaprisk-generalize-1'
     mlflow_experiment_description = "Objective generalize results on largest DTW stock pair"
@@ -162,6 +163,17 @@ class Parameters:
     stride_1 = 1
     stride_2 = 1#2
 
+    #TODO dynamic calc groups
+    use_batch_regularization = False
+    batch_regul_type = "Group" #Norm, Group
+    use_goupnorm = True
+    bn1_num_groups = 5 #num_groups divides self.output_conv_1 evenly e.g. self.output_conv_1=40 then #groups=5: (40 ÷ 5 = 8 channels per group), 8 or 10
+    bn2_num_groups = 3
+    bn3_num_groups = 32
+    bn4_num_groups = 32
+    bn_fc1_num_groups = 10
+    bn_fc2_num_groups = 0
+
     use_adaptiveAvgPool2d = False
     adaptiveAvgPool2d_outputsize = (1,1)
 
@@ -178,7 +190,7 @@ class Parameters:
         output_FC_2 = 100
 
     if model_complexity == "Average":
-        filter_size_1 = (1, 1)#(2, 3)
+        filter_size_1 = (2, 3)#(2, 3)
         filter_size_2 = (2,2)
         filter_size_3 = (2, 3)
 
@@ -220,8 +232,8 @@ class Parameters:
     lambda_ssim = 0.5
     cnn_fc_lambda_ssim_ratio = 0.2
 
-    use_clip_grad_norm = False
-    grad_norm_clip_max = 0.5
+    use_clip_grad_norm = True
+    grad_norm_clip_max = 5
 
     dropout_probab = 0
 
@@ -234,42 +246,45 @@ class Parameters:
     min_best_cum_loss = torch.tensor(2.5, device=device, dtype=torch.float64)
     model_uuid = 1#str(uuid.uuid4())
 
-    loss_stop_threshold = 0.001#0.000001#0.0000013
-    use_mixed_precision = True
+    loss_stop_threshold = 0.000001#0.000001#0.0000013
+    use_mixed_precision = False
 
     #weights init
     kaiming_uniform_nonlinearity_type = 'relu' #relu leaky_relu
     kaiming_uniform_leakyrelu_a = 0
 
     #pytorch Schedulers
-    scheduler_type = "CyclicLRWithRestarts" #ReduceLROnPlateau, OneCycleLR, CyclicLRWithRestarts, BayesianLR
+    scheduler_type = "CyclicLRWithRestarts" #ReduceLROnPlateau, OneCycleLR, CyclicLRWithRestarts, BayesianLR, Warmup
     scheduler = None    
+
+    #Warmup Scheduler
+    start_factor=0.001
+    total_iters = 100
     
     #bayesian Scheduler
     bayesianLR_bounds = [{'name': 'learning_rate', 'type': 'continuous', 'domain': (1e-6, 1e-1)}]
     bayesian_warmup_learning_rates = [0.0001, 0.00001, 0.000001, 0.001, 0.01]
     bayesian_warmup_epochs = 5
-    bayes_find_lr_frequency_epochs = 5+bayesian_warmup_epochs
-    bayes_loss_threshold_to_log = 1
+    bayes_find_lr_frequency_epochs = 45+bayesian_warmup_epochs
+    bayes_loss_threshold_to_log = 0.6
 
     #CyclicLRWithRestarts Scheduler
     cyclicLRWithRestarts_cyclic_policy = "cosine" #["cosine", "arccosine", "triangular", "triangular2", "exp_range"]
-    cyclicLRWithRestarts_restart_period = 5 #epoch count in the first restart period
+    cyclicLRWithRestarts_restart_period = 15 #epoch count in the first restart period
     cyclicLRWithRestarts_t_mult = 1.2 #multiplication factor by which the next restart period will expand/shrink
 
     #ReduceLROnPlateau Scheduler:
-    reduceLROnPlateau_patience = 0 #10000 to ignore lrscheduler
-    reduceLROnPlateau_reset_cooldown = 20
+    reduceLROnPlateau_patience = 15 #100 #10000 to ignore lrscheduler
+    reduceLROnPlateau_reset_cooldown = 7 #30
     reduceLROnPlateau_mode = 'min'
-    reduceLROnPlateau_max_stale_loss_epochs = 20 #100000 to ignore lrscheduler #max(4 * lr_scheduler_patience,300)
     reduceLROnPlateau_enable_reset = True
-    reduceLROnPlateau_reset_rate = 0.01#manual reset rate, will be ratched down by factor in scheduler.step
+    reduceLROnPlateau_reset_rate = 0.1#manual reset rate, will be ratched down by factor in scheduler.step
     reduceLROnPlateau_factor = 0.1
-    reduceLROnPlateau_min_lr = 1e-6 #can only be higher than 1e-8
+    reduceLROnPlateau_min_lr = 1e-3 #can only be higher than 1e-8 
 
     #OneCycleLR:
     oneCycleLR_max_lr=0.01
-    oneCycleLR_pct_start=0.9 #percentage of the cycle spent increasing the learning rate
+    oneCycleLR_pct_start=0.12 #percentage of the cycle spent increasing the learning rate
 
     #select optimizer
     optimizer_type = "adam.Adamw" #SGD , Adam, adam.Adamw, optim.Adamw
@@ -277,7 +292,7 @@ class Parameters:
 
     #TODO refactor configs optimizers and schedulers
     #adamw optimizer
-    adamw_weight_decay = 0.001#0.00001#0.000001
+    adamw_weight_decay = 0.0001#0.00001#0.000001
     
     #adam optimizer
     adam_weight_decay = 0.00001
@@ -310,10 +325,10 @@ class Parameters:
         regularization_function = nn.SiLU()
 
     #during training-and-eval vars
-    num_epochs_input = 40
-    eval_at_epoch_multiple = 5
+    num_epochs_input = 2000
+    eval_at_epoch_multiple = 1
     save_model_at_epoch_multiple = 10
-    log_params_at_epoch_multiple = 10
+    log_params_at_epoch_multiple = 1
     training_analytics_params_log_fname = 'nn_peer_stats.txt'
 
     #global tracking vars

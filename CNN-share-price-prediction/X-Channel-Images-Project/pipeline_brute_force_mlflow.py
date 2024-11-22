@@ -87,8 +87,9 @@ def create_train_eval_stocks_obj():
     # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
     
     #scenarios
-    stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
-    #stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('ZION', '2021-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
+    stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('OZK', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
     #stock_params.add_eval_stock('CUBI', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
@@ -118,13 +119,15 @@ def calculate_ssim_train_eval(train_feature_maps_cnn_list, train_feature_maps_fc
     #CNN
     train_feature_maps_cnn_np = torch.cat(train_feature_maps_cnn_list, dim=0)
     eval_feature_maps_cnn_np = torch.cat(eval_feature_maps_cnn_list, dim=0)
-    # train_feature_maps_np = train_feature_maps_np.unsqueeze(1).unsqueeze(1)
-    # eval_feature_maps_np = eval_feature_maps_np.unsqueeze(1).unsqueeze(1)
+    # print("HEREtrain_feature_maps_cnn_np",type(train_feature_maps_cnn_np), "ele type", train_feature_maps_cnn_np[0].dtype, "ele shape", train_feature_maps_cnn_np[0].shape)
+    # print("HEREeval_feature_maps_cnn_np",type(eval_feature_maps_cnn_np), "ele type", eval_feature_maps_cnn_np[0].dtype, "ele shape", eval_feature_maps_cnn_np[0].shape)
     calculate_images_ssim(train_feature_maps_cnn_np, eval_feature_maps_cnn_np, "CNN", epoch)
     
     #FC
     train_feature_maps_fc_np = torch.cat(train_feature_maps_fc_list, dim=0)
     eval_feature_maps_fc_np = torch.cat(eval_feature_maps_fc_list, dim=0)
+    # print("HEREtrain_feature_maps_fc_np",type(train_feature_maps_fc_np), "ele type", train_feature_maps_fc_np[0].dtype, "ele shape", train_feature_maps_fc_np[0].shape)
+    # print("HEREeval_feature_maps_fc_np",type(eval_feature_maps_fc_np), "ele type", eval_feature_maps_fc_np[0].dtype, "ele shape", eval_feature_maps_fc_np[0].shape)
     #print("AT MAIN len FC feature maps",len(eval_feature_maps_fc_np),"shape",eval_feature_maps_fc_np.shape)
     
     total_elements = train_feature_maps_fc_np.numel()
@@ -140,8 +143,8 @@ def calculate_ssim_train_eval(train_feature_maps_cnn_list, train_feature_maps_fc
 
 def calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32, layer_type, epoch):
     
-    print("train_feature_image_dataset_list_f32",train_feature_image_dataset_list_f32.dtype, train_feature_image_dataset_list_f32.shape)
-    print("test_feature_image_dataset_list_f32",test_feature_image_dataset_list_f32.dtype, test_feature_image_dataset_list_f32.shape)
+    # print("train_feature_image_dataset_list_f32",train_feature_image_dataset_list_f32.dtype, train_feature_image_dataset_list_f32.shape)
+    # print("test_feature_image_dataset_list_f32",test_feature_image_dataset_list_f32.dtype, test_feature_image_dataset_list_f32.shape)
     #print("***",train_feature_image_dataset_list_f32.shape[2]+train_feature_image_dataset_list_f32.shape[3])
     if isinstance(train_feature_image_dataset_list_f32, np.ndarray):
         train_feature_image_dataset_list_f32_tensor = torch.from_numpy(train_feature_image_dataset_list_f32).unsqueeze(1)
@@ -155,8 +158,8 @@ def calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_ima
         
     train_feature_image_dataset_list_f32_tensor = train_feature_image_dataset_list_f32_tensor.to(torch.float32)
     test_feature_image_dataset_list_f32_tensor = test_feature_image_dataset_list_f32_tensor.to(torch.float32)
-    print("Type train",train_feature_image_dataset_list_f32_tensor.dtype,"shape",train_feature_image_dataset_list_f32_tensor.shape)
-    print("Type test",test_feature_image_dataset_list_f32_tensor.dtype,"shape",test_feature_image_dataset_list_f32_tensor.shape)
+    # print("Type train",train_feature_image_dataset_list_f32_tensor.dtype,"shape",train_feature_image_dataset_list_f32_tensor.shape)
+    # print("Type test",test_feature_image_dataset_list_f32_tensor.dtype,"shape",test_feature_image_dataset_list_f32_tensor.shape)
     # train_feature_image_dataset_list_f32_tensor = train_feature_image_dataset_list_f32_tensor.cpu()
     # test_feature_image_dataset_list_f32_tensor = test_feature_image_dataset_list_f32_tensor.cpu()
     
@@ -255,7 +258,6 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_param
         "batch_size": Parameters.batch_size,
         "num_workers": Parameters.num_workers,
         "num_epochs_input": Parameters.num_epochs_input,
-        "max_stale_loss_epochs": Parameters.reduceLROnPlateau_max_stale_loss_epochs,
         "loss_threshold": Parameters.loss_stop_threshold,
         "epoch_running_loss_check": Parameters.epoch_running_loss_check,
         "epoch_running_gradients_check": Parameters.epoch_running_gradients_check,
@@ -289,7 +291,6 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_param
     if Parameters.scheduler_type=="ReduceLROnPlateau":
         params_dict["reduceLROnPlateau_patience"] = Parameters.reduceLROnPlateau_patience
         params_dict["reduceLROnPlateau_mode"] = Parameters.reduceLROnPlateau_mode
-        params_dict["reduceLROnPlateau_max_stale_loss_epochs"] = Parameters.reduceLROnPlateau_max_stale_loss_epochs
         params_dict["reduceLROnPlateau_enable_reset"] = Parameters.reduceLROnPlateau_enable_reset
         params_dict["reduceLROnPlateau_reset_rate"] = Parameters.reduceLROnPlateau_reset_rate
         params_dict["reduceLROnPlateau_factor"] = Parameters.reduceLROnPlateau_factor
@@ -357,6 +358,11 @@ def evaluate_and_report(net, stock_params, device, test_loader, run, run_id, exp
     #report stats
     if Parameters.train:
 
+        # print("1HEREtrain_feature_maps_cnn_list",type(train_feature_maps_cnn_list), "ele type", train_feature_maps_cnn_list[0].dtype, "ele shape", train_feature_maps_cnn_list[0].shape)
+        # print("1HEREtrain_feature_maps_fc_list",type(train_feature_maps_fc_list), "ele type", train_feature_maps_fc_list[0].dtype, "ele shape", train_feature_maps_fc_list[0].shape)
+        # print("1HEREeval_feature_maps_cnn_list",type(eval_feature_maps_cnn_list), "ele type", eval_feature_maps_cnn_list[0].dtype, "ele shape", eval_feature_maps_cnn_list[0].shape)
+        # print("1HEREeval_feature_maps_fc_list",type(eval_feature_maps_fc_list), "ele type", eval_feature_maps_fc_list[0].dtype, "ele shape", eval_feature_maps_fc_list[0].shape)
+        
         if (len(train_feature_image_dataset_list_f32) == len(test_feature_image_dataset_list_f32)):
             calculate_ssim_train_eval(train_feature_maps_cnn_list, train_feature_maps_fc_list, eval_feature_maps_cnn_list, eval_feature_maps_fc_list, epoch)
 
@@ -435,7 +441,6 @@ def brute_force_function(credentials, device, stock_params):
     scalers = [MinMaxScaler(min_max_scaler_feature_range[0])]
     #gaf_sample_ranges = [(-1, 0), (-1, 0.5), (-1, 1), (-0.5, 0), (-0.5, 0.5), (-0.5, 1), (0, 0.5), (0, 1)]
     #gaf_sample_ranges = [(-1, 0.5), (-1, 0), (-0.5, 0.5)]
-    gaf_sample_ranges = [(-1, 0.5)]
     #dropout_probabs = [0.25, 0.5]
     #dropout_probabs = [0]
     #gaf_sample_ranges = [(-1, 0.5)]
@@ -451,80 +456,79 @@ def brute_force_function(credentials, device, stock_params):
                         #for d in dropout_probabs:
                         for sc in scalers:
                             for mm_sc in min_max_scaler_feature_range:
-                                for s in gaf_sample_ranges:
+                                #for s in gaf_sample_ranges:
 
-                                    curr_datetime = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+                                curr_datetime = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+                                
+                                with (mlflow.start_run(run_name=f"run_{curr_datetime}") if Parameters.enable_mlflow else contextlib.nullcontext()) as run:
+                                        
+                                    #sys logs
+                                    if Parameters.enable_mlflow:
+                                        print(mlflow.MlflowClient().get_run(run.info.run_id).data)
                                     
-                                    with (mlflow.start_run(run_name=f"run_{curr_datetime}") if Parameters.enable_mlflow else contextlib.nullcontext()) as run:
-                                            
-                                        #sys logs
-                                        if Parameters.enable_mlflow:
-                                            print(mlflow.MlflowClient().get_run(run.info.run_id).data)
-                                        
-                                            Parameters.run_id = run_id = run.info.run_id
-                                            print("runid",run_id)
-                                        else:
-                                            run_id=None
+                                        Parameters.run_id = run_id = run.info.run_id
+                                        print("runid",run_id)
+                                    else:
+                                        run_id=None
 
-                                        #plot all stocks
-                                        stock_comp_params = create_comparison_stocks_obj()
-                                        data_close, merged_df = process_price_series.log_rebase_dataset(stock_comp_params)
-                                        plot_data.plot_merged_log_series(merged_df, experiment_name, run_id)
+                                    #plot all stocks
+                                    stock_comp_params = create_comparison_stocks_obj()
+                                    data_close, merged_df = process_price_series.log_rebase_dataset(stock_comp_params)
+                                    plot_data.plot_merged_log_series(merged_df, experiment_name, run_id)
 
-                                        #plot single training and eval stocks
-                                        data_close, merged_df = process_price_series.log_rebase_dataset(stock_params)
-                                        plot_data.plot_price_comparison_stocks(merged_df, experiment_name, run)
-                                        
-                                        #plot training (with concat) and eval stocks
-                                        plot_data.plot_train_and_eval_df(stock_params,experiment_name,run)
-
-                                        #calc and plot dwt and correl
-                                        calc_dtw_and_correl_logprices(stock_comp_params,run)
-
-                                        #calc this pair dtw logprices
-                                        plot_data.calc_pair_dtw_distance(stock_params,experiment_name,run)
-                                        
-                                        Parameters.num_workers = w
-                                        Parameters.batch_size = b
-                                        Parameters.transform_algo_type = t
-                                        Parameters.gaf_method = m
-                                        Parameters.gaf_sample_range = s
-                                        Parameters.scaler = sc
-                                        Parameters.min_max_scaler_feature_range = mm_sc
-                                        Parameters.image_resolution_x = Parameters.image_resolution_y = Parameters.transformed_img_sz = i_s
-
-                                        if Parameters.enable_mlflow:
-                                            mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_params)
-                                            if Parameters.save_runs_to_md:
-                                                helper_functions.write_to_md("<b><center>==========Optimization Iteration==========</center></b><p><p>",None)
-                                                #helper_functions.write_to_md(f"<p><b>transform_algo_type: {t} gaf_method: {m} gaf_sample_range: {s} scaler: {sc} dropout_probab: {d}</b><p>", None)
-                                                helper_functions.write_to_md(f"<p><b>gaf_sample_range: {s} scaler: {sc}</b><p>", None)
-                                        
-                                        #################################
-                                        #       Train and Test          #
-                                        #################################
-
-                                        #generate training images
-                                        train_loader, test_loader, evaluation_test_stock_dataset_df, train_feature_image_dataset_list_f32 = pipeline_data.generate_dataset_to_images_process(stock_params, stock_params.get_train_stocks(), 
-                                                                                                                                                    Parameters, 
-                                                                                                                                                    Parameters.training_test_size, 
-                                                                                                                                                    Parameters.training_cols_used,
-                                                                                                                                                    run, experiment_name)
+                                    #plot single training and eval stocks
+                                    data_close, merged_df = process_price_series.log_rebase_dataset(stock_params)
+                                    plot_data.plot_price_comparison_stocks(merged_df, experiment_name, run)
                                     
-                                        if Parameters.train:
-                                            net, train_stack_input, train_feature_maps_cnn_list, train_feature_maps_fc_list = pipeline_train.train_process(train_loader, train_feature_image_dataset_list_f32, 
-                                                                                                                                                            evaluation_test_stock_dataset_df, 
-                                                                                                                                                            Parameters, 
-                                                                                                                                                            run, run_id, experiment_name, device, stock_params)
-                                            
-                                            #test
-                                            # set model to eval
-                                            net  = neural_network.set_model_for_eval(net)
+                                    #plot training (with concat) and eval stocks
+                                    plot_data.plot_train_and_eval_df(stock_params,experiment_name,run)
 
-                                            if Parameters.training_test_size > 0:
-                                                test_stack_input, test_stack_actual, test_stack_predicted, test_feature_maps_cnn_list, test_feature_maps_fc_list, error_stats = pipeline_test.test_process(net, test_loader, 
-                                                                                                                    Parameters, 
-                                                                                                                    Parameters.train_tickers, run,
+                                    #calc and plot dwt and correl
+                                    calc_dtw_and_correl_logprices(stock_comp_params,run)
+
+                                    #calc this pair dtw logprices
+                                    plot_data.calc_pair_dtw_distance(stock_params,experiment_name,run)
+                                    
+                                    Parameters.num_workers = w
+                                    Parameters.batch_size = b
+                                    Parameters.transform_algo_type = t
+                                    Parameters.gaf_method = m
+                                    Parameters.scaler = sc
+                                    Parameters.min_max_scaler_feature_range = mm_sc
+                                    Parameters.image_resolution_x = Parameters.image_resolution_y = Parameters.transformed_img_sz = i_s
+
+                                    if Parameters.enable_mlflow:
+                                        mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_params)
+                                        if Parameters.save_runs_to_md:
+                                            helper_functions.write_to_md("<b><center>==========Optimization Iteration==========</center></b><p><p>",None)
+                                            #helper_functions.write_to_md(f"<p><b>transform_algo_type: {t} gaf_method: {m} gaf_sample_range: {s} scaler: {sc} dropout_probab: {d}</b><p>", None)
+                                            helper_functions.write_to_md(f"<p><b>gaf_sample_range: {s} scaler: {sc}</b><p>", None)
+                                    
+                                    #################################
+                                    #       Train and Test          #
+                                    #################################
+
+                                    #generate training images
+                                    train_loader, test_loader, evaluation_test_stock_dataset_df, train_feature_image_dataset_list_f32 = pipeline_data.generate_dataset_to_images_process(stock_params, stock_params.get_train_stocks(), 
+                                                                                                                                                Parameters, 
+                                                                                                                                                Parameters.training_test_size, 
+                                                                                                                                                Parameters.training_cols_used,
+                                                                                                                                                run, experiment_name)
+                                
+                                    if Parameters.train:
+                                        net, train_stack_input, train_feature_maps_cnn_list, train_feature_maps_fc_list = pipeline_train.train_process(train_loader, train_feature_image_dataset_list_f32, 
+                                                                                                                                                        evaluation_test_stock_dataset_df, 
+                                                                                                                                                        Parameters, 
+                                                                                                                                                        run, run_id, experiment_name, device, stock_params)
+                                        
+                                        #test
+                                        # set model to eval
+                                        net  = neural_network.set_model_for_eval(net)
+
+                                        if Parameters.training_test_size > 0:
+                                            test_stack_input, test_stack_actual, test_stack_predicted, test_feature_maps_cnn_list, test_feature_maps_fc_list, error_stats = pipeline_test.test_process(net, test_loader, 
+                                                                                                                Parameters, 
+                                                                                                                Parameters.train_tickers, run,
                                                                                                                     experiment_name, device, None)
 
                                         #################################
