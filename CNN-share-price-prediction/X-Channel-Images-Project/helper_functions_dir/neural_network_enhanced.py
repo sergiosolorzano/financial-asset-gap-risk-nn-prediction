@@ -61,17 +61,18 @@ class Net(nn.Module):
         self.output_conv_3= Parameters.output_conv_3
         self.output_conv_4= Parameters.output_conv_4
         self.conv_output_size=0
-        self.dropout_probab = Parameters.dropout_probab
+        self.dropout_probab_1 = Parameters.dropout_probab_1
+        self.dropout_probab_2 = Parameters.dropout_probab_2
         #print();print("Convos & dropoutP:", params.output_conv_1, params.output_conv_2, params.dropout_probab)
         
-        print("###params.dropout_probab",Parameters.dropout_probab)
+        print("###params.dropout_probab_1",Parameters.dropout_probab_1,"dropout_2",Parameters.dropout_probab_1)
 
         #num channels input, num channels output, filter size
         self.conv1 = nn.Conv2d(1, self.output_conv_1, Parameters.filter_size_1, Parameters.stride_1)
-        if Parameters.use_batch_regularization:
-            if Parameters.batch_regul_type=="Group":
+        if Parameters.use_batch_regularization_conv:
+            if Parameters.batch_regul_type_conv=="Group":
                 self.bn1 = nn.GroupNorm(Parameters.bn1_num_groups,self.output_conv_1)
-            if Parameters.batch_regul_type=="Norm":
+            if Parameters.batch_regul_type_conv=="Norm2":
                 self.bn1 = nn.BatchNorm2d(self.output_conv_1)
 
         self.regularization_activation_function_1 = Parameters.regularization_function
@@ -80,10 +81,10 @@ class Net(nn.Module):
         #maxpool acts the same way in each channel, so doesn't need to be fed the num channels of the input
         self.conv2 = nn.Conv2d(self.output_conv_1, Parameters.output_conv_2, Parameters.filter_size_1,Parameters.stride_1)
         
-        if Parameters.use_batch_regularization:
-            if Parameters.batch_regul_type=="Group":
+        if Parameters.use_batch_regularization_conv:
+            if Parameters.batch_regul_type_conv=="Group":
                 self.bn2 = nn.GroupNorm(Parameters.bn2_num_groups,self.output_conv_2)
-            if Parameters.batch_regul_type=="Norm":
+            if Parameters.batch_regul_type_conv=="Norm2":
                 self.bn2 = nn.BatchNorm2d(Parameters.output_conv_2)
 
         self.regularization_activation_function_2 = Parameters.regularization_function
@@ -94,10 +95,10 @@ class Net(nn.Module):
 
         if Parameters.model_complexity == "Complex":
             self.conv3 = nn.Conv2d(Parameters.output_conv_2, Parameters.output_conv_3, Parameters.filter_size_1,Parameters.stride_1)
-            if Parameters.use_batch_regularization:
-                if Parameters.batch_regul_type == "Group":
+            if Parameters.use_batch_regularization_conv:
+                if Parameters.batch_regul_type_conv == "Group":
                     self.bn3 = nn.GroupNorm(Parameters.bn3_num_groups,Parameters.output_conv_3)
-                if Parameters.batch_regul_type == "Norm":
+                if Parameters.batch_regul_type_conv=="Norm2":
                     self.bn3 = nn.BatchNorm2d(Parameters.output_conv_3)
 
             self.regularization_activation_function_3 = Parameters.regularization_function
@@ -105,10 +106,10 @@ class Net(nn.Module):
 
             self.conv4 = nn.Conv2d(Parameters.output_conv_3, Parameters.output_conv_4, Parameters.filter_size_3,params.stride_1)
 
-            if Parameters.use_batch_regularization:
-                if Parameters.batch_regul_type == "Group":
+            if Parameters.use_batch_regularization_conv:
+                if Parameters.batch_regul_type_conv == "Group":
                     self.bn4 = nn.GroupNorm(Parameters.bn4_num_groups,Parameters.output_conv_4)
-                if Parameters.batch_regul_type == "Norm":
+                if Parameters.batch_regul_type_conv=="Norm2":
                     self.bn4 = nn.BatchNorm2d(Parameters.output_conv_4)
             
             self.regularization_activation_function_4 = Parameters.regularization_function
@@ -195,11 +196,13 @@ class Net(nn.Module):
 
         self.fc1 = nn.Linear(fc1_in_features, Parameters.output_FC_1)
         
-        if Parameters.use_batch_regularization:
-                if Parameters.batch_regul_type == "Group":
+        if Parameters.use_batch_regularization_fc:
+                if Parameters.batch_regul_type_fc == "Group":
                     self.bn_fc1 = nn.GroupNorm(Parameters.bn_fc1_num_groups,Parameters.output_FC_1)
-                if Parameters.batch_regul_type == "Norm":
+                if Parameters.batch_regul_type_fc == "Norm":
                     self.bn_fc1 = nn.BatchNorm1d(Parameters.output_FC_1)
+                if Parameters.batch_regul_type_fc=="LayerNorm":
+                    self.bn_fc1 = nn.LayerNorm(Parameters.output_FC_1)
 
         self.regularization_activation_function_fc1 = Parameters.regularization_function
         
@@ -207,11 +210,13 @@ class Net(nn.Module):
             
             self.fc2 = nn.Linear(Parameters.output_FC_1, Parameters.output_FC_2)
             
-            if Parameters.use_batch_regularization:
-                if Parameters.batch_regul_type == "Group":
+            if Parameters.use_batch_regularization_fc:
+                if Parameters.batch_regul_type_fc == "Group":
                     self.bn_fc2 = nn.GroupNorm(Parameters.bn_fc2_num_groups, Parameters.output_FC_2)
-                if Parameters.batch_regul_type == "Norm":
+                if Parameters.batch_regul_type_fc == "Norm":
                     self.bn_fc2 = nn.BatchNorm1d(Parameters.output_FC_2)
+                if Parameters.batch_regul_type_fc =="LayerNorm":
+                    self.bn_fc2 = nn.LayerNorm(Parameters.output_FC_2)
             
             self.regularization_activation_function_fc2 = Parameters.regularization_function
     
@@ -219,8 +224,8 @@ class Net(nn.Module):
         if Parameters.model_complexity=="Simple":
             self.fc3 = nn.Linear(Parameters.output_FC_1, Parameters.final_FCLayer_outputs)
         
-        self.dropout1 = nn.Dropout(params.dropout_probab)
-        self.dropout2 = nn.Dropout(params.dropout_probab)
+        self.dropout1 = nn.Dropout(Parameters.dropout_probab_1)
+        self.dropout2 = nn.Dropout(Parameters.dropout_probab_2)
 
         # compute the total number of parameters
         total_params = sum(p.numel() for p in self.parameters() if p.requires_grad)
@@ -233,26 +238,30 @@ class Net(nn.Module):
             print("NaN or Inf detected in conv1 weights before convolution")
             return x, None, None
         x = self.conv1(x)
-        if Parameters.use_batch_regularization:
+        if Parameters.use_batch_regularization_conv:
             x = self.bn1(x)
         x = self.regularization_activation_function_1(x)
+        if self.dropout_probab_1 > 0:
+            x = self.dropout1(x)  
         x = self.pool1(x)
         
         x = self.conv2(x)
-        if Parameters.use_batch_regularization:
+        if Parameters.use_batch_regularization_conv:
             x = self.bn2(x)
         x = self.regularization_activation_function_2(x)
+        if self.dropout_probab_1 > 0:
+            x = self.dropout1(x)  
         x = self.pool2(x)
 
         if Parameters.model_complexity == "Complex":
             x = self.conv3(x)
-            if Parameters.use_batch_regularization:
+            if Parameters.use_batch_regularization_conv:
                 x = self.bn3(x)
             x = self.regularization_activation_function_3(x)
             x = self.pool3(x)
             
             x = self.conv4(x)
-            if Parameters.use_batch_regularization:
+            if Parameters.use_batch_regularization_conv:
                 x = self.bn4(x)
             x = self.regularization_activation_function_4(x)
             x = self.pool4(x)
@@ -280,17 +289,17 @@ class Net(nn.Module):
                 
         #Fully Connected Layers
         x = self.fc1(x)
-        if Parameters.use_batch_regularization:
+        if Parameters.use_batch_regularization_fc:
             x = self.bn_fc1(x)
         x = self.regularization_activation_function_fc1(x)
-        if self.dropout_probab>0: x = self.dropout1(x)
+        if self.dropout_probab_2>0: x = self.dropout2(x)
         
         if Parameters.model_complexity == "Average" or Parameters.model_complexity == "Complex":
             x = self.fc2(x)
-            if Parameters.use_batch_regularization:
+            if Parameters.use_batch_regularization_fc:
                 x = self.bn_fc2(x)
             x = self.regularization_activation_function_fc2(x)
-            if self.dropout_probab>0: x = self.dropout2(x)
+            if self.dropout_probab_2>0: x = self.dropout2(x)
         
         x = self.fc3(x)
         #capture fc feature maps
@@ -441,7 +450,7 @@ def instantiate_optimizer_and_scheduler(net, params, train_loader):
                 {'params': fc_params, 'lr': Parameters.fc_lr if Parameters.use_layer_lr else Parameters.learning_rate},
                 {'params': other_params}
             ]
-            , lr=Parameters.learning_rate, momentum=Parameters.momentum)
+            , lr=Parameters.learning_rate, momentum=Parameters.momentum_sgd)
     
     #Scheduler init
     if Parameters.scheduler_type == "OneCycleLR":
@@ -450,7 +459,8 @@ def instantiate_optimizer_and_scheduler(net, params, train_loader):
         Parameters.scheduler = scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode=Parameters.reduceLROnPlateau_mode, patience=Parameters.reduceLROnPlateau_patience, factor=Parameters.reduceLROnPlateau_factor, min_lr=Parameters.reduceLROnPlateau_min_lr, cooldown=Parameters.reduceLROnPlateau_reset_cooldown)
     if Parameters.scheduler_type == "CyclicLRWithRestarts":
         #print("batch_size cyclic",Parameters.batch_size,"epoch size",len(train_loader.dataset))
-        scheduler = cyclic_scheduler.CyclicLRWithRestarts(optimizer=optimizer, batch_size=Parameters.batch_size, epoch_size=len(train_loader.dataset), restart_period=Parameters.cyclicLRWithRestarts_restart_period, t_mult=Parameters.cyclicLRWithRestarts_t_mult, policy=Parameters.cyclicLRWithRestarts_cyclic_policy, verbose=True)
+        scheduler = cyclic_scheduler.CyclicLRWithRestarts(optimizer=optimizer, batch_size=Parameters.batch_size, epoch_size=len(train_loader.dataset), restart_period=Parameters.cyclicLRWithRestarts_restart_period, t_mult=Parameters.cyclicLRWithRestarts_t_mult, policy=Parameters.cyclicLRWithRestarts_cyclic_policy, min_lr=Parameters.cyclicLRWithRestarts_min_lr, verbose=True)
+        #scheduler = cyclic_scheduler.CyclicLRWithRestarts(optimizer=optimizer, batch_size=Parameters.batch_size, epoch_size=len(train_loader.dataset), restart_period=Parameters.cyclicLRWithRestarts_restart_period, t_mult=Parameters.cyclicLRWithRestarts_t_mult, policy=Parameters.cyclicLRWithRestarts_cyclic_policy, verbose=True)
     if Parameters.scheduler_type == "BayesianLR":
         scheduler = None
     if Parameters.scheduler_type == "Warmup":
@@ -532,7 +542,7 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
     start_time = time.time()
     ReduceLROnPlateau_blocked = 0
 
-    print_mssg=f"Train params: learning_rate: {params.learning_rate}, momentum:{params.momentum} loss_threshold {params.loss_stop_threshold}<p>"
+    print_mssg=f"Train params: learning_rate: {params.learning_rate}, momentum:{Parameters.momentum_sgd} loss_threshold {params.loss_stop_threshold}<p>"
     #print(print_mssg)
     if Parameters.save_runs_to_md:
         helper_functions.write_to_md(print_mssg,None)
@@ -552,6 +562,8 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
     # profiler = torch.profiler.profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True)
     # profiler.start()
     for epoch in range(params.num_epochs_input):
+
+        print(f"\033[32mStart Train Epoch [{epoch + 1}/{Parameters.num_epochs_input}]\033[0m")
 
         if Parameters.scheduler_type == "CyclicLRWithRestarts":
             scheduler.step()
@@ -661,7 +673,7 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
                         if total_norm_before > Parameters.grad_norm_clip_max:
                             print("****[WARNING Clipping Applied]*****",total_norm_before,"epoch", epoch)
                             if Parameters.enable_mlflow:
-                                mlflow.log_metric("norm_clip",0.5,step=epoch)
+                                mlflow.log_metric("norm_clip_on",0.5,step=epoch)
                     gradScaler.step(optimizer)
                     gradScaler.update()
                 else:
@@ -671,11 +683,10 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
                         if total_norm_before > Parameters.grad_norm_clip_max:
                             print("****[WARNING Clipping Applied]*****",total_norm_before,"epoch", epoch)
                             if Parameters.enable_mlflow:
-                                mlflow.log_metric("norm_clip",0.5,step=epoch)
+                                mlflow.log_metric("norm_clip_on",0.5,step=epoch)
                     optimizer.step()
 
                 if Parameters.scheduler_type == "OneCycleLR":
-                    if i==0: print(f"Batch 0 epoch {epoch} Current OneCycleLR Learning Rate:",scheduler.get_last_lr(), "epoch avg cum loss",epoch_avg_cum_loss.item())
                     scheduler.step()
 
                 if Parameters.scheduler_type == "CyclicLRWithRestarts":
@@ -711,6 +722,9 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
             # _ = gc.collect() #force garbage collect
 
         epoch_avg_cum_loss = epoch_total_loss / total_samples
+
+        if Parameters.scheduler_type == "OneCycleLR":
+            if i==0: print(f"Batch 0 epoch {epoch} Current OneCycleLR Learning Rate:",scheduler.get_last_lr(), "epoch avg cum loss",epoch_avg_cum_loss.item())
 
         if Parameters.scheduler_type == "BayesianLR" and epoch < Parameters.bayesian_warmup_epochs:
             bayesian_LR_warmup_loss_list.append(epoch_avg_cum_loss.cpu().item())
@@ -756,10 +770,11 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
         #evaluation test image generation
         if epoch == 0:
             eval_gaf_image_dataset_list_f32, test_loader, actual_tensor = pipeline.generate_evaluation_images(stock_params, run, experiment_name, device)
-            mse=F.mse_loss(torch.from_numpy(train_gaf_image_dataset_list_f32), torch.from_numpy(eval_gaf_image_dataset_list_f32)).item()
-            pipeline.report_image_similarities_eval(stock_params,train_gaf_image_dataset_list_f32, eval_gaf_image_dataset_list_f32, epoch)
-            if Parameters.enable_mlflow:
-                mlflow.log_metric("input_imgs_MSE",mse,step=epoch)
+            if len(train_gaf_image_dataset_list_f32) == len(eval_gaf_image_dataset_list_f32):
+                mse=F.mse_loss(torch.from_numpy(train_gaf_image_dataset_list_f32), torch.from_numpy(eval_gaf_image_dataset_list_f32)).item()
+                pipeline.report_image_similarities_eval(stock_params,train_gaf_image_dataset_list_f32, eval_gaf_image_dataset_list_f32, epoch)
+                if Parameters.enable_mlflow:
+                    mlflow.log_metric("input_imgs_MSE",mse,step=epoch)
 
         if (epoch + 1) % Parameters.eval_at_epoch_multiple == 0:
             print("=====Evaluate at Training======")
@@ -799,10 +814,10 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
         if (epoch + 1) % Parameters.log_params_at_epoch_multiple == 0:
             if Parameters.nn_predict_price == 0:
                 epoch_accuracy = acc_metric.compute()
-                mssg=f"Train Epoch [{epoch + 1}/{Parameters.num_epochs_input}], Average Loss: {epoch_avg_cum_loss:.6f}, Train MAE: {epoch_train_mae:.6f}, Accuracy: {epoch_accuracy:.4f}"
+                mssg=f"End Train Epoch [{epoch + 1}/{Parameters.num_epochs_input}], Average Loss: {epoch_avg_cum_loss:.6f}, Train MAE: {epoch_train_mae:.6f}, Accuracy: {epoch_accuracy:.4f}"
             else:
                 epoch_r2 = r2_metric.compute() if Parameters.nn_predict_price else None
-                mssg = f"\033[32mTrain Epoch [{epoch + 1}/{Parameters.num_epochs_input}], Average Loss: {epoch_avg_cum_loss:.6f}, Train MAE: {epoch_train_mae:.6f}, Train R^2: {epoch_r2:.4f}\033[0m"
+                mssg = f"\033[32mEnd Train Epoch [{epoch + 1}/{Parameters.num_epochs_input}], Average Loss: {epoch_avg_cum_loss:.6f}, Train MAE: {epoch_train_mae:.6f}, Train R^2: {epoch_r2:.4f}\033[0m"
                 print(mssg)
                 #helper_functions.write_scenario_to_log_file(mssg)
                 epoch_stats = summarize_epoch_statistics(net, epoch, epoch_avg_cum_loss, epoch_accuracy,epoch_r2, epoch_train_mae, curr_lr)
@@ -847,28 +862,30 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
             scheduler.step(epoch_avg_cum_loss.item())
             #print("LR BEFORE STEP",prior_lr,"LR AFTER",scheduler.optimizer.param_groups[0]['lr'])
             #print(f"Comparing Blocked {ReduceLROnPlateau_blocked} VS Cooldown {Parameters.reduceLROnPlateau_reset_cooldown}")
-            if ReduceLROnPlateau_blocked < Parameters.reduceLROnPlateau_reset_cooldown:
-                
-                for param_group in optimizer.param_groups:
-                    param_group['lr'] = Parameters.reduceLROnPlateau_reset_rate
-                print("I've reset rate at BLCOKED to ",Parameters.reduceLROnPlateau_reset_rate)
-                ReduceLROnPlateau_blocked+=1
+            if Parameters.reduceLROnPlateau_enable_reset:
+                if ReduceLROnPlateau_blocked < Parameters.reduceLROnPlateau_reset_cooldown:
+                    
+                    for param_group in optimizer.param_groups:
+                        param_group['lr'] = Parameters.reduceLROnPlateau_reset_rate
+                    print("I've reset rate at BLCOKED to ",Parameters.reduceLROnPlateau_reset_rate)
+                    ReduceLROnPlateau_blocked+=1
 
-                current_lr = scheduler.optimizer.param_groups[0]['lr']
-                print(f"prior LR",prior_lr,"curr",current_lr)
-                
-                # If the scheduler reduced the learning rate, update the last best epoch
-                if prior_lr > current_lr:
-                    print(f"[INFO] ReduceLROnPlateau adjusted LR from {prior_lr} to {current_lr}")
+                    current_lr = scheduler.optimizer.param_groups[0]['lr']
+                    print(f"prior LR",prior_lr,"curr",current_lr)
+                    
+                    # If the scheduler reduced the learning rate, update the last best epoch
+                    if prior_lr > current_lr:
+                        print(f"[INFO] ReduceLROnPlateau adjusted LR from {prior_lr} to {current_lr}")
 
         # LR manual reset logic
-        if Parameters.scheduler_type == "ReduceLROnPlateau":
-            print("curr LR",scheduler.optimizer.param_groups[0]['lr'], " VS ",(Parameters.reduceLROnPlateau_min_lr + Parameters.reduceLROnPlateau_min_lr * 1e-2 ))
-            if scheduler.optimizer.param_groups[0]['lr'] < (Parameters.reduceLROnPlateau_min_lr + Parameters.reduceLROnPlateau_min_lr * 1e-2 ):
-                for param_group in optimizer.param_groups:
-                    param_group['lr'] = Parameters.reduceLROnPlateau_reset_rate
-                    ReduceLROnPlateau_blocked = 0
-                print(f"[WARNING] LR reset to {Parameters.reduceLROnPlateau_reset_rate} due to hitting min loss at epoch {epoch}")
+        if Parameters.reduceLROnPlateau_enable_reset:
+            if Parameters.scheduler_type == "ReduceLROnPlateau":
+                print("curr LR",scheduler.optimizer.param_groups[0]['lr'], " VS ",(Parameters.reduceLROnPlateau_min_lr + Parameters.reduceLROnPlateau_min_lr * 1e-2 ))
+                if scheduler.optimizer.param_groups[0]['lr'] < (Parameters.reduceLROnPlateau_min_lr + Parameters.reduceLROnPlateau_min_lr * 1e-2 ):
+                    for param_group in optimizer.param_groups:
+                        param_group['lr'] = Parameters.reduceLROnPlateau_reset_rate
+                        ReduceLROnPlateau_blocked = 0
+                    print(f"[WARNING] LR reset to {Parameters.reduceLROnPlateau_reset_rate} due to hitting min loss at epoch {epoch}")
 
         if train_max_r2 < epoch_r2:
             train_max_r2 = epoch_r2
@@ -997,6 +1014,7 @@ def Test(test_loader, net, stock_ticker, epoch, device, experiment_name, run):
             correct_2dp_tensor = (torch.abs(predicted_tensor - actual_tensor)<= 0.01)
             correct_2dp_list.append(correct_2dp_tensor)
             
+            #print("predicted",predicted_tensor,"actual",actual_tensor)
             correct_1dp_tensor = (torch.abs(predicted_tensor - actual_tensor)<= 0.1)
             correct_1dp_list.append(correct_1dp_tensor)
         else:

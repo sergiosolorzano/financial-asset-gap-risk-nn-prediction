@@ -88,7 +88,7 @@ def update_best_checkpoint_dict(best_cum_loss_epoch, eval_max_r2_epoch, run_id, 
             'optimizer_state_dict': copy.deepcopy(opti_state_dict),
             'loss': epoch_loss,
             }
-    print(f"Updated at best r^2 eval epoch {eval_max_r2_epoch} thought best cum loss epoch {best_cum_loss_epoch} checkpt {best_checkpt_dict['model_state_dict']['conv2.weight'][0][0]}")
+    print(f"Updated at best r^2 eval epoch {eval_max_r2_epoch} but best cum loss is at epoch {best_cum_loss_epoch}")# checkpt {best_checkpt_dict['model_state_dict']['conv2.weight'][0][0]}")
     
     return best_checkpt_dict
 

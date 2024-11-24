@@ -94,9 +94,8 @@ class Parameters:
     classification_class_price_up=1
 
     log_returns = True #1=log return rebased price series else price series
-    log_weights = True
 
-    enable_mlflow=True
+    enable_mlflow=False
     enable_save_model = False
     mlflow_experiment_name = 'gaprisk-generalize-1'
     mlflow_experiment_description = "Objective generalize results on largest DTW stock pair"
@@ -164,15 +163,17 @@ class Parameters:
     stride_2 = 1#2
 
     #TODO dynamic calc groups
-    use_batch_regularization = False
-    batch_regul_type = "Group" #Norm, Group
-    use_goupnorm = True
-    bn1_num_groups = 5 #num_groups divides self.output_conv_1 evenly e.g. self.output_conv_1=40 then #groups=5: (40 ÷ 5 = 8 channels per group), 8 or 10
-    bn2_num_groups = 3
-    bn3_num_groups = 32
-    bn4_num_groups = 32
-    bn_fc1_num_groups = 10
-    bn_fc2_num_groups = 0
+    use_batch_regularization_conv = False
+    use_batch_regularization_fc = False
+    
+    batch_regul_type_conv = "Norm2" #Norm2, Group
+    batch_regul_type_fc = "LayerNorm" #Norm, Group, LayerNorm
+    bn1_num_groups = 5  # Conv1: 40 channels / 5 groups = 8 channels per group
+    bn2_num_groups = 3  # Conv2: 12 channels / 3 groups = 4 channels per group
+    bn3_num_groups = 0  # Not used in "Average" complexity
+    bn4_num_groups = 0  # Not used in "Average" complexity
+    bn_fc1_num_groups = 10  # FC1: 100 channels / 10 groups = 10 channels per group
+    bn_fc2_num_groups = 10  # FC2: 70 channels / 10 groups = 7 channels per group
 
     use_adaptiveAvgPool2d = False
     adaptiveAvgPool2d_outputsize = (1,1)
@@ -226,7 +227,7 @@ class Parameters:
     conv_lr = 0.0000001
     fc_lr = 0.1
 
-    momentum = 0.9
+    momentum_sgd = 0.9
 
     use_ssim_adjusted_loss = False
     lambda_ssim = 0.5
@@ -235,7 +236,8 @@ class Parameters:
     use_clip_grad_norm = True
     grad_norm_clip_max = 5
 
-    dropout_probab = 0
+    dropout_probab_1 = 0
+    dropout_probab_2 = 0
 
     batch_size = 16
     batch_train_drop_last = False
@@ -272,6 +274,7 @@ class Parameters:
     cyclicLRWithRestarts_cyclic_policy = "cosine" #["cosine", "arccosine", "triangular", "triangular2", "exp_range"]
     cyclicLRWithRestarts_restart_period = 15 #epoch count in the first restart period
     cyclicLRWithRestarts_t_mult = 1.2 #multiplication factor by which the next restart period will expand/shrink
+    cyclicLRWithRestarts_min_lr = 0.000001 #default 0.0000001
 
     #ReduceLROnPlateau Scheduler:
     reduceLROnPlateau_patience = 15 #100 #10000 to ignore lrscheduler
@@ -325,10 +328,11 @@ class Parameters:
         regularization_function = nn.SiLU()
 
     #during training-and-eval vars
-    num_epochs_input = 2000
+    num_epochs_input = 1000
     eval_at_epoch_multiple = 1
     save_model_at_epoch_multiple = 10
     log_params_at_epoch_multiple = 1
+    log_weights = True
     training_analytics_params_log_fname = 'nn_peer_stats.txt'
 
     #global tracking vars

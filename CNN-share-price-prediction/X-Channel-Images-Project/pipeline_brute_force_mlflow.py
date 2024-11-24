@@ -253,8 +253,9 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_param
         "output_FC_1": Parameters.output_FC_1,
         "final_FCLayer_outputs": Parameters.final_FCLayer_outputs,
         "learning_rate": Parameters.learning_rate,
-        "momentum": Parameters.momentum,
-        "dropout_probab": Parameters.dropout_probab,
+        "momentum": Parameters.momentum_sgd,
+        "dropout_probab_1": Parameters.dropout_probab_1,
+        "dropout_probab_2": Parameters.dropout_probab_2,
         "batch_size": Parameters.batch_size,
         "num_workers": Parameters.num_workers,
         "num_epochs_input": Parameters.num_epochs_input,
@@ -286,6 +287,7 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_param
         params_dict["cyclicLRWithRestarts_restart_period"] = Parameters.cyclicLRWithRestarts_restart_period
         params_dict["cyclicLRWithRestarts_cyclic_policy"] = Parameters.cyclicLRWithRestarts_cyclic_policy
         params_dict["cyclicLRWithRestarts_t_mult"] = Parameters.cyclicLRWithRestarts_t_mult
+        params_dict["cyclicLRWithRestarts_min_lr"] = Parameters.cyclicLRWithRestarts_min_lr
     if Parameters.use_clip_grad_norm==True:
         params_dict["grad_norm_clip_max"] = Parameters.grad_norm_clip_max
     if Parameters.scheduler_type=="ReduceLROnPlateau":

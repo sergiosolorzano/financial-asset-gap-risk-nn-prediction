@@ -52,9 +52,9 @@ def create_eval_stock_obj():
 
     #scenarios
     #eval_stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
-    eval_stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
+    #eval_stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
     #eval_stock_params.add_eval_stock('FITB', '2021-12-06', '2023-01-25') 
-    #eval_stock_params.add_eval_stock('OZK', '2021-12-06', '2023-01-25') 
+    eval_stock_params.add_eval_stock('OZK', '2021-12-06', '2023-01-25') 
     #eval_stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') 
     #eval_stock_params.add_eval_stock('CUBI', '2021-12-06', '2023-01-25')
     #eval_stock_params.add_eval_stock('WAL', '2021-12-06', '2023-01-25') 
@@ -87,6 +87,7 @@ def create_model_naming_stocks_obj():
     #scenarios
     #stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
     stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('FITB', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('OZK', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('CUBI', '2021-12-06', '2023-01-25')
@@ -260,26 +261,28 @@ if __name__ == "__main__":
     #CNN maps
     train_feature_maps_cnn_np = torch.cat(train_feature_maps_cnn_list, dim=0)
     eval_feature_maps_cnn_np = torch.cat(eval_feature_maps_cnn_list, dim=0)
-    calculate_images_ssim(train_feature_maps_cnn_np, eval_feature_maps_cnn_np, "CNN")
+    if len(train_feature_maps_cnn_np) == len(eval_feature_maps_cnn_np):
+        calculate_images_ssim(train_feature_maps_cnn_np, eval_feature_maps_cnn_np, "CNN")
     
     #FC maps
     train_feature_maps_fc_np = torch.cat(feature_maps_fc_list_loaded, dim=0)
     eval_feature_maps_fc_np = torch.cat(eval_feature_maps_fc_list, dim=0)
     #print("AT MAIN len FC feature maps",len(eval_feature_maps_fc_np),"shape",eval_feature_maps_fc_np.shape)
     
-    total_elements = train_feature_maps_fc_np.numel()
-    width = int(math.sqrt(total_elements))
-    height = total_elements // width
-
-    while total_elements % width != 0:
-        width -= 1
+    if len(train_feature_maps_fc_np) == len(eval_feature_maps_fc_np):
+        total_elements = train_feature_maps_fc_np.numel()
+        width = int(math.sqrt(total_elements))
         height = total_elements // width
-    train_feature_maps_fc_np = train_feature_maps_fc_np.view(width, height).unsqueeze(0).unsqueeze(0)
-    eval_feature_maps_fc_np = eval_feature_maps_fc_np.view(width, height).unsqueeze(0).unsqueeze(0)
-    
-    print("Type train FC",train_feature_maps_fc_np.dtype,"shape",train_feature_maps_fc_np.shape)
-    print("Type test FC",eval_feature_maps_fc_np.dtype,"shape",eval_feature_maps_fc_np.shape)
-    calculate_images_ssim(train_feature_maps_fc_np, eval_feature_maps_fc_np, "FC")
+
+        while total_elements % width != 0:
+            width -= 1
+            height = total_elements // width
+        train_feature_maps_fc_np = train_feature_maps_fc_np.view(width, height).unsqueeze(0).unsqueeze(0)
+        eval_feature_maps_fc_np = eval_feature_maps_fc_np.view(width, height).unsqueeze(0).unsqueeze(0)
+        
+        #print("Type train FC",train_feature_maps_fc_np.dtype,"shape",train_feature_maps_fc_np.shape)
+        #print("Type test FC",eval_feature_maps_fc_np.dtype,"shape",eval_feature_maps_fc_np.shape)
+        calculate_images_ssim(train_feature_maps_fc_np, eval_feature_maps_fc_np, "FC")
 
     #set global params back
     Parameters.enable_mlflow = temp_param_mlflow
