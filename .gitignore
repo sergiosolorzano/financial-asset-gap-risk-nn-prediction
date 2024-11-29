@@ -2,3 +2,4 @@
 activate_correct.sh
 CNN-share-price-prediction/X-Channel-Images-Project/brute_force_images/
 CNN-share-price-prediction/X-Channel-Images-Project/brute_force_images_mlflow/
+CNN-share-price-prediction/X-Channel-Images-Project/models/model_checkpoints/feature_maps_cnn_CFG_RF_69.npz

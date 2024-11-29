@@ -1,6 +1,7 @@
 import os
 import sys
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler, SequentialSampler, Subset
+import random
 
 import numpy as np
 import pandas as pd
@@ -22,6 +23,12 @@ import helper_functions_dir.compute_stats as compute_stats
 import helper_functions_dir.plot_data as plot_data
 
 matplotlib.use(Parameters.matplotlib_use)
+
+import torch
+torch.manual_seed(42)
+np.random.seed(42)
+random.seed(42)
+os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 
 # os.environ['OMP_NUM_THREADS'] = '16'
 # os.environ['OMP_PROC_BIND'] = 'CLOSE'
@@ -80,6 +87,10 @@ class DataPrep(Dataset):
         
         #return np.array(x),np.array(y)
     
+    # def worker_init_fn(worker_id):
+    #     np.random.seed(42 + worker_id)
+    #     random.seed(42 + worker_id)
+
     def split_data(self,dataset, batch_size, test_size, train_shuffle=False):
         print("split data test size",test_size)
         num_samples = len(dataset)
@@ -104,11 +115,11 @@ class DataPrep(Dataset):
         test_sampler = SequentialSampler(test_subset)
 
         if(self.num_workers>0):
-            train_loader = DataLoader(dataset, batch_size=batch_size, sampler=train_sampler,shuffle=train_shuffle, pin_memory=True, num_workers=self.num_workers,prefetch_factor=int(self.num_workers/2),persistent_workers=True)#
-            test_loader = DataLoader(dataset, batch_size=batch_size, sampler=test_sampler, pin_memory=True, num_workers=self.num_workers,prefetch_factor=int(self.num_workers/2),persistent_workers=True)#,prefetch_factor=4,persistent_workers=True
+            train_loader = DataLoader(dataset, batch_size=batch_size, sampler=train_sampler,shuffle=train_shuffle, pin_memory=True, num_workers=self.num_workers, prefetch_factor=int(self.num_workers/2),persistent_workers=True, drop_last = Parameters.batch_train_drop_last)
+            test_loader = DataLoader(dataset, batch_size=batch_size, sampler=test_sampler, pin_memory=True, num_workers=self.num_workers, prefetch_factor=int(self.num_workers/2),persistent_workers=True, drop_last = Parameters.batch_eval_drop_last)#,prefetch_factor=4,persistent_workers=True
         else:
-            train_loader = DataLoader(dataset, batch_size=batch_size, sampler=train_sampler,shuffle=train_shuffle, pin_memory=True, num_workers=0)
-            test_loader = DataLoader(dataset, batch_size=batch_size, sampler=test_sampler, pin_memory=True, num_workers=0)#,prefetch_factor=4,persistent_workers=True
+            train_loader = DataLoader(dataset, batch_size=batch_size, sampler=train_sampler,shuffle=train_shuffle, pin_memory=True, num_workers=0, drop_last = Parameters.batch_train_drop_last)
+            test_loader = DataLoader(dataset, batch_size=batch_size, sampler=test_sampler, pin_memory=True, num_workers=0, drop_last = Parameters.batch_eval_drop_last)#,prefetch_factor=4,persistent_workers=True
         #for e in train_loader:
             #print("train loader ele",e)
 

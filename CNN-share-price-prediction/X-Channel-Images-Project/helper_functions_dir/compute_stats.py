@@ -7,15 +7,16 @@ from torcheval.metrics import R2Score
 
 import mlflow
 from parameters import Parameters
+import torch.nn.functional as F
 
 #import scripts
 import importlib as importlib
 sys.path.append(os.path.abspath('./helper_functions_dir'))
 import helper_functions as helper_functions
 
-def compute_and_report_error_stats(stack_actual, stack_predicted, stock_ticker, device):
+def compute_and_report_error_stats(stack_actual, stack_predicted, stock_ticker, device, epoch):
     #compute stats
-    error_stats = compute_error_stats(stack_actual, stack_predicted, stock_ticker, device)
+    error_stats = compute_error_stats(stack_actual, stack_predicted, stock_ticker, device, epoch)
     
     if Parameters.save_runs_to_md:
         text_mssg=f"Error Stats for {stock_ticker}<p>"
@@ -26,23 +27,25 @@ def compute_and_report_error_stats(stack_actual, stack_predicted, stock_ticker, 
             helper_functions.write_to_md(text_mssg,None)
             print(f'{key}: {value}\n')
 
-def compute_error_stats(var1, var2, stock_ticker, device):
+    return error_stats
+
+def compute_error_stats(var1, var2, stock_ticker, device, epoch):
     # print("**shape var1",var1.shape,"var1[0].shape",var1[0].shape,"var 1 len",len(var1))
     # print("**shape var1",var2.shape,"var2[0].shape",var2[0].shape,"var 1 len",len(var2))
     # print("var1",var1)
     # print("var2",var2)
     mae = torch.mean(torch.abs(var1 - var2))
 
-    mse = torch.mean((var1 - var2) ** 2)
+    #mse = torch.mean((var1 - var2) ** 2)
 
-    rmse = torch.sqrt(mse)
+    #rmse = torch.sqrt(mse)
 
     mape = torch.mean(torch.abs((var1 - var2) / var1)) * 100
 
     ss_total = torch.sum((var1 - torch.mean(var1)) ** 2)
     ss_residual = torch.sum((var1 - var2) ** 2)
     r2 = 1 - (ss_residual / ss_total)
-    print(f"Stock {stock_ticker} R^2",r2)
+    print(f"\033[32mStock {stock_ticker} R^2: {r2}\033[0m")
     #print("R^2 manual",r2, "my ss_total", ss_total, "ss_residual", ss_residual)
 
     # metric = R2Score(device=device)
@@ -56,26 +59,28 @@ def compute_error_stats(var1, var2, stock_ticker, device):
     # print("R^2 pytorch",r2_py)
 
     mae_cpu = mae.double().item()
-    mse_cpu = mse.double().item()
-    rmse_cpu = rmse.double().item()
+    #mse_cpu = mse.double().item()
+    #rmse_cpu = rmse.double().item()
     mape_cpu = mape.double().item()
     r2_cpu = r2.double().item()
 
-    error_metrics = {f"{stock_ticker} MAE": mae_cpu,
-               f"{stock_ticker} MSE": mse_cpu,
-               f"{stock_ticker} RMSE": rmse_cpu,
-               f"{stock_ticker} R2": r2_cpu
-               }
+    error_metrics = {f"eval_MAE": mae_cpu,
+               #f"{stock_ticker} MSE": mse_cpu,
+               #f"{stock_ticker} RMSE": rmse_cpu,
+               f"eval_R2": r2_cpu}
+    
+    print(f"\033[32mStock {stock_ticker} MAE: {mae_cpu}\033[0m")
     
     if Parameters.enable_mlflow:
-        mlflow.log_metrics(error_metrics)
+        error_metrics['eval_R2'] = max(error_metrics['eval_R2'],0)
+        mlflow.log_metrics(error_metrics, step=epoch)
 
     return {
-        'MAE': mae_cpu,
-        'MSE': mse_cpu,
-        'RMSE': rmse_cpu,
-        'MAPE': mape_cpu,
-        'R2': r2_cpu
+        'eval_MAE': mae_cpu,
+        #'MSE': mse_cpu,
+        #'RMSE': rmse_cpu,
+        'eval_MAPE': mape_cpu,
+        'eval_R2': r2_cpu
     }
 
 def self_correlation_feature_1_feature_2(stock_df,feature_1,feature_2):
@@ -86,7 +91,7 @@ def self_correlation_feature_1_feature_2(stock_df,feature_1,feature_2):
 
     return (f'Correlation between {feature_1} and {feature_2}: {correlation:.4f}')
 
-def stock_correlation_matrix(stock_ticker,stock_df):
+def stock_correlation_matrix(stock_ticker, stock_df):
     correlation_matrix = stock_df.corr(method='pearson')
     print("Stock X-Correlation",stock_ticker)
     print(correlation_matrix)
@@ -110,19 +115,19 @@ def cross_stock_df_correlation(stock_ticker,index_ticker,stock_1_df, stock_2_df)
     if Parameters.enable_mlflow:
         mlflow.log_metrics(price_correl_metrics)
 
-def cross_stock_image_array_correlation(var1, var2):
-    var1 = var1.view(64, -1)
-    var2 = var2.view(64, -1)
+# def cross_stock_image_array_correlation(var1, var2):
+#     var1 = var1.view(64, -1)
+#     var2 = var2.view(64, -1)
     
-    mean1 = torch.mean(var1, dim=1, keepdim=True)
-    mean2 = torch.mean(var2, dim=1, keepdim=True)
-    means = torch.stack((mean1, mean2), dim=0)
-    means = means.squeeze(-1) 
+#     mean1 = torch.mean(var1, dim=1, keepdim=True)
+#     mean2 = torch.mean(var2, dim=1, keepdim=True)
+#     means = torch.stack((mean1, mean2), dim=0)
+#     means = means.squeeze(-1) 
     
-    # Compute the correlation matrix
-    correlation_matrix = torch.corrcoef(means)
+#     # Compute the correlation matrix
+#     correlation_matrix = torch.corrcoef(means)
 
-    return correlation_matrix
+#     return correlation_matrix
 
 def cross_stock_image_array_correlation2(var1, var2, test_ticker, train_ticker):
     print("var1",var1.shape,"var2",var2.shape)
@@ -144,6 +149,7 @@ def cross_stock_image_array_correlation2(var1, var2, test_ticker, train_ticker):
             correlation = correlation_matrix[0, 1].item()
             correlations.append(correlation)
 
+    #pearson correl
     correlations = torch.tensor(correlations).numpy()
     mean_correlation = correlations.mean()
     

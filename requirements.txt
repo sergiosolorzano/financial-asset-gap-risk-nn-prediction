@@ -152,3 +152,11 @@ gputil
 torcheval
 psutil
 pynvml
+h5py
+tslearn
+lcss
+fastdtw
+openpyxl
+scikit-image
+torchmetrics
+shap

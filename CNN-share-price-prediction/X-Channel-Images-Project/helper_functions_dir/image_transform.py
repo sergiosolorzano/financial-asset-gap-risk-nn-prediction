@@ -13,15 +13,21 @@ import load_data as load_data
 import generate_images as generate_images
 import helper_functions as helper_functions
 
-def generate_features_lists(stock_dataset_df, cols_used, transform_algo, transformed_img_sz, gaf_method, gaf_sample_range):
+def generate_features_lists(stock_dataset_df, cols_used, transform_algo, transformed_img_sz, overlap, window_method, gaf_method, gaf_sample_range):
     #Generate images from dataset
     cols_used_count = sum(column_name in cols_used for column_name in stock_dataset_df.columns)
     #print("size df",len(stock_dataset_df))
-    #print(f"Generate Images From Dataset cols used {cols_used}:",stock_dataset_df)
-    feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list = generate_images.generate_multiple_feature_images(stock_dataset_df, cols_used, transform_algo, image_size=transformed_img_sz, method=gaf_method, gaf_sample_range=gaf_sample_range)
+    
+    if window_method==1:
+        feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list = generate_images.generate_multiple_feature_images_overlap(stock_dataset_df, cols_used, transform_algo, image_size=transformed_img_sz, overlap=overlap,method=gaf_method, gaf_sample_range=gaf_sample_range)
+    elif window_method==2:
+        feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list = generate_images.generate_multiple_feature_images_myoverlap(stock_dataset_df, cols_used, transform_algo, image_size=transformed_img_sz, overlap=overlap, method=gaf_method, gaf_sample_range=gaf_sample_range) 
+    elif window_method==3:
+        feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list = generate_images.generate_multiple_feature_images(stock_dataset_df, cols_used, transform_algo, image_size=transformed_img_sz, method=gaf_method, gaf_sample_range=gaf_sample_range)
+    else:
+        print("Window Method Unkown")
     #print("image data",feature_image_dataset_list,"labels",feature_label_dataset_list)
     print("shape [0] set",np.array(feature_image_dataset_list[0]).shape)
-
     #np.set_printoptions()
 
     return feature_image_dataset_list, feature_price_dataset_list, feature_label_dataset_list, cols_used_count
