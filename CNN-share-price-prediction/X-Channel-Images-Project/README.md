@@ -6,6 +6,8 @@
 ## Preface
 This work in progress project focuses on using CNNs to predict the next-day share price of financial assets. So far GAF-encoded images as inputs have resulted in average prediction accuracy. These results suggest the temporal correlation between each pair of prices in the series in the form of GAF-encoded inputs may not be sufficiently robust to capture the temporal structure of prices.
 
+You can follow the journey in this [blog](https://tapgaze.com/blog/neural-networks-and-gap-risk-in-finance).
+
 <p align="center">
 <img width="150" alt="star" src="https://github.com/sergiosolorzano/ai_gallery/assets/24430655/3c0b02ea-9b11-401a-b6f5-c61b69ad651b">
 </p>

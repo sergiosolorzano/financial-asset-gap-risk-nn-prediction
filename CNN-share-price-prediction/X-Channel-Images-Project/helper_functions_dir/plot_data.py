@@ -370,6 +370,13 @@ def create_correl_dict(correl_df):
     
     return correl_dict
 
+def calc_merged_series_dtw_distance(train_series,eval_series):
+    distance, path = fastdtw(train_series, eval_series)
+    print("MultiStock Log_Prices_DTW_Distance",distance)
+    distance_dict = {"Log_Prices_DTW_Distance":distance}
+    if Parameters.enable_mlflow:
+        mlflow.log_metrics(distance_dict)
+
 def calc_pair_dtw_distance(stocks, experiment_name,run):
     
     data_close, merged_df = process_price_series.log_rebase_dataset(stocks)
@@ -383,6 +390,7 @@ def calc_pair_dtw_distance(stocks, experiment_name,run):
                     distance, path = fastdtw(data_close[stock_ticker], data_close[compare_ticker])
                     print("ticker1",stock_ticker,"ticker2",compare_ticker,"distance",distance)
     
+    print("OneStock Log_Prices_DTW_Distance",distance)
     distance_dict = {"Log_Prices_DTW_Distance":distance}
     if Parameters.enable_mlflow:
         mlflow.log_metrics(distance_dict)

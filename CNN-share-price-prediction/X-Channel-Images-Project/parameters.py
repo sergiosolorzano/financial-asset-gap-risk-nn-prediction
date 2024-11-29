@@ -34,6 +34,10 @@ class StockParams:
         self.eval_stock_tickers = ""
         self.train_count = 0
         self.eval_count = 0
+        self.eval_start_date = None
+        self.eval_end_date = None
+        self.train_start_date = None
+        self.train_end_date = None
 
     def add_train_stock(self, ticker, start_date, end_date):
         stock_info = {
@@ -41,6 +45,8 @@ class StockParams:
             'start_date': start_date,
             'end_date': end_date
         }
+        self.train_start_date = start_date
+        self.train_end_date = end_date
         self.train_stocks.append(stock_info)
         self.train_count +=1
 
@@ -50,6 +56,8 @@ class StockParams:
             'start_date': start_date,
             'end_date': end_date
         }
+        self.eval_start_date = start_date
+        self.eval_end_date = end_date
         self.eval_stocks.append(stock_info)
         self.eval_count +=1
 
@@ -97,8 +105,8 @@ class Parameters:
 
     enable_mlflow=False
     enable_save_model = False
-    mlflow_experiment_name = 'gaprisk-generalize-1'
-    mlflow_experiment_description = "Objective generalize results on largest DTW stock pair"
+    mlflow_experiment_name = 'gaprisk-longhistory'
+    mlflow_experiment_description = "Concat or extend dataset history"
     run_id = None
     
     brute_force_filename = 'brute_force_results.md'
@@ -163,8 +171,8 @@ class Parameters:
     stride_2 = 1#2
 
     #TODO dynamic calc groups
-    use_batch_regularization_conv = False
-    use_batch_regularization_fc = False
+    use_batch_regularization_conv = True
+    use_batch_regularization_fc = True
     
     batch_regul_type_conv = "Norm2" #Norm2, Group
     batch_regul_type_fc = "LayerNorm" #Norm, Group, LayerNorm
@@ -338,5 +346,8 @@ class Parameters:
     #global tracking vars
     max_acc_1dp = torch.tensor(0, dtype=torch.float64)
     max_acc_1dp_epoch = 0
+    best_eval_r2 = torch.tensor(0, dtype=torch.float64)
+    best_eval_r2_epoch = 0
+
     fc_ssim_score = torch.tensor(0, dtype=torch.float64)
     cnn_ssim_score = torch.tensor(0, dtype=torch.float64)

@@ -500,7 +500,7 @@ def summarize_epoch_statistics(net, epoch, epoch_loss, epoch_accuracy, epoch_r2,
 
     return summary_stats
 
-def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_test_stock_dataset_df, net, run, run_id, experiment_name, device, stock_params):
+def Train(params, train_loader, train_gaf_image_dataset_list_f32, train_stocks_dataset_df, net, run, run_id, experiment_name, device, stock_params):
 
     #enable grad
     torch.set_grad_enabled(True)
@@ -769,7 +769,11 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
         #Eval
         #evaluation test image generation
         if epoch == 0:
-            eval_gaf_image_dataset_list_f32, test_loader, actual_tensor = pipeline.generate_evaluation_images(stock_params, run, experiment_name, device)
+            eval_gaf_image_dataset_list_f32, test_loader, actual_tensor, eval_stock_dataset_df = pipeline.generate_evaluation_images(stock_params, run, experiment_name, device)
+            #DTW multiple train stocks series
+            if stock_params.train_count > 1:
+                plot_data.calc_merged_series_dtw_distance(train_stocks_dataset_df,eval_stock_dataset_df)
+            #SSIM
             if len(train_gaf_image_dataset_list_f32) == len(eval_gaf_image_dataset_list_f32):
                 mse=F.mse_loss(torch.from_numpy(train_gaf_image_dataset_list_f32), torch.from_numpy(eval_gaf_image_dataset_list_f32)).item()
                 pipeline.report_image_similarities_eval(stock_params,train_gaf_image_dataset_list_f32, eval_gaf_image_dataset_list_f32, epoch)
@@ -785,7 +789,7 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, evaluation_tes
             
             eval_error_stats = pipeline.evaluate_and_report(net, stock_params, device, test_loader, run, run_id, experiment_name, 
                                 train_gaf_image_dataset_list_f32, eval_gaf_image_dataset_list_f32,
-                                evaluation_test_stock_dataset_df,
+                                train_stocks_dataset_df,
                                 feature_maps_cnn_list, feature_maps_fc_list, stack_input, epoch)
             
             if eval_error_stats['eval_R2'] > eval_max_r2:
@@ -1068,6 +1072,10 @@ def Test(test_loader, net, stock_ticker, epoch, device, experiment_name, run):
     mssg = f"Eval Torch R^2: {epoch_r2:.4f}"
     print(mssg)
 
+    if Parameters.best_eval_r2 < epoch_r2:
+        Parameters.best_eval_r2 = epoch_r2
+        Parameters.best_eval_r2_epoch = epoch
+
     # log metrics
     if Parameters.enable_mlflow:
         if Parameters.nn_predict_price:
@@ -1075,7 +1083,9 @@ def Test(test_loader, net, stock_ticker, epoch, device, experiment_name, run):
                     f"accuracy_1dp_score": (correct_1dp_score.double().item())/100,
                     f"max_accuracy_1dp_score": (Parameters.max_acc_1dp.double().item())/100,
                     f"error_pct_outside_iqr": error_pct_outside_iqr,
-                    f"eval_r2_torch": float(epoch_r2)}
+                    f"eval_r2_torch": float(epoch_r2),
+                    f"best_eval_r2_torch": float(Parameters.best_eval_r2),
+                    f"best_eval_r2_torch_epoch": float(Parameters.best_eval_r2_epoch)}
         else:
             accuracy_metrics = {f"accuracy_classification_score": correct_classification_score.double().item()}
         

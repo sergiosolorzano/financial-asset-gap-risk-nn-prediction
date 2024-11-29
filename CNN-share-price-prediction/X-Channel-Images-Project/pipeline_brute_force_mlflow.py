@@ -75,10 +75,16 @@ def create_train_eval_stocks_obj():
     stock_params = StockParams()
 
     # run concat
+    #LONG TRAIN
+    #stock_params.add_train_stock('CFG', '2020-12-06', '2023-01-25')
+    #stock_params.add_train_stock('FITB', '2020-12-06', '2023-01-25')
+    #stock_params.add_train_stock('KEY', '2020-12-06', '2023-01-25')
+
+    #BASE
     stock_params.add_train_stock('CFG', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('ZION', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('PWBK', '2021-12-06', '2023-01-25')
-    #stock_params.add_train_stock('KEY', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('KEY', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('FITB', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('SIVBQ', '2021-12-06', '2023-01-25')
     # stock_params.add_train_stock('SICP', '2021-12-06', '2023-01-25')
@@ -86,10 +92,15 @@ def create_train_eval_stocks_obj():
     # stock_params.add_train_stock('CMA', '2021-12-05', '2023-01-25')
     # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
     
-    #scenarios
+    #EVAL LONG TRAIN
+    #stock_params.add_eval_stock('KEY', '2020-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('RF', '2020-12-06', '2023-01-25') 
+
+    #EVAL BASE
     #stock_params.add_eval_stock('ZION', '2021-12-06', '2023-01-25') 
-    #stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
-    stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('FITB', '2021-12-06', '2023-01-25') 
+    stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('OZK', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
     #stock_params.add_eval_stock('CUBI', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
@@ -265,7 +276,15 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_param
         "loss_function": Parameters.function_loss,
         "optimizer_type": Parameters.optimizer_type,
         "scheduler_type": Parameters.scheduler_type,
-        "log_returns": Parameters.log_returns
+        "log_returns": Parameters.log_returns,
+        "train_start_date": stock_params.train_start_date,
+        "train_end_date": stock_params.train_end_date,
+        "eval_start_date": stock_params.eval_start_date,
+        "eval_end_date": stock_params.eval_end_date,
+        # "train_daycount": (datetime.strptime(stock_params.train_end_date, "%Y-%m-%d") -
+        #                    datetime.strptime(stock_params.train_start_date, "%Y-%m-%d")).days,
+        # "eval_daycount": (datetime.strptime(stock_params.eval_end_date, "%Y-%m-%d") -
+        #                    datetime.strptime(stock_params.eval_start_date, "%Y-%m-%d")).days,
         }
     
     if Parameters.use_layer_lr:
@@ -333,17 +352,17 @@ def set_mlflow_experiment(credentials):
 
 def generate_evaluation_images(stock_params, run, experiment_name, device):
     print("Generate Eval Images")
-    train_loader, test_loader, evaluation_test_stock_dataset_df, test_feature_image_dataset_list_f32 = pipeline_data.generate_dataset_to_images_process(stock_params, stock_params.get_eval_stocks(), 
+    train_loader, test_loader, eval_stock_dataset_df, test_feature_image_dataset_list_f32 = pipeline_data.generate_dataset_to_images_process(stock_params, stock_params.get_eval_stocks(), 
                                                                                                     Parameters, 
                                                                                                     Parameters.evaluation_test_size, 
                                                                                                     Parameters.evaluation_test_cols_used,
-                                                                                                    run, experiment_name)
+                                                                                                    run, experiment_name, "eval")
     for i, data in enumerate(test_loader, 0):
         inputs, labels = data[0].to(device), data[1].to(device)
     actual_tensor = labels.data
     print(f"Actual {i}",actual_tensor[:1])
 
-    return test_feature_image_dataset_list_f32, test_loader, actual_tensor
+    return test_feature_image_dataset_list_f32, test_loader, actual_tensor, eval_stock_dataset_df
     
 def evaluate_and_report(net, stock_params, device, test_loader, run, run_id, experiment_name, 
                         train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32,
@@ -489,7 +508,8 @@ def brute_force_function(credentials, device, stock_params):
                                     calc_dtw_and_correl_logprices(stock_comp_params,run)
 
                                     #calc this pair dtw logprices
-                                    plot_data.calc_pair_dtw_distance(stock_params,experiment_name,run)
+                                    if stock_params.train_count == 1:
+                                        plot_data.calc_pair_dtw_distance(stock_params,experiment_name,run)
                                     
                                     Parameters.num_workers = w
                                     Parameters.batch_size = b
@@ -511,15 +531,14 @@ def brute_force_function(credentials, device, stock_params):
                                     #################################
 
                                     #generate training images
-                                    train_loader, test_loader, evaluation_test_stock_dataset_df, train_feature_image_dataset_list_f32 = pipeline_data.generate_dataset_to_images_process(stock_params, stock_params.get_train_stocks(), 
+                                    train_loader, test_loader, train_stocks_dataset_df, train_feature_image_dataset_list_f32 = pipeline_data.generate_dataset_to_images_process(stock_params, stock_params.get_train_stocks(), 
                                                                                                                                                 Parameters, 
                                                                                                                                                 Parameters.training_test_size, 
                                                                                                                                                 Parameters.training_cols_used,
-                                                                                                                                                run, experiment_name)
-                                
+                                                                                                                                                run, experiment_name, "train")
                                     if Parameters.train:
                                         net, train_stack_input, train_feature_maps_cnn_list, train_feature_maps_fc_list = pipeline_train.train_process(train_loader, train_feature_image_dataset_list_f32, 
-                                                                                                                                                        evaluation_test_stock_dataset_df, 
+                                                                                                                                                        train_stocks_dataset_df, 
                                                                                                                                                         Parameters, 
                                                                                                                                                         run, run_id, experiment_name, device, stock_params)
                                         

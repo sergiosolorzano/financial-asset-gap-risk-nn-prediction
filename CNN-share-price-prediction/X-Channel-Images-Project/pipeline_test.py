@@ -30,6 +30,7 @@ def test_process(net, test_loader, params, stock_ticker, run, experiment_name, d
             blob_name = f"{Parameters.input_image_data_blob_fname}.csv"
             full_blob_uri = helper_functions.save_df_to_blob(input_df, blob_name, run.info.run_id, experiment_name)
             tags = {'single_image_shape': f'{stack_input.shape}'}
+            
             helper_functions.mlflow_log_dataset(input_df, full_blob_uri, stock_ticker, "input_image", "train_test", run, tags)
             
             reshaped_predicted_stack_tensor = stack_predicted.view(-1, stack_predicted.size(-1))

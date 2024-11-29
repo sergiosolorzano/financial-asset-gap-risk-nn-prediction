@@ -2,6 +2,7 @@ import os
 import sys
 import pandas as pd
 import numpy as np
+import mlflow
 
 #import scripts
 import importlib as importlib
@@ -45,7 +46,7 @@ def remap_to_log_returns(stocks_dataset_df, start_indices_cumulative):
 
     return rebased_df
 
-def generate_dataset_to_images_process(stocksobj, stocks, params, test_size, cols_used, run, experiment_name):
+def generate_dataset_to_images_process(stocksobj, stocks, params, test_size, cols_used, run, experiment_name, stock_type):
 
     stocks_dataset_df, start_indices_cumulative, stock_tickers = load_data.import_dataset(stocks, run, experiment_name)
     
@@ -54,7 +55,14 @@ def generate_dataset_to_images_process(stocksobj, stocks, params, test_size, col
         log_rebased_df = remap_to_log_returns(stocks_dataset_df, start_indices_cumulative)
             
         stocks_dataset_df = log_rebased_df
-        #print("log stocks_dataset_df",stocks_dataset_df)
+        print(f"LEN log stocks_dataset_df {stock_tickers}",len(stocks_dataset_df))
+        if stock_type=="eval":
+            if params.enable_mlflow:
+                mlflow.log_params({"eval_daycount": len(stocks_dataset_df)})
+        if stock_type=="train":
+            if params.enable_mlflow:
+                mlflow.log_params({"train_daycount": len(stocks_dataset_df)})
+        
 
     # Generate images
     #print("generate_dataset_to_images_process algo",params.transform_algo)

@@ -268,7 +268,11 @@ def save_df_to_blob(raw_data, blob_name, run_id, experiment_name):
     
     blob_with_dirs = directory + "/" + run_id + "/artifacts/data/" + blob_name
     blob_client = container_client.get_blob_client(blob_with_dirs)
-    blob_client.upload_blob(csv_data, blob_type="BlockBlob", overwrite=True)
+    try:
+        blob_client.upload_blob(csv_data, blob_type="BlockBlob", overwrite=True)
+        print("Upload succeeded.")
+    except Exception as e:
+        print(f"Error upload_blob during upload: {e}")
 
     print(f"File uploaded {blob_name}")
     
