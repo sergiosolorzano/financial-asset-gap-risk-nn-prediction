@@ -97,7 +97,7 @@ class Parameters:
     load_state_dict_strict_input = False
     load_state_dict_strict_used = load_state_dict_strict_input if fine_tune==True else True
 
-    model_complexity = "Average" #Simple, Average, Complex
+    model_complexity = "Complex" #Simple, Average, Complex
     train = True
     load_checkpoint_for_eval = True
 
@@ -241,7 +241,7 @@ class Parameters:
         #higher or lower price
         final_FCLayer_outputs = 2
 
-    learning_rate = 0.001
+    learning_rate = 0.0001
     #Optimizer Layers LR
     use_layer_lr = True
     conv_lr = 0.001
