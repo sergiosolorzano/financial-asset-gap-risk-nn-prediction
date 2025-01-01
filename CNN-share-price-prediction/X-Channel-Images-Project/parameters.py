@@ -92,6 +92,10 @@ class StockParams:
 class Parameters:
     matplotlib_use = "Agg"
     run_iter = False
+    fine_tune = True
+    freeze = True
+    load_state_dict_strict_input = False
+    load_state_dict_strict_used = load_state_dict_strict_input if fine_tune==True else True
 
     model_complexity = "Average" #Simple, Average, Complex
     train = True
@@ -102,11 +106,12 @@ class Parameters:
     classification_class_price_up=1
 
     log_returns = True #1=log return rebased price series else price series
+    run_iter_multiple_sims = False
 
     enable_mlflow=False
     enable_save_model = False
-    mlflow_experiment_name = 'gaprisk-longhistory'
-    mlflow_experiment_description = "Concat or extend dataset history"
+    mlflow_experiment_name = 'gaprisk-LongTrain-Then-finetune'
+    mlflow_experiment_description = "Train SICPQ-SIVBQ-2018 for less similar time series"
     run_id = None
     
     brute_force_filename = 'brute_force_results.md'
@@ -115,8 +120,11 @@ class Parameters:
     input_image_data_blob_fname = 'input_image_data_run_id'
     predicted_image_data_blob_fname = 'predicted_image_data_run_id'
     model_arch_fname = "model_arch"
+    model_arch_ft_fname = "model_arch_ft"
     model_checkpoint_fname = "model_best_checkpoint"
     model_full_fname = 'full_model'
+    model_checkpoint_ft_fname = "model_best_checkpoint_ft"
+    model_full_ft_fname = 'full_model_ft'
 
     save_runs_to_md = False
     extended_train_eval_reports = False #TODO
@@ -131,6 +139,10 @@ class Parameters:
     checkpoint_dir = 'models/model_checkpoints'
     full_model_dir = 'models/full_models'
     model_arch_dir = 'models/architecture_models'
+
+    checkpoint_ft_dir = 'models/model_checkpoints_ft'
+    full_model_ft_dir = 'models/full_models_ft'
+    model_arch_ft_dir = 'models/architecture_models_ft'
 
     # ticker lists
     train_tickers = ""
@@ -231,11 +243,13 @@ class Parameters:
 
     learning_rate = 0.001
     #Optimizer Layers LR
-    use_layer_lr = False
-    conv_lr = 0.0000001
-    fc_lr = 0.1
+    use_layer_lr = True
+    conv_lr = 0.001
+    fc_lr = 0.01
 
     momentum_sgd = 0.9
+
+    ssim_list = []
 
     use_ssim_adjusted_loss = False
     lambda_ssim = 0.5
@@ -338,7 +352,8 @@ class Parameters:
     #during training-and-eval vars
     num_epochs_input = 1000
     eval_at_epoch_multiple = 1
-    save_model_at_epoch_multiple = 10
+    save_checkpoint = True
+    save_checkpoint_at_epoch_multiple = 10
     log_params_at_epoch_multiple = 1
     log_weights = True
     training_analytics_params_log_fname = 'nn_peer_stats.txt'
@@ -348,6 +363,10 @@ class Parameters:
     max_acc_1dp_epoch = 0
     best_eval_r2 = torch.tensor(0, dtype=torch.float64)
     best_eval_r2_epoch = 0
+    train_max_r2 = 0
+    train_max_r2_epoch = 0
+    eval_max_r2 = 0
+    eval_max_r2_epoch = 0
 
     fc_ssim_score = torch.tensor(0, dtype=torch.float64)
     cnn_ssim_score = torch.tensor(0, dtype=torch.float64)

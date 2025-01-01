@@ -59,4 +59,5 @@ def log_rebase_dataset(stocks):
                 how='outer' 
             )
 
+    #print("MERGED",merged_df)
     return data_close, merged_df

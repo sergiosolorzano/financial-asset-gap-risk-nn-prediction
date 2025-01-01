@@ -51,8 +51,13 @@ def create_eval_stock_obj():
     eval_stock_params = StockParams()
 
     #scenarios
+    #eval_stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') 
     #eval_stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
+    #eval_stock_params.add_eval_stock('KEY', '2018-12-06', '2023-01-25') 
     #eval_stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
+    #eval_stock_params.add_eval_stock('KEY', '2020-12-06', '2023-01-25') 
+    #eval_stock_params.add_eval_stock('HBAN', '2021-12-06', '2023-01-25') 
+    #eval_stock_params.add_eval_stock('CMA', '2021-12-06', '2023-01-25') 
     #eval_stock_params.add_eval_stock('FITB', '2021-12-06', '2023-01-25') 
     eval_stock_params.add_eval_stock('OZK', '2021-12-06', '2023-01-25') 
     #eval_stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') 
@@ -73,6 +78,11 @@ def create_model_naming_stocks_obj():
     stock_params = StockParams()
 
     # run concat
+    #stock_params.add_train_stock('ZION', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('HBAN', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('RF', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('OZK', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('FITB', '2021-12-06', '2023-01-25')
     stock_params.add_train_stock('CFG', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('ZION', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('PWBK', '2021-12-06', '2023-01-25')
@@ -85,7 +95,9 @@ def create_model_naming_stocks_obj():
     # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
     
     #scenarios
+    #stock_params.add_eval_stock('CMA', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
     stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('FITB', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('OZK', '2021-12-06', '2023-01-25') 
@@ -194,11 +206,11 @@ def eval(device):
                                                                                                         Parameters,
                                                                                                         Parameters.evaluation_test_size, 
                                                                                                         Parameters.evaluation_test_cols_used,
-                                                                                                        None, None)
+                                                                                                        None, None, "eval")
     #load best checkpoint
     if Parameters.load_checkpoint_for_eval:
         net  = neural_network.instantiate_net(Parameters, device)
-        net, epoch, loss, checkpoint = helper_functions.load_checkpoint_model(net, device, model_name_stock_params, train_loader)
+        net, epoch, loss, checkpoint = helper_functions.load_checkpoint_model(net, device, model_name_stock_params, train_loader, "fine_tune" if Parameters.fine_tune else "pre-train")
         print("Epoch:", checkpoint['epoch'])
         print("Loss:", checkpoint['loss'])
         torch.set_grad_enabled(False)
@@ -228,11 +240,23 @@ def load_feature_maps():
     
     model_name_stock_params = create_model_naming_stocks_obj()
 
-    cnn_data = np.load(f"{Parameters.checkpoint_dir}/feature_maps_cnn_{model_name_stock_params.train_stock_tickers}_{model_name_stock_params.eval_stock_tickers}.npz")
+    if Parameters.train and not Parameters.fine_tune:
+        cnn_data = np.load(f"{Parameters.checkpoint_dir}/feature_maps_cnn_{model_name_stock_params.train_stock_tickers}_{model_name_stock_params.eval_stock_tickers}.npz")
+    
+    if Parameters.fine_tune:
+        #cnn_data = np.load(f"{Parameters.checkpoint_ft_dir}/feature_maps_cnn_{model_name_stock_params.train_stock_tickers}_{model_name_stock_params.eval_stock_tickers}.npz")
+        cnn_data = np.load(f"{Parameters.checkpoint_ft_dir}/feature_maps_cnn.npz")
+
     train_feature_maps_cnn_list = [torch.tensor(cnn_data[key]).to(device) for key in cnn_data]
 
     # Load the FC feature maps from file
-    fc_data = np.load(f"{Parameters.checkpoint_dir}/feature_maps_fc_{model_name_stock_params.train_stock_tickers}_{model_name_stock_params.eval_stock_tickers}.npz")
+    if Parameters.train and not Parameters.fine_tune:
+        fc_data = np.load(f"{Parameters.checkpoint_dir}/feature_maps_fc_{model_name_stock_params.train_stock_tickers}_{model_name_stock_params.eval_stock_tickers}.npz")
+
+    if Parameters.fine_tune:
+        #fc_data = np.load(f"{Parameters.checkpoint_ft_dir}/feature_maps_fc_{model_name_stock_params.train_stock_tickers}_{model_name_stock_params.eval_stock_tickers}.npz")
+        fc_data = np.load(f"{Parameters.checkpoint_ft_dir}/feature_maps_fc.npz")
+
     feature_maps_fc_list_loaded = [torch.tensor(fc_data[key]).to(device) for key in fc_data]
 
     return train_feature_maps_cnn_list, feature_maps_fc_list_loaded

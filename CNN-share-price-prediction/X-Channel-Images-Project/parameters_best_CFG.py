@@ -35,6 +35,10 @@
 #         self.eval_stock_tickers = ""
 #         self.train_count = 0
 #         self.eval_count = 0
+#         self.eval_start_date = None
+#         self.eval_end_date = None
+#         self.train_start_date = None
+#         self.train_end_date = None
 
 #     def add_train_stock(self, ticker, start_date, end_date):
 #         stock_info = {
@@ -42,6 +46,8 @@
 #             'start_date': start_date,
 #             'end_date': end_date
 #         }
+#         self.train_start_date = start_date
+#         self.train_end_date = end_date
 #         self.train_stocks.append(stock_info)
 #         self.train_count +=1
 
@@ -51,6 +57,8 @@
 #             'start_date': start_date,
 #             'end_date': end_date
 #         }
+#         self.eval_start_date = start_date
+#         self.eval_end_date = end_date
 #         self.eval_stocks.append(stock_info)
 #         self.eval_count +=1
 
@@ -85,6 +93,9 @@
 # class Parameters:
 #     matplotlib_use = "Agg"
 #     run_iter = False
+#fine_tune = True
+# load_state_dict_strict_input = False
+#     load_state_dict_strict_used = load_state_dict_strict_input if fine_tune==True else True
 
 #     model_complexity = "Average" #Simple, Average, Complex
 #     train = True
@@ -108,8 +119,11 @@
 #     input_image_data_blob_fname = 'input_image_data_run_id'
 #     predicted_image_data_blob_fname = 'predicted_image_data_run_id'
 #     model_arch_fname = "model_arch"
+#     model_arch_ft_fname = "model_arch_ft"
 #     model_checkpoint_fname = "model_best_checkpoint"
 #     model_full_fname = 'full_model'
+#     model_checkpoint_ft_fname = "model_best_checkpoint_ft"
+#     model_full_ft_fname = 'full_model_ft'
 
 #     save_runs_to_md = False
 #     extended_train_eval_reports = False #TODO
@@ -124,6 +138,10 @@
 #     checkpoint_dir = 'models/model_checkpoints'
 #     full_model_dir = 'models/full_models'
 #     model_arch_dir = 'models/architecture_models'
+
+#     checkpoint_ft_dir = 'models/model_checkpoints_ft'
+#     full_model_ft_dir = 'models/full_models_ft'
+#     model_arch_ft_dir = 'models/architecture_models_ft'
 
 #     # ticker lists
 #     train_tickers = ""
@@ -169,7 +187,6 @@
     
 #     batch_regul_type_conv = "Norm2" #Norm2, Group
 #     batch_regul_type_fc = "LayerNorm" #Norm, Group, LayerNorm
-#     use_goupnorm = True
 #     bn1_num_groups = 5  # Conv1: 40 channels / 5 groups = 8 channels per group
 #     bn2_num_groups = 3  # Conv2: 12 channels / 3 groups = 4 channels per group
 #     bn3_num_groups = 0  # Not used in "Average" complexity
@@ -332,7 +349,8 @@
 #     #during training-and-eval vars
 #     num_epochs_input = 1000
 #     eval_at_epoch_multiple = 1
-#     save_model_at_epoch_multiple = 10
+#save_checkpoint = True
+#     save_checkpoint_at_epoch_multiple = 10
 #     log_params_at_epoch_multiple = 1
 #     log_weights = True
 #     training_analytics_params_log_fname = 'nn_peer_stats.txt'
@@ -340,6 +358,8 @@
 #     #global tracking vars
 #     max_acc_1dp = torch.tensor(0, dtype=torch.float64)
 #     max_acc_1dp_epoch = 0
+#best_eval_r2 = torch.tensor(0, dtype=torch.float64)
+#    best_eval_r2_epoch = 0
 #     fc_ssim_score = torch.tensor(0, dtype=torch.float64)
 #     cnn_ssim_score = torch.tensor(0, dtype=torch.float64)
 #endregion
@@ -381,6 +401,10 @@
 #         self.eval_stock_tickers = ""
 #         self.train_count = 0
 #         self.eval_count = 0
+#         self.eval_start_date = None
+#         self.eval_end_date = None
+#         self.train_start_date = None
+#         self.train_end_date = None
 
 #     def add_train_stock(self, ticker, start_date, end_date):
 #         stock_info = {
@@ -388,6 +412,8 @@
 #             'start_date': start_date,
 #             'end_date': end_date
 #         }
+#         self.train_start_date = start_date
+#         self.train_end_date = end_date
 #         self.train_stocks.append(stock_info)
 #         self.train_count +=1
 
@@ -397,6 +423,8 @@
 #             'start_date': start_date,
 #             'end_date': end_date
 #         }
+#         self.eval_start_date = start_date
+#         self.eval_end_date = end_date
 #         self.eval_stocks.append(stock_info)
 #         self.eval_count +=1
 
@@ -431,6 +459,9 @@
 # class Parameters:
 #     matplotlib_use = "Agg"
 #     run_iter = False
+#fine_tune = True
+# load_state_dict_strict_input = False
+#     load_state_dict_strict_used = load_state_dict_strict_input if fine_tune==True else True
 
 #     train = True
 #     load_checkpoint_for_eval = True
@@ -453,8 +484,11 @@
 #     input_image_data_blob_fname = 'input_image_data_run_id'
 #     predicted_image_data_blob_fname = 'predicted_image_data_run_id'
 #     model_arch_fname = "model_arch"
+#     model_arch_ft_fname = "model_arch_ft"
 #     model_checkpoint_fname = "model_best_checkpoint"
 #     model_full_fname = 'full_model'
+#     model_checkpoint_ft_fname = "model_best_checkpoint_ft"
+#     model_full_ft_fname = 'full_model_ft'
 
 #     save_runs_to_md = False
 #     extended_train_eval_reports = False #TODO
@@ -469,6 +503,10 @@
 #     checkpoint_dir = 'models/model_checkpoints'
 #     full_model_dir = 'models/full_models'
 #     model_arch_dir = 'models/architecture_models'
+
+#     checkpoint_ft_dir = 'models/model_checkpoints_ft'
+#     full_model_ft_dir = 'models/full_models_ft'
+#     model_arch_ft_dir = 'models/architecture_models_ft'
 
 #     # ticker lists
 #     train_tickers = ""
@@ -514,7 +552,6 @@
     
 #     batch_regul_type_conv = "Norm2" #Norm2, Group
 #     batch_regul_type_fc = "LayerNorm" #Norm, Group, LayerNorm
-#     use_goupnorm = True
 #     bn1_num_groups = 5  # Conv1: 40 channels / 5 groups = 8 channels per group
 #     bn2_num_groups = 3  # Conv2: 12 channels / 3 groups = 4 channels per group
 #     bn3_num_groups = 0  # Not used in "Average" complexity
@@ -679,7 +716,8 @@
 #     #during training-and-eval vars
 #     num_epochs_input = 10000
 #     eval_at_epoch_multiple = 1
-#     save_model_at_epoch_multiple = 10
+#save_checkpoint = True
+#     save_checkpoint_at_epoch_multiple = 10
 #     log_params_at_epoch_multiple = 1
 #     log_weights = True
 #     training_analytics_params_log_fname = 'nn_peer_stats.txt'
@@ -687,6 +725,8 @@
 #     #global tracking vars
 #     max_acc_1dp = torch.tensor(0, dtype=torch.float64)
 #     max_acc_1dp_epoch = 0
+#best_eval_r2 = torch.tensor(0, dtype=torch.float64)
+ #   best_eval_r2_epoch = 0
 #     fc_ssim_score = torch.tensor(0, dtype=torch.float64)
 #     cnn_ssim_score = torch.tensor(0, dtype=torch.float64)
 #endregion
@@ -729,6 +769,10 @@
 #         self.eval_stock_tickers = ""
 #         self.train_count = 0
 #         self.eval_count = 0
+#         self.eval_start_date = None
+#         self.eval_end_date = None
+#         self.train_start_date = None
+#         self.train_end_date = None
 
 #     def add_train_stock(self, ticker, start_date, end_date):
 #         stock_info = {
@@ -736,6 +780,8 @@
 #             'start_date': start_date,
 #             'end_date': end_date
 #         }
+#         self.train_start_date = start_date
+#         self.train_end_date = end_date
 #         self.train_stocks.append(stock_info)
 #         self.train_count +=1
 
@@ -745,6 +791,8 @@
 #             'start_date': start_date,
 #             'end_date': end_date
 #         }
+#         self.eval_start_date = start_date
+#         self.eval_end_date = end_date
 #         self.eval_stocks.append(stock_info)
 #         self.eval_count +=1
 
@@ -779,6 +827,9 @@
 # class Parameters:
 #     matplotlib_use = "Agg"
 #     run_iter = False
+#fine_tune = True
+# load_state_dict_strict_input = False
+#     load_state_dict_strict_used = load_state_dict_strict_input if fine_tune==True else True
 
 #     model_complexity = "Average" #Simple, Average, Complex
 #     train = True
@@ -802,8 +853,11 @@
 #     input_image_data_blob_fname = 'input_image_data_run_id'
 #     predicted_image_data_blob_fname = 'predicted_image_data_run_id'
 #     model_arch_fname = "model_arch"
+#     model_arch_ft_fname = "model_arch_ft"
 #     model_checkpoint_fname = "model_best_checkpoint"
 #     model_full_fname = 'full_model'
+#     model_checkpoint_ft_fname = "model_best_checkpoint_ft"
+#     model_full_ft_fname = 'full_model_ft'
 
 #     save_runs_to_md = False
 #     extended_train_eval_reports = False #TODO
@@ -818,6 +872,10 @@
 #     checkpoint_dir = 'models/model_checkpoints'
 #     full_model_dir = 'models/full_models'
 #     model_arch_dir = 'models/architecture_models'
+
+#     checkpoint_ft_dir = 'models/model_checkpoints_ft'
+#     full_model_ft_dir = 'models/full_models_ft'
+#     model_arch_ft_dir = 'models/architecture_models_ft'
 
 #     # ticker lists
 #     train_tickers = ""
@@ -863,7 +921,6 @@
     
 #     batch_regul_type_conv = "Norm2" #Norm2, Group
 #     batch_regul_type_fc = "LayerNorm" #Norm, Group, LayerNorm
-#     use_goupnorm = True
 #     bn1_num_groups = 5  # Conv1: 40 channels / 5 groups = 8 channels per group
 #     bn2_num_groups = 3  # Conv2: 12 channels / 3 groups = 4 channels per group
 #     bn3_num_groups = 0  # Not used in "Average" complexity
@@ -1026,7 +1083,8 @@
 #     #during training-and-eval vars
 #     num_epochs_input = 1000
 #     eval_at_epoch_multiple = 1
-#     save_model_at_epoch_multiple = 10
+#save_checkpoint = True
+#     save_checkpoint_at_epoch_multiple = 10
 #     log_params_at_epoch_multiple = 1
 #     log_weights = True
 #     training_analytics_params_log_fname = 'nn_peer_stats.txt'
@@ -1034,6 +1092,8 @@
 #     #global tracking vars
 #     max_acc_1dp = torch.tensor(0, dtype=torch.float64)
 #     max_acc_1dp_epoch = 0
+#best_eval_r2 = torch.tensor(0, dtype=torch.float64)
+ #   best_eval_r2_epoch = 0
 #     fc_ssim_score = torch.tensor(0, dtype=torch.float64)
 #     cnn_ssim_score = torch.tensor(0, dtype=torch.float64)
 #endregion
@@ -1076,6 +1136,10 @@
 #         self.eval_stock_tickers = ""
 #         self.train_count = 0
 #         self.eval_count = 0
+#         self.eval_start_date = None
+#         self.eval_end_date = None
+#         self.train_start_date = None
+#         self.train_end_date = None
 
 #     def add_train_stock(self, ticker, start_date, end_date):
 #         stock_info = {
@@ -1083,6 +1147,8 @@
 #             'start_date': start_date,
 #             'end_date': end_date
 #         }
+#         self.train_start_date = start_date
+#         self.train_end_date = end_date
 #         self.train_stocks.append(stock_info)
 #         self.train_count +=1
 
@@ -1092,6 +1158,8 @@
 #             'start_date': start_date,
 #             'end_date': end_date
 #         }
+#         self.eval_start_date = start_date
+#         self.eval_end_date = end_date
 #         self.eval_stocks.append(stock_info)
 #         self.eval_count +=1
 
@@ -1126,6 +1194,9 @@
 # class Parameters:
 #     matplotlib_use = "Agg"
 #     run_iter = False
+#fine_tune = True
+# load_state_dict_strict_input = False
+#     load_state_dict_strict_used = load_state_dict_strict_input if fine_tune==True else True
 
 #     model_complexity = "Simple" #Simple, Average, Complex
 #     train = True
@@ -1149,8 +1220,11 @@
 #     input_image_data_blob_fname = 'input_image_data_run_id'
 #     predicted_image_data_blob_fname = 'predicted_image_data_run_id'
 #     model_arch_fname = "model_arch"
+#     model_arch_ft_fname = "model_arch_ft"
 #     model_checkpoint_fname = "model_best_checkpoint"
 #     model_full_fname = 'full_model'
+#     model_checkpoint_ft_fname = "model_best_checkpoint_ft"
+#     model_full_ft_fname = 'full_model_ft'
 
 #     save_runs_to_md = False
 #     extended_train_eval_reports = False #TODO
@@ -1165,6 +1239,10 @@
 #     checkpoint_dir = 'models/model_checkpoints'
 #     full_model_dir = 'models/full_models'
 #     model_arch_dir = 'models/architecture_models'
+
+#     checkpoint_ft_dir = 'models/model_checkpoints_ft'
+#     full_model_ft_dir = 'models/full_models_ft'
+#     model_arch_ft_dir = 'models/architecture_models_ft'
 
 #     # ticker lists
 #     train_tickers = ""
@@ -1354,7 +1432,8 @@
 #     #during training-and-eval vars
 #     num_epochs_input = 2000
 #     eval_at_epoch_multiple = 1
-#     save_model_at_epoch_multiple = 10
+#save_checkpoint = True
+#     save_checkpoint_at_epoch_multiple = 10
 #     log_params_at_epoch_multiple = 1
 #     log_weights = True
 #     training_analytics_params_log_fname = 'nn_peer_stats.txt'
@@ -1362,6 +1441,8 @@
 #     #global tracking vars
 #     max_acc_1dp = torch.tensor(0, dtype=torch.float64)
 #     max_acc_1dp_epoch = 0
+#best_eval_r2 = torch.tensor(0, dtype=torch.float64)
+#    best_eval_r2_epoch = 0
 #     fc_ssim_score = torch.tensor(0, dtype=torch.float64)
 #     cnn_ssim_score = torch.tensor(0, dtype=torch.float64)
 #endregion
@@ -1447,6 +1528,10 @@
 #         self.eval_stock_tickers = ""
 #         self.train_count = 0
 #         self.eval_count = 0
+#         self.eval_start_date = None
+#         self.eval_end_date = None
+#         self.train_start_date = None
+#         self.train_end_date = None
 
 #     def add_train_stock(self, ticker, start_date, end_date):
 #         stock_info = {
@@ -1454,6 +1539,8 @@
 #             'start_date': start_date,
 #             'end_date': end_date
 #         }
+#         self.train_start_date = start_date
+#         self.train_end_date = end_date
 #         self.train_stocks.append(stock_info)
 #         self.train_count +=1
 
@@ -1463,6 +1550,8 @@
 #             'start_date': start_date,
 #             'end_date': end_date
 #         }
+#         self.eval_start_date = start_date
+#         self.eval_end_date = end_date
 #         self.eval_stocks.append(stock_info)
 #         self.eval_count +=1
 
@@ -1497,6 +1586,9 @@
 # class Parameters:
 #     matplotlib_use = "Agg"
 #     run_iter = False
+#fine_tune = True
+# load_state_dict_strict_input = False
+#     load_state_dict_strict_used = load_state_dict_strict_input if fine_tune==True else True
 
 #     model_complexity = "Average" #Simple, Average, Complex
 #     train = True
@@ -1520,8 +1612,11 @@
 #     input_image_data_blob_fname = 'input_image_data_run_id'
 #     predicted_image_data_blob_fname = 'predicted_image_data_run_id'
 #     model_arch_fname = "model_arch"
+#     model_arch_ft_fname = "model_arch_ft"
 #     model_checkpoint_fname = "model_best_checkpoint"
 #     model_full_fname = 'full_model'
+#     model_checkpoint_ft_fname = "model_best_checkpoint_ft"
+#     model_full_ft_fname = 'full_model_ft'
 
 #     save_runs_to_md = False
 #     extended_train_eval_reports = False #TODO
@@ -1536,6 +1631,10 @@
 #     checkpoint_dir = 'models/model_checkpoints'
 #     full_model_dir = 'models/full_models'
 #     model_arch_dir = 'models/architecture_models'
+
+#     checkpoint_ft_dir = 'models/model_checkpoints_ft'
+#     full_model_ft_dir = 'models/full_models_ft'
+#     model_arch_ft_dir = 'models/architecture_models_ft'
 
 #     # ticker lists
 #     train_tickers = ""
@@ -1724,7 +1823,8 @@
 #     #during training-and-eval vars
 #     num_epochs_input = 1000
 #     eval_at_epoch_multiple = 1
-#     save_model_at_epoch_multiple = 10
+#save_checkpoint = True
+#     save_checkpoint_at_epoch_multiple = 10
 #     log_params_at_epoch_multiple = 1
 #     log_weights = True
 #     training_analytics_params_log_fname = 'nn_peer_stats.txt'

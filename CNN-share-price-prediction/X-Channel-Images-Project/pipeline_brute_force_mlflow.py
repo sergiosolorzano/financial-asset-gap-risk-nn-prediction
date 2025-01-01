@@ -47,7 +47,7 @@ def create_comparison_stocks_obj():
     # stock_params.add_train_stock('CUBI', '2021-12-05', '2023-01-25')
     
     stock_params.add_train_stock('SIVBQ', '2021-12-06', '2023-01-25')
-    stock_params.add_train_stock('SICP', '2021-12-06', '2023-01-25')
+    stock_params.add_train_stock('SICPQ', '2021-12-06', '2023-01-25')
     stock_params.add_train_stock('ALLY', '2021-12-06', '2023-01-25')
     stock_params.add_train_stock('CMA', '2021-12-06', '2023-01-25')
     stock_params.add_train_stock('WAL', '2021-12-06', '2023-01-25')
@@ -76,30 +76,42 @@ def create_train_eval_stocks_obj():
 
     # run concat
     #LONG TRAIN
+    stock_params.add_train_stock('SICPQ', '2018-12-06', '2023-01-25')
+    #stock_params.add_train_stock('CUBI', '2018-12-06', '2023-01-25')
     #stock_params.add_train_stock('CFG', '2020-12-06', '2023-01-25')
-    #stock_params.add_train_stock('FITB', '2020-12-06', '2023-01-25')
+    #stock_params.add_train_stock('SIVBQ', '2018-12-06', '2023-01-25')
+    #stock_params.add_train_stock('CFG', '2020-12-06', '2023-01-25')
+    #stock_params.add_train_stock('FITB', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('ZION', '2020-12-06', '2023-01-25')
     #stock_params.add_train_stock('KEY', '2020-12-06', '2023-01-25')
 
     #BASE
-    stock_params.add_train_stock('CFG', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('HBAN', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('RF', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('OZK', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('CFG', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('ZION', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('PWBK', '2021-12-06', '2023-01-25')
-    stock_params.add_train_stock('KEY', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('KEY', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('FITB', '2021-12-06', '2023-01-25')
     #stock_params.add_train_stock('SIVBQ', '2021-12-06', '2023-01-25')
-    # stock_params.add_train_stock('SICP', '2021-12-06', '2023-01-25')
+    #stock_params.add_train_stock('SICP', '2021-12-06', '2023-01-25')
     # stock_params.add_train_stock('ALLY', '2021-12-06', '2023-01-25')
     # stock_params.add_train_stock('CMA', '2021-12-05', '2023-01-25')
     # stock_params.add_train_stock('WAL', '2021-12-05', '2023-01-25')
     
     #EVAL LONG TRAIN
-    #stock_params.add_eval_stock('KEY', '2020-12-06', '2023-01-25') 
+    stock_params.add_eval_stock('SIVBQ', '2018-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('PWBK', '2020-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('PWBK', '2018-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('RF', '2020-12-06', '2023-01-25') 
 
     #EVAL BASE
     #stock_params.add_eval_stock('ZION', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('FITB', '2021-12-06', '2023-01-25') 
-    stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
+    #stock_params.add_eval_stock('RF', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('KEY', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('OZK', '2021-12-06', '2023-01-25') 
     #stock_params.add_eval_stock('CFG', '2021-12-06', '2023-01-25') #loss ?, acc 32%, r^2 0.15
@@ -126,13 +138,13 @@ def create_train_eval_stocks_obj():
 
     return stock_params
 
-def calculate_ssim_train_eval(train_feature_maps_cnn_list, train_feature_maps_fc_list, eval_feature_maps_cnn_list, eval_feature_maps_fc_list, epoch):
+def calculate_ssim_train_eval(train_feature_maps_cnn_list, train_feature_maps_fc_list, eval_feature_maps_cnn_list, eval_feature_maps_fc_list, epoch, stock_params):
     #CNN
     train_feature_maps_cnn_np = torch.cat(train_feature_maps_cnn_list, dim=0)
     eval_feature_maps_cnn_np = torch.cat(eval_feature_maps_cnn_list, dim=0)
     # print("HEREtrain_feature_maps_cnn_np",type(train_feature_maps_cnn_np), "ele type", train_feature_maps_cnn_np[0].dtype, "ele shape", train_feature_maps_cnn_np[0].shape)
     # print("HEREeval_feature_maps_cnn_np",type(eval_feature_maps_cnn_np), "ele type", eval_feature_maps_cnn_np[0].dtype, "ele shape", eval_feature_maps_cnn_np[0].shape)
-    calculate_images_ssim(train_feature_maps_cnn_np, eval_feature_maps_cnn_np, "CNN", epoch)
+    calculate_images_ssim(train_feature_maps_cnn_np, eval_feature_maps_cnn_np, "CNN", epoch, stock_params)
     
     #FC
     train_feature_maps_fc_np = torch.cat(train_feature_maps_fc_list, dim=0)
@@ -150,9 +162,9 @@ def calculate_ssim_train_eval(train_feature_maps_cnn_list, train_feature_maps_fc
         height = total_elements // width
     train_feature_maps_fc_np = train_feature_maps_fc_np.view(width, height).unsqueeze(0).unsqueeze(0)
     eval_feature_maps_fc_np = eval_feature_maps_fc_np.view(width, height).unsqueeze(0).unsqueeze(0)
-    calculate_images_ssim(train_feature_maps_fc_np, eval_feature_maps_fc_np, "FC", epoch)
+    calculate_images_ssim(train_feature_maps_fc_np, eval_feature_maps_fc_np, "FC", epoch, stock_params)
 
-def calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32, layer_type, epoch):
+def calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32, layer_type, epoch, stock_params):
     
     # print("train_feature_image_dataset_list_f32",train_feature_image_dataset_list_f32.dtype, train_feature_image_dataset_list_f32.shape)
     # print("test_feature_image_dataset_list_f32",test_feature_image_dataset_list_f32.dtype, test_feature_image_dataset_list_f32.shape)
@@ -194,8 +206,13 @@ def calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_ima
             if layer_type=="CNN":
                 Parameters.cnn_ssim_score = ssim_score.item()
         else:
-            print(f"\033[32mssim_score Input Images: {ssim_score.item()}\033[0m")
+            print(f"\033[32mssim_score {stock_params.get_train_stocks()} Input Images Eval {stock_params.get_eval_stocks()}: {ssim_score.item()}\033[0m")
             image_similarity = {"input_imgs_SSIM":ssim_score.item()}
+            Parameters.ssim_list.append([
+                stock_params.get_train_stocks(),
+                stock_params.get_eval_stocks(),
+                ssim_score.item()
+            ])
 
         if Parameters.enable_mlflow:
             for key, value in image_similarity.items():
@@ -287,9 +304,11 @@ def mlflow_log_params(curr_datetime, experiment_name, experiment_id, stock_param
         #                    datetime.strptime(stock_params.eval_start_date, "%Y-%m-%d")).days,
         }
     
+    if Parameters.fine_tune:
+        params_dict["fine_tune"] = Parameters.fine_tune
     if Parameters.use_layer_lr:
         params_dict["conv_learning_rate"] = Parameters.conv_lr
-    if Parameters.fc_lr:
+    if Parameters.use_layer_lr:
         params_dict["fc_learning_rate"] = Parameters.fc_lr
     if Parameters.output_conv_3!=0:
         params_dict["output_conv_3"] = Parameters.output_conv_3
@@ -385,7 +404,7 @@ def evaluate_and_report(net, stock_params, device, test_loader, run, run_id, exp
         # print("1HEREeval_feature_maps_fc_list",type(eval_feature_maps_fc_list), "ele type", eval_feature_maps_fc_list[0].dtype, "ele shape", eval_feature_maps_fc_list[0].shape)
         
         if (len(train_feature_image_dataset_list_f32) == len(test_feature_image_dataset_list_f32)):
-            calculate_ssim_train_eval(train_feature_maps_cnn_list, train_feature_maps_fc_list, eval_feature_maps_cnn_list, eval_feature_maps_fc_list, epoch)
+            calculate_ssim_train_eval(train_feature_maps_cnn_list, train_feature_maps_fc_list, eval_feature_maps_cnn_list, eval_feature_maps_fc_list, epoch, stock_params)
 
         #TODO for during training multiple epochs recordings
         if Parameters.extended_train_eval_reports:
@@ -403,27 +422,27 @@ def evaluate_and_report(net, stock_params, device, test_loader, run, run_id, exp
 def report_image_similarities_eval(stock_params, train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32, epoch):
     if Parameters.train and (len(train_feature_image_dataset_list_f32) == len(test_feature_image_dataset_list_f32)):
         #calculate structural similarity index measure for images
-        calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32, None, epoch)
+        calculate_images_ssim(train_feature_image_dataset_list_f32, test_feature_image_dataset_list_f32, None, epoch, stock_params)
 
-def load_checkpoint_for_eval(device, stock_params, train_loader):
-    text_mssg= "<u><center>==========Run Evaluation Stock Tests:==========</center></u><p>"
-    print("\n\n",text_mssg)
-    if Parameters.save_runs_to_md:
-        helper_functions.write_to_md(text_mssg,None)
+# def load_checkpoint_for_eval(device, stock_params, train_loader):
+#     text_mssg= "<u><center>==========Run Evaluation Stock Tests:==========</center></u><p>"
+#     print("\n\n",text_mssg)
+#     if Parameters.save_runs_to_md:
+#         helper_functions.write_to_md(text_mssg,None)
 
-    if Parameters.load_checkpoint_for_eval:
-        net = neural_network.instantiate_net(Parameters, device)
-        #print("Loading params",stock_params.get_train_stocks(), "eval",stock_params.get_eval_stocks())
-        net, epoch, loss, checkpoint = helper_functions.load_checkpoint_model(net, device, stock_params, train_loader)
-        net  = neural_network.set_model_for_eval(net)
-        torch.set_grad_enabled(False)
-        #print("Parameters.checkpt_dict",Parameters.checkpt_dict['model_state_dict']['conv2.weight'])
+#     if Parameters.load_checkpoint_for_eval:
+#         net = neural_network.instantiate_net(Parameters, device)
+#         #print("Loading params",stock_params.get_train_stocks(), "eval",stock_params.get_eval_stocks())
+#         net, epoch, loss, checkpoint = helper_functions.load_checkpoint_model(net, device, stock_params, train_loader)
+#         net  = neural_network.set_model_for_eval(net)
+#         torch.set_grad_enabled(False)
+#         #print("Parameters.checkpt_dict",Parameters.checkpt_dict['model_state_dict']['conv2.weight'])
         
-    #load model
-    #PATH = f'./model_scen_{0}_full.pth'
-    #net = helper_functions.Load_Full_Model(PATH)
+#     #load model
+#     #PATH = f'./model_scen_{0}_full.pth'
+#     #net = helper_functions.Load_Full_Model(PATH)
 
-    return net
+#     return net
 
 def brute_force_function(credentials, device, stock_params):
 
@@ -480,7 +499,7 @@ def brute_force_function(credentials, device, stock_params):
                                 #for s in gaf_sample_ranges:
 
                                 curr_datetime = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-                                
+
                                 with (mlflow.start_run(run_name=f"run_{curr_datetime}") if Parameters.enable_mlflow else contextlib.nullcontext()) as run:
                                         
                                     #sys logs
@@ -505,7 +524,8 @@ def brute_force_function(credentials, device, stock_params):
                                     plot_data.plot_train_and_eval_df(stock_params,experiment_name,run)
 
                                     #calc and plot dwt and correl
-                                    calc_dtw_and_correl_logprices(stock_comp_params,run)
+                                    print("ALL",stock_comp_params.get_train_stocks())
+                                    calc_dtw_and_correl_logprices(stock_comp_params, run)
 
                                     #calc this pair dtw logprices
                                     if stock_params.train_count == 1:
@@ -531,27 +551,30 @@ def brute_force_function(credentials, device, stock_params):
                                     #################################
 
                                     #generate training images
-                                    train_loader, test_loader, train_stocks_dataset_df, train_feature_image_dataset_list_f32 = pipeline_data.generate_dataset_to_images_process(stock_params, stock_params.get_train_stocks(), 
+                                    for curr_stock in stock_params.get_train_stocks():
+                                        curr_stock_list = [curr_stock]
+                                        train_loader, test_loader, train_stocks_dataset_df, train_feature_image_dataset_list_f32 = pipeline_data.generate_dataset_to_images_process(stock_params, curr_stock_list,
                                                                                                                                                 Parameters, 
                                                                                                                                                 Parameters.training_test_size, 
                                                                                                                                                 Parameters.training_cols_used,
                                                                                                                                                 run, experiment_name, "train")
-                                    if Parameters.train:
-                                        net, train_stack_input, train_feature_maps_cnn_list, train_feature_maps_fc_list = pipeline_train.train_process(train_loader, train_feature_image_dataset_list_f32, 
-                                                                                                                                                        train_stocks_dataset_df, 
-                                                                                                                                                        Parameters, 
-                                                                                                                                                        run, run_id, experiment_name, device, stock_params)
-                                        
-                                        #test
-                                        # set model to eval
-                                        net  = neural_network.set_model_for_eval(net)
+                                    
+                                        if Parameters.train:
+                                            net, train_stack_input, train_feature_maps_cnn_list, train_feature_maps_fc_list = pipeline_train.train_process(train_loader, train_feature_image_dataset_list_f32, 
+                                                                                                                                                            train_stocks_dataset_df, 
+                                                                                                                                                            Parameters, 
+                                                                                                                                                            run, run_id, experiment_name, device, stock_params)
+                                            
+                                            #test
+                                            # set model to eval
+                                            net  = neural_network.set_model_for_eval(net)
 
-                                        if Parameters.training_test_size > 0:
-                                            test_stack_input, test_stack_actual, test_stack_predicted, test_feature_maps_cnn_list, test_feature_maps_fc_list, error_stats = pipeline_test.test_process(net, test_loader, 
-                                                                                                                Parameters, 
-                                                                                                                Parameters.train_tickers, run,
-                                                                                                                    experiment_name, device, None)
-
+                                            if Parameters.training_test_size > 0:
+                                                test_stack_input, test_stack_actual, test_stack_predicted, test_feature_maps_cnn_list, test_feature_maps_fc_list, error_stats = pipeline_test.test_process(net, test_loader, 
+                                                                                                                    Parameters, 
+                                                                                                                    Parameters.train_tickers, run,
+                                                                                                                        experiment_name, device, None)
+                                            
                                         #################################
                                         #       Evaluation Test         #
                                         #################################
@@ -624,18 +647,18 @@ if __name__ == "__main__":
     with open(Parameters.training_analytics_params_log_fname, 'w') as file:
         file.write("")
     #iter
-    if Parameters.run_iter:
+    if Parameters.run_iter_multiple_sims:
 
         print("****RUNNING ITERATION****")
-        tickers = [
-        'SIVBQ', 'SICP', 'ALLY', 'CMA', 'WAL', 'PWBK', 'ZION', 'KEY', 
-        'CUBI', 'OZK', 'CFG', 'RF', 'FITB', 'HBAN'
-        ]
         # tickers = [
-        # 'SIVBQ', 'SICP', 'KEY'
+        # 'SIVBQ', 'SICPQ', 'ALLY', 'CMA', 'WAL', 'PWBK', 'ZION', 'KEY', 
+        # 'CUBI', 'OZK', 'CFG', 'RF', 'FITB', 'HBAN'
         # ]
+        tickers = [
+        'CFG', 'SICPQ', 'CUBI', 'RF'
+        ]
 
-        start_date = '2021-12-06'
+        start_date = '2018-12-06'
         end_date = '2023-01-25'
 
         for train_stock, eval_stock in itertools.combinations(tickers, 2):
@@ -653,6 +676,7 @@ if __name__ == "__main__":
         stock_params = create_train_eval_stocks_obj()
         brute_force_function(_credentials, device, stock_params)
 
+    print("FINISHED",Parameters.ssim_list)
     #if Parameters.run_iter:
         #print("ssim",ssim_list)
         #print("mse",mse_list)

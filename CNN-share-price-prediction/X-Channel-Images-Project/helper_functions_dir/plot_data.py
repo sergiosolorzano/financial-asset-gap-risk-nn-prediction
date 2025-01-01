@@ -371,6 +371,8 @@ def create_correl_dict(correl_df):
     return correl_dict
 
 def calc_merged_series_dtw_distance(train_series,eval_series):
+    # print("TRAIN SERIES",train_series.max(), train_series.min())
+    # print("EVAL SERIES",eval_series.max(), eval_series.min())
     distance, path = fastdtw(train_series, eval_series)
     print("MultiStock Log_Prices_DTW_Distance",distance)
     distance_dict = {"Log_Prices_DTW_Distance":distance}
@@ -379,6 +381,7 @@ def calc_merged_series_dtw_distance(train_series,eval_series):
 
 def calc_pair_dtw_distance(stocks, experiment_name,run):
     
+    distance = None
     data_close, merged_df = process_price_series.log_rebase_dataset(stocks)
 
     stock_tickers = stocks.get_all_tickers()
@@ -389,13 +392,18 @@ def calc_pair_dtw_distance(stocks, experiment_name,run):
                 if compare_ticker in data_close and compare_ticker!=stock_ticker:
                     distance, path = fastdtw(data_close[stock_ticker], data_close[compare_ticker])
                     print("ticker1",stock_ticker,"ticker2",compare_ticker,"distance",distance)
+                    # print(f"{stock_ticker} SERIES",data_close[stock_ticker].max(), data_close[stock_ticker].min())
+                    # print(f"{compare_ticker}",data_close[compare_ticker].max(), data_close[compare_ticker].min())
     
-    print("OneStock Log_Prices_DTW_Distance",distance)
-    distance_dict = {"Log_Prices_DTW_Distance":distance}
-    if Parameters.enable_mlflow:
-        mlflow.log_metrics(distance_dict)
+    if distance is not None:
+        print("OneStock Log_Prices_DTW_Distance",distance)
+        distance_dict = {"Log_Prices_DTW_Distance":distance}
+        if Parameters.enable_mlflow:
+            mlflow.log_metrics(distance_dict)
     
-    return distance
+        return distance
+    else:
+        print("No Distance to report")
 
 def dtw_matrix_logprices(stocks, run, experiment_name):
     
@@ -409,7 +417,10 @@ def dtw_matrix_logprices(stocks, run, experiment_name):
             for j, compare_ticker in enumerate(stock_tickers):
                 if compare_ticker in data_close:
                     distance, path = fastdtw(data_close[stock_ticker], data_close[compare_ticker])
-                    
+                    #print("ticker1",stock_ticker,"ticker2",compare_ticker,"distance",distance)
+                    # print(f"{stock_ticker} SERIES",data_close[stock_ticker].max(), data_close[stock_ticker].min())
+                    # print(f"{compare_ticker}",data_close[compare_ticker].max(), data_close[compare_ticker].min())
+
                     distance_matrix.iloc[i, j] = distance
                     #print(f"**distance {stock_ticker} vs {compare_ticker}: {distance}, path: {path}")
                     # if Parameters.enable_mlflow:

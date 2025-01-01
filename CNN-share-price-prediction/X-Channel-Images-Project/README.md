@@ -53,7 +53,7 @@ The chunks are encoded into GAF images which are the inputs to the network. The 
 Each image represents a time series window of 32 days but has 32x32=1024 data points (pixels) because GAF obtain a temporal correlation between each pair of prices in the series - a grid of prices.
 
 ## MODEL 
-A LeNet5-design based Convolutional Neural Network visualized on Nitro:
+A LeNet5-based Convolutional Neural Network design visualized on Nitro:
 
 ![alt text](readme_images/cnn_arch.png)
 

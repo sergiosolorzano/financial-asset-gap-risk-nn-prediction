@@ -12,6 +12,7 @@ import helper_functions_dir.load_data as load_data
 import helper_functions_dir.plot_data as plot_data
 import helper_functions_dir.image_transform as image_transform
 from helper_functions_dir import helper_functions
+#from parameters import Parameters
 
 #import mlflow
 
@@ -20,10 +21,13 @@ def remap_to_log_returns(stocks_dataset_df, start_indices_cumulative):
     pd.set_option('display.max_rows', None)
 
     #convert to log returns
+    #print("REMAP stock_log_returns_df",stocks_dataset_df)
     #print("cum index",start_indices_cumulative, "len df", len(stocks_dataset_df))
     stock_log_returns_df = pd.DataFrame()
-    for col in stocks_dataset_df.columns:
+    numeric_cols = stocks_dataset_df.select_dtypes(include=[np.number]).columns
+    for col in numeric_cols:
         stock_log_returns_df[col] = np.log(stocks_dataset_df[col] / stocks_dataset_df[col].shift(1))
+    
     # set the log return concat location for the series to zero
     if start_indices_cumulative is not None and len(start_indices_cumulative) > 0:
         for counter, i in enumerate(start_indices_cumulative):
@@ -42,7 +46,7 @@ def remap_to_log_returns(stocks_dataset_df, start_indices_cumulative):
         rebased_df[col] = rebased_values[:-1] 
         
     # pd.set_option('display.max_rows', None)
-    #print("log rebased df",rebased_df)
+    # print("log rebased df",rebased_df)
 
     return rebased_df
 
@@ -53,7 +57,9 @@ def generate_dataset_to_images_process(stocksobj, stocks, params, test_size, col
     if params.log_returns:
         #print("Raw Dataset",stocks_dataset_df)
         log_rebased_df = remap_to_log_returns(stocks_dataset_df, start_indices_cumulative)
-            
+        
+        print("Rebased DF to GENERATE IMAEG",stock_tickers,"log_rebased_df",log_rebased_df)
+        
         stocks_dataset_df = log_rebased_df
         print(f"LEN log stocks_dataset_df {stock_tickers}",len(stocks_dataset_df))
         if stock_type=="eval":

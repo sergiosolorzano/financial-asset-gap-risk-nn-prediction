@@ -199,7 +199,7 @@ class Net(nn.Module):
         if Parameters.use_batch_regularization_fc:
                 if Parameters.batch_regul_type_fc == "Group":
                     self.bn_fc1 = nn.GroupNorm(Parameters.bn_fc1_num_groups,Parameters.output_FC_1)
-                if Parameters.batch_regul_type_fc == "Norm":
+                if Parameters.batch_regul_type_fc == "Norm2":
                     self.bn_fc1 = nn.BatchNorm1d(Parameters.output_FC_1)
                 if Parameters.batch_regul_type_fc=="LayerNorm":
                     self.bn_fc1 = nn.LayerNorm(Parameters.output_FC_1)
@@ -213,7 +213,7 @@ class Net(nn.Module):
             if Parameters.use_batch_regularization_fc:
                 if Parameters.batch_regul_type_fc == "Group":
                     self.bn_fc2 = nn.GroupNorm(Parameters.bn_fc2_num_groups, Parameters.output_FC_2)
-                if Parameters.batch_regul_type_fc == "Norm":
+                if Parameters.batch_regul_type_fc == "Norm2":
                     self.bn_fc2 = nn.BatchNorm1d(Parameters.output_FC_2)
                 if Parameters.batch_regul_type_fc =="LayerNorm":
                     self.bn_fc2 = nn.LayerNorm(Parameters.output_FC_2)
@@ -401,7 +401,8 @@ def Train_tail_end(best_checkpoint_dict,epoch_avg_cum_loss, epoch_train_mae, epo
         mlflow.log_metric("epoch_avg_cum_loss",epoch_avg_cum_loss,step=epoch)
         mlflow.log_param(f"last_epoch", epoch)
                                             
-    helper_functions.save_checkpoint_model(best_checkpoint_dict, best_cum_loss_epoch, eval_max_r2_epoch, best_cum_loss, epoch_avg_cum_loss, net, run_id, experiment_name, stock_params, epoch)
+    if Parameters.save_checkpoint:
+        helper_functions.save_checkpoint_model(best_checkpoint_dict, best_cum_loss_epoch, eval_max_r2_epoch, best_cum_loss, epoch_avg_cum_loss, net, run_id, experiment_name, stock_params, epoch)
 
 def set_optimizer_layer_learning_rate(net):
     conv_params = [p for name, p in net.named_parameters() if 'conv' in name]
@@ -532,10 +533,6 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, train_stocks_d
         acc_metric = None
 
     train_mae_metric = MeanAbsoluteError().to(device)
-    train_max_r2 = 0
-    train_max_r2_epoch = 0
-    eval_max_r2 = 0
-    eval_max_r2_epoch = 0
 
     #torch.set_printoptions(threshold=torch.inf)
 
@@ -547,7 +544,9 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, train_stocks_d
     if Parameters.save_runs_to_md:
         helper_functions.write_to_md(print_mssg,None)
 
-    net.apply(weights_init_he)
+    #don't init to fine tune
+    if Parameters.train and not Parameters.fine_tune:
+        net.apply(weights_init_he)
 
     criterion = Parameters.function_loss
 
@@ -556,6 +555,20 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, train_stocks_d
         gradScaler = torch.cuda.amp.GradScaler()
 
     optimizer, scheduler = instantiate_optimizer_and_scheduler(net, params, train_loader)
+
+    #initial load of the model
+    if Parameters.fine_tune:
+        helper_functions.load_checkpoint_model(net, device, stock_params, train_loader, "fine_tune")
+    else:
+        model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}_{stock_params.train_stock_tickers}_{stock_params.eval_stock_tickers}_{Parameters.model_uuid}.pth'
+        if len(stock_params.train_stocks) > 1 and os.path.exists(model_checkpoint_fname_with_dir):
+            helper_functions.load_checkpoint_model(net, device, stock_params, train_loader, "pre-train")
+
+        print(f"Loaded weight for 'conv2.weight': {net.state_dict()['conv2.weight'][0][0]}")
+
+            # print(f"Layer: {name}")
+            # print(f"First 5 weights: {param.data.view(-1)[:5]}")
+            # break  # Print only the first layer's weights
 
     bayesian_LR_warmup_loss_list = []
    
@@ -618,7 +631,7 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, train_stocks_d
 
             #non_blocking combined with dataloader pin_memory for simultaneous transfer&computation
             inputs, labels = data[0].to(device, non_blocking=True), data[1].to(device, non_blocking=True)
-
+            #print("labels",labels[0])
             if Parameters.nn_predict_price==False:
                 labels = labels.flatten().long()
 
@@ -756,15 +769,16 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, train_stocks_d
                 mlflow.log_metric("best_avg_cum_loss",best_avg_cum_loss,step=epoch)
         
         # loss<threshold: update checkpoint
-        #print(f"BEFORE Updating Checkpoint {epoch} loss {epoch_avg_cum_loss} prior best loss {best_checkpoint_cum_loss}")
+        print(f"BEFORE Updating Checkpoint {epoch} loss {epoch_avg_cum_loss} and best loss {best_avg_checkpoint_cum_loss}")
         if epoch_avg_cum_loss < best_avg_checkpoint_cum_loss or epoch==0:
             best_avg_checkpoint_cum_loss = epoch_avg_cum_loss
             best_avg_cum_loss_epoch = epoch
             best_avg_cum_loss = epoch_avg_cum_loss
 
-        if epoch==0:
-            best_checkpt_dict=helper_functions.update_best_checkpoint_dict(best_avg_cum_loss_epoch, eval_max_r2_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), epoch_avg_cum_loss)
-            helper_functions.save_checkpoint_model(best_checkpt_dict,best_avg_cum_loss_epoch, eval_max_r2_epoch, best_avg_cum_loss, epoch_avg_cum_loss, net, run_id, experiment_name, stock_params, epoch)
+        if epoch==0 and not helper_functions.check_if_checkpoint_exists(stock_params):
+            best_checkpt_dict=helper_functions.update_best_checkpoint_dict(best_avg_cum_loss_epoch, Parameters.eval_max_r2_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), epoch_avg_cum_loss)
+            if Parameters.save_checkpoint:
+                helper_functions.save_checkpoint_model(best_checkpt_dict,best_avg_cum_loss_epoch, Parameters.eval_max_r2_epoch, best_avg_cum_loss, epoch_avg_cum_loss, net, run_id, experiment_name, stock_params, epoch)
         
         #Eval
         #evaluation test image generation
@@ -792,22 +806,23 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, train_stocks_d
                                 train_stocks_dataset_df,
                                 feature_maps_cnn_list, feature_maps_fc_list, stack_input, epoch)
             
-            if eval_error_stats['eval_R2'] > eval_max_r2:
-                eval_max_r2 = eval_error_stats['eval_R2']
-                eval_max_r2_epoch = epoch
+            print(f"Compare {eval_error_stats['eval_R2']} and {Parameters.eval_max_r2}")
+            if eval_error_stats['eval_R2'] > Parameters.eval_max_r2:
+                Parameters.eval_max_r2 = eval_error_stats['eval_R2']
+                Parameters.eval_max_r2_epoch = epoch
                 if Parameters.enable_mlflow:
-                    mlflow.log_metric("max_eval_R2",eval_max_r2, epoch)
+                    mlflow.log_metric("max_eval_R2",Parameters.eval_max_r2, epoch)
                 
-                best_checkpt_dict=helper_functions.update_best_checkpoint_dict(best_avg_cum_loss_epoch, eval_max_r2_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), epoch_avg_cum_loss)
+                best_checkpt_dict=helper_functions.update_best_checkpoint_dict(best_avg_cum_loss_epoch, Parameters.eval_max_r2_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), epoch_avg_cum_loss)
                 
                 helper_functions.save_feature_maps(feature_maps_cnn_list, feature_maps_fc_list)
 
                 #print("NOW train",feature_maps_fc_list[0],"len",len(feature_maps_fc_list),"shape",feature_maps_fc_list[0].shape)
             
-            print(f"\033[32mMax Eval R^2 {eval_max_r2} at epoch {eval_max_r2_epoch}\033[0m")
+            print(f"\033[32mMax Eval R^2 {Parameters.eval_max_r2} at epoch {Parameters.eval_max_r2_epoch}\033[0m")
             
-            if (epoch+1) % Parameters.save_model_at_epoch_multiple == 0:
-                helper_functions.save_checkpoint_model(best_checkpt_dict,best_avg_cum_loss_epoch, eval_max_r2_epoch, best_avg_cum_loss, epoch_avg_cum_loss, net, run_id, experiment_name, stock_params, epoch)
+            if ((epoch+1) % Parameters.save_checkpoint_at_epoch_multiple == 0) and Parameters.save_checkpoint:
+                helper_functions.save_checkpoint_model(best_checkpt_dict,best_avg_cum_loss_epoch, Parameters.eval_max_r2_epoch, best_avg_cum_loss, epoch_avg_cum_loss, net, run_id, experiment_name, stock_params, epoch)
 
             #return train and grad enabled post eval
             net.train()
@@ -848,12 +863,12 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, train_stocks_d
                 
                 print(mssg)
                 helper_functions.write_scenario_to_log_file(mssg)
-                epoch_stats = summarize_epoch_statistics(net, epoch, epoch_avg_cum_loss, epoch_accuracy,epoch_r2, epoch_train_mae)
+                epoch_stats = summarize_epoch_statistics(net, epoch, epoch_avg_cum_loss, epoch_accuracy,epoch_r2, epoch_train_mae, curr_lr)
                 helper_functions.write_scenario_to_log_file(epoch_stats)
 
             #profiler.stop()
 
-            Train_tail_end(best_checkpt_dict, epoch_avg_cum_loss, epoch_train_mae, epoch, eval_max_r2_epoch, best_avg_cum_loss_epoch, best_avg_cum_loss, best_train_mae, best_train_mae_epoch, train_loader, start_time, run_id, experiment_name, net, stock_params)
+            Train_tail_end(best_checkpt_dict, epoch_avg_cum_loss, epoch_train_mae, epoch, Parameters.eval_max_r2_epoch, best_avg_cum_loss_epoch, best_avg_cum_loss, best_train_mae, best_train_mae_epoch, train_loader, start_time, run_id, experiment_name, net, stock_params)
 
             #return net, model_signature, stack_input
             return net, model_signature if 'model_signature' in locals() else None or None, stack_input, feature_maps_cnn_list, feature_maps_fc_list
@@ -891,13 +906,13 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, train_stocks_d
                         ReduceLROnPlateau_blocked = 0
                     print(f"[WARNING] LR reset to {Parameters.reduceLROnPlateau_reset_rate} due to hitting min loss at epoch {epoch}")
 
-        if train_max_r2 < epoch_r2:
-            train_max_r2 = epoch_r2
-            train_max_r2_epoch = epoch
+        if Parameters.train_max_r2 < epoch_r2:
+            Parameters.train_max_r2 = epoch_r2
+            Parameters.train_max_r2_epoch = epoch
             if Parameters.enable_mlflow:
-                    mlflow.log_metric("max_train_R2",train_max_r2, epoch)
+                    mlflow.log_metric("max_train_R2",Parameters.train_max_r2, epoch)
         
-        print(f"\033[32mMax Train R^2 {train_max_r2} at epoch {train_max_r2_epoch}\033[0m")
+        print(f"\033[32mMax Train R^2 {Parameters.train_max_r2} at epoch {Parameters.train_max_r2_epoch}\033[0m")
 
         if Parameters.scheduler_type == "BayesianLR" and Parameters.bayesian_warmup_epochs <= epoch and ((epoch + 1) % Parameters.bayes_find_lr_frequency_epochs == 0):
             #add observations to bayesian
@@ -929,7 +944,7 @@ def Train(params, train_loader, train_gaf_image_dataset_list_f32, train_stocks_d
     #end training without reaching loss_threshold
     #profiler.stop()
 
-    Train_tail_end(best_checkpt_dict ,epoch_avg_cum_loss, epoch_train_mae, epoch, eval_max_r2_epoch, best_avg_cum_loss_epoch, best_avg_cum_loss, best_train_mae, best_train_mae_epoch, train_loader, start_time, run_id, experiment_name, net, stock_params)
+    Train_tail_end(best_checkpt_dict ,epoch_avg_cum_loss, epoch_train_mae, epoch, Parameters.eval_max_r2_epoch, best_avg_cum_loss_epoch, best_avg_cum_loss, best_train_mae, best_train_mae_epoch, train_loader, start_time, run_id, experiment_name, net, stock_params)
     
     torch.set_printoptions()
 

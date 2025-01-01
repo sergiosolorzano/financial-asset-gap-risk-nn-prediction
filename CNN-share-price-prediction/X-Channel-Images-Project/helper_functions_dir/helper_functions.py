@@ -67,16 +67,30 @@ def Save_BayesOpt_Model(scenario, net):
 def Save_Model_Arch(net, run_id, input_shape, input_type, mode, experiment_name):
     summ = str(summary(net, input_size = input_shape, dtypes=input_type, mode=mode))
 
-    os.makedirs(Parameters.model_arch_dir, exist_ok=True)
-    model_arch_fname_with_dir = f"{Parameters.model_arch_dir}/{Parameters.model_arch_fname}.txt"
+    model_arch_dir= None
+    if Parameters.train and not Parameters.fine_tune:
+        model_arch_dir = Parameters.model_arch_dir
+
+    if Parameters.fine_tune:
+        model_arch_dir = Parameters.model_arch_ft_dir
+
+    os.makedirs(model_arch_dir, exist_ok=True)
+    
+    model_arch_fname=None
+    if Parameters.train and not Parameters.fine_tune:
+        model_arch_fname = Parameters.model_arch_fname
+
+    if Parameters.fine_tune:
+        model_arch_fname = Parameters.model_arch_ft_fname
+
+    model_arch_fname_with_dir = f"{model_arch_dir}/{model_arch_fname}.txt"
     
     #save_txt_to_blob(summ, os.path.basename(model_arch_fname), run_id, experiment_name)
     with open("./" + model_arch_fname_with_dir, "w", encoding="utf-8") as f:
         f.write(summ)
     
     if Parameters.enable_mlflow:
-        mlflow.log_artifact(local_path="./" + model_arch_fname_with_dir, run_id=run_id, artifact_path=Parameters.model_arch_dir)
-
+        mlflow.log_artifact(local_path="./" + model_arch_fname_with_dir, run_id=run_id, artifact_path=model_arch_dir)
 
 def update_best_checkpoint_dict(best_cum_loss_epoch, eval_max_r2_epoch, run_id, net_state_dict, opti_state_dict, epoch_loss):
     #print("Update checkpoint_dict epoch", best_cum_loss_epoch, "epoch loss", epoch_loss.item())
@@ -88,61 +102,118 @@ def update_best_checkpoint_dict(best_cum_loss_epoch, eval_max_r2_epoch, run_id, 
             'optimizer_state_dict': copy.deepcopy(opti_state_dict),
             'loss': epoch_loss,
             }
-    print(f"Updated at best r^2 eval epoch {eval_max_r2_epoch} but best cum loss is at epoch {best_cum_loss_epoch}")# checkpt {best_checkpt_dict['model_state_dict']['conv2.weight'][0][0]}")
+    print(f"Updated best checkpoint at best r^2 eval epoch {eval_max_r2_epoch} but best cum loss is at epoch {best_cum_loss_epoch}")# checkpt {best_checkpt_dict['model_state_dict']['conv2.weight'][0][0]}")
     
     return best_checkpt_dict
 
-def save_checkpoint_model(best_checkpoint_dict, best_cum_loss_epoch, eval_max_r2_epoch, best_cum_loss, curr_epoch_cum_loss, net, run_id, experiment_name, stock_params, epoch):
+def check_if_checkpoint_exists(stock_params):
     train_stocks = stock_params.train_stock_tickers
     eval_stocks = stock_params.eval_stock_tickers
-    model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}_{train_stocks}_{eval_stocks}_{Parameters.model_uuid}.pth'
-    # if Parameters.checkpt_dict['optimizer_state_dict'] == None:
-    #     #print("***Updating checkpoint dict cos it's NONE", Parameters.checkpt_dict['optimizer_state_dict'])
-    #     update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), curr_epoch_cum_loss)
-    #print("SAVING:Parameters.checkpt_dict",Parameters.checkpt_dict['model_state_dict']['conv2.weight'])
-    print("Saving model best eval R^2",eval_max_r2_epoch, " though best cum loss is", best_cum_loss.item(), "at Epoch ", best_cum_loss_epoch, "name",model_checkpoint_fname_with_dir)#, "best_checkpoint_dict",best_checkpoint_dict['model_state_dict']['conv2.weight'][0][0])
-    torch.save(best_checkpoint_dict, "./" + model_checkpoint_fname_with_dir)
-    
-    if Parameters.enable_mlflow:
-        #blob_with_dirs = "models" + "/" + f'{Parameters.model_checkpoint_fname}.pth'
-        blob_with_dirs = Path("models", f'{Parameters.model_checkpoint_fname}.pth')
-        if Parameters.enable_save_model:
-            mlflow.log_artifact(local_path="./" + model_checkpoint_fname_with_dir, run_id=run_id, artifact_path=Parameters.checkpoint_dir)
-        mlflow.set_tag(f"best_checkpoint_epoch", best_cum_loss_epoch)
-        #save_file_to_blob(PATH,os.path.basename(PATH), run_id, experiment_name)
+
+    if Parameters.train and not Parameters.fine_tune:
+        model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}_{train_stocks}_{eval_stocks}_{Parameters.model_uuid}.pth'
+
+    if Parameters.fine_tune:
+        #model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_ft_dir}/{Parameters.model_checkpoint_ft_fname}_{train_stocks}_{eval_stocks}_{Parameters.model_uuid}.pth'
+        model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_ft_dir}/{Parameters.model_checkpoint_ft_fname}_{Parameters.model_uuid}.pth'
+
+    if os.path.exists("./" + model_checkpoint_fname_with_dir):
+        return True
+    else:
+        return False
+
+def save_checkpoint_model(best_checkpoint_dict, best_cum_loss_epoch, eval_max_r2_epoch, best_cum_loss, curr_epoch_cum_loss, net, run_id, experiment_name, stock_params, epoch):
+    if best_checkpoint_dict['model_state_dict'] is not None:
+        train_stocks = stock_params.train_stock_tickers
+        eval_stocks = stock_params.eval_stock_tickers
+        
+        if Parameters.train and not Parameters.fine_tune:
+            model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}_{train_stocks}_{eval_stocks}_{Parameters.model_uuid}.pth'
+
+        if Parameters.fine_tune:
+            #model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_ft_dir}/{Parameters.model_checkpoint_ft_fname}_{train_stocks}_{eval_stocks}_{Parameters.model_uuid}.pth'
+            model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_ft_dir}/{Parameters.model_checkpoint_ft_fname}_{Parameters.model_uuid}.pth'
+
+        # if Parameters.checkpt_dict['optimizer_state_dict'] == None:
+        #     #print("***Updating checkpoint dict cos it's NONE", Parameters.checkpt_dict['optimizer_state_dict'])
+        #     update_best_checkpoint_dict(best_cum_loss_epoch, run_id, net.state_dict(), Parameters.optimizer.state_dict(), curr_epoch_cum_loss)
+        #print("SAVING:Parameters.checkpt_dict",Parameters.checkpt_dict['model_state_dict']['conv2.weight'])
+        print("Saving model best eval R^2 at epoch", eval_max_r2_epoch, " though best cum loss is", best_cum_loss.item(), "at Epoch ", best_cum_loss_epoch, "name",model_checkpoint_fname_with_dir, "best_checkpoint_dict",best_checkpoint_dict['model_state_dict']['conv2.weight'][0][0])
+        torch.save(best_checkpoint_dict, "./" + model_checkpoint_fname_with_dir)
+        
+        if Parameters.enable_mlflow:
+            #blob_with_dirs = "models" + "/" + f'{Parameters.model_checkpoint_fname}.pth'
+            if Parameters.train and not Parameters.fine_tune:
+                blob_with_dirs = Path("models", f'{Parameters.model_checkpoint_fname}.pth')
+            if Parameters.fine_tune:
+                blob_with_dirs = Path("models", f'{Parameters.model_checkpoint_ft_fname}.pth')
+
+            if Parameters.enable_save_model:
+                if Parameters.train and not Parameters.fine_tune:
+                    mlflow.log_artifact(local_path="./" + model_checkpoint_fname_with_dir, run_id=run_id, artifact_path=Parameters.checkpoint_dir)
+                
+                if Parameters.fine_tune:
+                    mlflow.log_artifact(local_path="./" + model_checkpoint_fname_with_dir, run_id=run_id, artifact_path=Parameters.checkpoint_ft_dir)
+
+            mlflow.set_tag(f"best_checkpoint_epoch", best_cum_loss_epoch)
+            #save_file_to_blob(PATH,os.path.basename(PATH), run_id, experiment_name)
+    else:
+        print(f"\033[32mCannot Save the Checkpoint cos it's None\033[0m")
+
 
 def save_full_model(run_id, net, model_signature, experiment_name, stock_params):
     train_stocks = stock_params.train_stock_tickers
     eval_stocks = stock_params.eval_stock_tickers
-    PATH = f'./{Parameters.full_model_dir}/{Parameters.model_full_fname}_{train_stocks}_{eval_stocks}.pth'
+    
+    if Parameters.train and not Parameters.fine_tune:
+        PATH = f'./{Parameters.full_model_dir}/{Parameters.model_full_fname}_{train_stocks}_{eval_stocks}.pth'
+
+    if Parameters.fine_tune:
+        #PATH = f'./{Parameters.full_model_ft_dir}/{Parameters.model_full_ft_fname}_{train_stocks}_{eval_stocks}.pth'
+        PATH = f'./{Parameters.full_model_ft_dir}/{Parameters.model_full_ft_fname}.pth'
+
+    os.makedirs(os.path.dirname(PATH), exist_ok=True)
     torch.save(net, PATH)
     pip_requirements = ['torch==2.3.0+cu121','torchvision==0.18.0+cu121']
     
     if Parameters.enable_mlflow:
+        artifact_path = Parameters.full_model_ft_dir if Parameters.fine_tune else Parameters.full_model_dir
+        
         #blob_with_dirs = "models" + "/" + f'{Parameters.model_full_fname}.pth'
         mlflow.pytorch.log_model(
         pytorch_model=net,
-        artifact_path=Parameters.full_model_dir,
+        artifact_path=artifact_path,
         pip_requirements=pip_requirements,
         signature=model_signature)
         #mlflow.pytorch.log_model(net, blob_with_dirs,pip_requirements=pip_requirements, signature=model_signature)
 
-def load_checkpoint_model(net, device, stock_params, train_loader):
+def load_checkpoint_model(net, device, stock_params, train_loader, model_type):
     train_stocks = stock_params.train_stock_tickers
     eval_stocks = stock_params.eval_stock_tickers
     #instantiate optimizer used to train the model (ensure opt is correct in params)
     neural_network.instantiate_optimizer_and_scheduler(net, Parameters, train_loader)
 
     #load checkpoint
-    model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}_{train_stocks}_{eval_stocks}_{Parameters.model_uuid}.pth'
-    #print(f"Loading model {model_checkpoint_fname_with_dir}")
+    model_checkpoint_fname_with_dir = None
+    if model_type=="pre-train":
+        model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_dir}/{Parameters.model_checkpoint_fname}_{train_stocks}_{eval_stocks}_{Parameters.model_uuid}.pth'
+
+    if model_type=="fine_tune":
+        model_checkpoint_fname_with_dir = f'{Parameters.checkpoint_ft_dir}/{Parameters.model_checkpoint_ft_fname}_{Parameters.model_uuid}.pth'
+
+    print(f"Loading model {model_checkpoint_fname_with_dir}")
     checkpoint = torch.load(model_checkpoint_fname_with_dir, map_location=device)
     #load state dict and optimizer
-    net.load_state_dict(checkpoint['model_state_dict'])
+    net.load_state_dict(checkpoint['model_state_dict'], strict=Parameters.load_state_dict_strict_used)
     
     #load weights
-    Parameters.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-    print(f"Loaded Model checkpt {checkpoint['model_state_dict']['conv2.weight'][0][0]}")
+    try:
+        Parameters.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        print(f"Loaded Optimizer checkpt to Optimizer {checkpoint['model_state_dict']['conv2.weight'][0][0]}")
+    except ValueError as e:
+        print(f"Optimizer state mismatch: {e}. Reinitializing optimizer.")
+        # print("Checkpoint parameter groups:", checkpoint['optimizer_state_dict']['param_groups'])
+        # print("Current optimizer parameter groups:", Parameters.optimizer.state_dict()['param_groups'])
 
     #if further training required
     epoch = checkpoint['epoch']
@@ -154,11 +225,23 @@ def load_checkpoint_model(net, device, stock_params, train_loader):
 
 def save_feature_maps(feature_maps_cnn_list, feature_maps_fc_list):
     cnn_arrays = [tensor.cpu().numpy() for tensor in feature_maps_cnn_list]
-    np.savez(f"{Parameters.checkpoint_dir}/feature_maps_cnn_{Parameters.train_tickers}_{Parameters.eval_tickers}.npz", *cnn_arrays)
+    
+    if Parameters.train and not Parameters.fine_tune:
+        np.savez(f"{Parameters.checkpoint_dir}/feature_maps_cnn_{Parameters.train_tickers}_{Parameters.eval_tickers}.npz", *cnn_arrays)
+
+    if Parameters.fine_tune:
+        #np.savez(f"{Parameters.checkpoint_ft_dir}/feature_maps_cnn_{Parameters.train_tickers}_{Parameters.eval_tickers}.npz", *cnn_arrays)
+        np.savez(f"{Parameters.checkpoint_ft_dir}/feature_maps_cnn.npz", *cnn_arrays)
 
     # Save feature_maps_fc_list to a file
     fc_arrays = [tensor.cpu().numpy() for tensor in feature_maps_fc_list]
-    np.savez(f"{Parameters.checkpoint_dir}/feature_maps_fc_{Parameters.train_tickers}_{Parameters.eval_tickers}.npz", *fc_arrays)
+    
+    if Parameters.train and not Parameters.fine_tune:
+        np.savez(f"{Parameters.checkpoint_dir}/feature_maps_fc_{Parameters.train_tickers}_{Parameters.eval_tickers}.npz", *fc_arrays)
+    
+    if Parameters.fine_tune:
+        #np.savez(f"{Parameters.checkpoint_ft_dir}/feature_maps_fc_{Parameters.train_tickers}_{Parameters.eval_tickers}.npz", *fc_arrays)
+        np.savez(f"{Parameters.checkpoint_ft_dir}/feature_maps_fc.npz", *fc_arrays)
 
 # def Load_State_Model(net, PATH):
 #     print("Loading State Model")

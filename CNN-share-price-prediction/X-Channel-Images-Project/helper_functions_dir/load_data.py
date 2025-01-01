@@ -177,6 +177,8 @@ def Generate_Loaders(feature_image_dataset_list_f32,labels_scaled_list_f32, test
 
 def import_dataset(stocks, run, experiment_name):
 
+    print("GHERE",stocks)
+
     df_list = []
     stock_tickers = ",".join([s['ticker'] for s in stocks])
     data_close = {}
@@ -201,26 +203,11 @@ def import_dataset(stocks, run, experiment_name):
             dataset_df = dataset_df[desired_order]
         else:
             print("Column 'Date' is missing.")
-
-        df_list.append(dataset_df)
-        data_close[s['ticker']] = dataset_df['Close']
-
-        concat_start_index.append(len(dataset_df)+1)
-        #print("start index",concat_start_index)
-        
-    concatenated_df = pd.concat(df_list, axis=0, ignore_index=True)
-
-    start_indices_cumulative = [sum(concat_start_index[:i+1]) for i in range(len(concat_start_index))]
-    #print("Origin - Cum Start Index",start_indices_cumulative)
-    #remove last index
-    start_indices_cumulative.pop()
-    
-    #set index back to Date for operations
-    concatenated_df = concatenated_df.set_index('Date')
+            
     if Parameters.enable_mlflow:
             blob_name = f"{Parameters.input_price_data_blob_fname}.csv"
-            full_blob_uri = helper_functions.save_df_to_blob(concatenated_df, blob_name, run.info.run_id, experiment_name)
+            full_blob_uri = helper_functions.save_df_to_blob(dataset_df, blob_name, run.info.run_id, experiment_name)
             tags = {'source': 'yahoo'}
             helper_functions.mlflow_log_dataset(dataset_df, full_blob_uri, stock_tickers, "input_price", "train_test", run, tags)
-        
-    return concatenated_df, start_indices_cumulative, stock_tickers
+    #print("DATASET",dataset_df)
+    return dataset_df, [], stock_tickers
